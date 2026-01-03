@@ -29,6 +29,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const [gestureCurrent, setGestureCurrent] = useState<number | null>(null);
   const [isSliding, setIsSliding] = useState(false);
   const [dragAction, setDragAction] = useState<'add' | 'remove' | null>(null);
+  const [hasMoved, setHasMoved] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
 
   // Stats calculation
@@ -129,23 +130,22 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   };
 
   const handleStart = (num: number) => {
-    if (isVoting) {
-      const action = pendingNom?.voters.includes(num.toString()) ? 'remove' : 'add';
-      setDragAction(action);
-      setGestureStart(num);
-      setGestureCurrent(num);
-      onVoterToggle(num.toString(), action);
-      return;
-    }
     setGestureStart(num);
     setGestureCurrent(num);
     setIsSliding(false);
+    setHasMoved(false);
+    if (isVoting) {
+      const action = pendingNom?.voters.includes(num.toString()) ? 'remove' : 'add';
+      setDragAction(action);
+    }
   };
 
   const handleMove = (clientX: number, clientY: number) => {
     if (gestureStart === null) return;
     const current = getPlayerAtPos(clientX, clientY);
     if (!current) return;
+
+    setHasMoved(true);
 
     if (isVoting) {
       if (current !== gestureCurrent) {
@@ -163,7 +163,11 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const handleEnd = () => {
     if (gestureStart !== null) {
       if (isVoting) {
-        // Just clear dragging
+        // For voting, if it was a tap (no move), toggle the voter
+        if (!hasMoved) {
+          onVoterToggle(gestureStart.toString());
+        }
+        // For slides, the toggles are already handled in handleMove
       } else if (!isSliding) {
         onPlayerClick(gestureStart);
       } else if (gestureCurrent !== null && gestureStart !== gestureCurrent) {
@@ -174,6 +178,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     setGestureCurrent(null);
     setIsSliding(false);
     setDragAction(null);
+    setHasMoved(false);
   };
 
   return (
