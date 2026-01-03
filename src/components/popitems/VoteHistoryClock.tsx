@@ -128,7 +128,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     return (index % playerCount) + 1;
   };
 
-  const handleMouseDown = (num: number) => {
+  const handleStart = (num: number) => {
     if (isVoting) {
       const action = pendingNom?.voters.includes(num.toString()) ? 'remove' : 'add';
       setDragAction(action);
@@ -142,9 +142,9 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     setIsSliding(false);
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handleMove = (clientX: number, clientY: number) => {
     if (gestureStart === null) return;
-    const current = getPlayerAtPos(e.clientX, e.clientY);
+    const current = getPlayerAtPos(clientX, clientY);
     if (!current) return;
 
     if (isVoting) {
@@ -160,7 +160,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     }
   };
 
-  const handleMouseUp = () => {
+  const handleEnd = () => {
     if (gestureStart !== null) {
       if (isVoting) {
         // Just clear dragging
@@ -182,9 +182,14 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         ref={svgRef}
         viewBox="0 0 288 288" 
         className="w-80 h-80 touch-none select-none"
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onMouseMove={(e) => handleMove(e.clientX, e.clientY)}
+        onMouseUp={handleEnd}
+        onMouseLeave={handleEnd}
+        onTouchMove={(e) => {
+          const touch = e.touches[0];
+          handleMove(touch.clientX, touch.clientY);
+        }}
+        onTouchEnd={handleEnd}
       >
         {playersList.map((num, i) => {
           const numStr = num.toString();
@@ -217,7 +222,11 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           return (
             <g 
               key={num} 
-              onMouseDown={() => handleMouseDown(num)}
+              onMouseDown={() => handleStart(num)}
+              onTouchStart={(e) => {
+                e.preventDefault();
+                handleStart(num);
+              }}
               className="cursor-pointer"
             >
               <path d={path} fill={fill} stroke={stroke} strokeWidth="1" className="transition-colors duration-150" />
