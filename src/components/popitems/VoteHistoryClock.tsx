@@ -29,7 +29,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const [gestureCurrent, setGestureCurrent] = useState<number | null>(null);
   const [isSliding, setIsSliding] = useState(false);
   const [dragAction, setDragAction] = useState<'add' | 'remove' | null>(null);
-  const [hasMoved, setHasMoved] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
 
   // Stats calculation
@@ -129,23 +128,24 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     return (index % playerCount) + 1;
   };
 
-  const handleStart = (num: number) => {
-    setGestureStart(num);
-    setGestureCurrent(num);
-    setIsSliding(false);
-    setHasMoved(false);
+  const handleMouseDown = (num: number) => {
     if (isVoting) {
       const action = pendingNom?.voters.includes(num.toString()) ? 'remove' : 'add';
       setDragAction(action);
+      setGestureStart(num);
+      setGestureCurrent(num);
+      onVoterToggle(num.toString(), action);
+      return;
     }
+    setGestureStart(num);
+    setGestureCurrent(num);
+    setIsSliding(false);
   };
 
-  const handleMove = (clientX: number, clientY: number) => {
+  const handleMouseMove = (e: React.MouseEvent) => {
     if (gestureStart === null) return;
-    const current = getPlayerAtPos(clientX, clientY);
+    const current = getPlayerAtPos(e.clientX, e.clientY);
     if (!current) return;
-
-    setHasMoved(true);
 
     if (isVoting) {
       if (current !== gestureCurrent) {
@@ -160,14 +160,10 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     }
   };
 
-  const handleEnd = () => {
+  const handleMouseUp = () => {
     if (gestureStart !== null) {
       if (isVoting) {
-        // For voting, if it was a tap (no move), toggle the voter
-        if (!hasMoved) {
-          onVoterToggle(gestureStart.toString());
-        }
-        // For slides, the toggles are already handled in handleMove
+        // Just clear dragging
       } else if (!isSliding) {
         onPlayerClick(gestureStart);
       } else if (gestureCurrent !== null && gestureStart !== gestureCurrent) {
@@ -178,7 +174,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     setGestureCurrent(null);
     setIsSliding(false);
     setDragAction(null);
-    setHasMoved(false);
   };
 
   return (
@@ -187,14 +182,9 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         ref={svgRef}
         viewBox="0 0 288 288" 
         className="w-80 h-80 touch-none select-none"
-        onMouseMove={(e) => handleMove(e.clientX, e.clientY)}
-        onMouseUp={handleEnd}
-        onMouseLeave={handleEnd}
-        onTouchMove={(e) => {
-          const touch = e.touches[0];
-          handleMove(touch.clientX, touch.clientY);
-        }}
-        onTouchEnd={handleEnd}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
       >
         {playersList.map((num, i) => {
           const numStr = num.toString();
@@ -227,11 +217,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           return (
             <g 
               key={num} 
-              onMouseDown={() => handleStart(num)}
-              onTouchStart={(e) => {
-                e.preventDefault();
-                handleStart(num);
-              }}
+              onMouseDown={() => handleMouseDown(num)}
               className="cursor-pointer"
             >
               <path d={path} fill={fill} stroke={stroke} strokeWidth="1" className="transition-colors duration-150" />
