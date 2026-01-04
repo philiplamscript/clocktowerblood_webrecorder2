@@ -129,6 +129,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   };
 
   const moveGesture = (clientX: number, clientY: number) => {
+    if (isVoting) return; // Disable sliding during voting mode
     if (gestureStart === null) return;
     const current = getPlayerAtPos(clientX, clientY);
     if (!current || current === gestureCurrent) return;
