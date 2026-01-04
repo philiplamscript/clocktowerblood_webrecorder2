@@ -120,10 +120,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const startGesture = (num: number, e: React.MouseEvent | React.TouchEvent) => {
     if (isVoting) {
       const action = pendingNom?.voters.includes(num.toString()) ? 'remove' : 'add';
-      setDragAction(action);
-      setGestureStart(num);
-      setGestureCurrent(num);
-      setIsSliding(false);
       onVoterToggle(num.toString(), action);
     } else {
       setGestureStart(num);
