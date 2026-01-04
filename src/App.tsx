@@ -78,7 +78,7 @@ export default function App() {
   const [roleDist, setRoleDist] = useState<RoleDist>(() => getStorage('dist', { townsfolk: 0, outsiders: 0, minions: 0, demons: 1 }));
   const [note, setNote] = useState(() => getStorage('note', ''));
   const [fontSize, setFontSize] = useState<'small' | 'mid' | 'large'>(() => getStorage('font', 'mid'));
-  const [hideRibbon, setHideRibbon] = useState(() => getStorage('hideRibbon', false));
+  const [showHub, setShowHub] = useState(() => getStorage('showHub', true));
   
   const [showReset, setShowReset] = useState(false);
   const [fabOpen, setFabOpen] = useState(false);
@@ -104,8 +104,8 @@ export default function App() {
     localStorage.setItem('clocktower_dist', JSON.stringify(roleDist));
     localStorage.setItem('clocktower_note', JSON.stringify(note));
     localStorage.setItem('clocktower_font', JSON.stringify(fontSize));
-    localStorage.setItem('clocktower_hideRibbon', JSON.stringify(hideRibbon));
-  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, hideRibbon]);
+    localStorage.setItem('clocktower_showHub', JSON.stringify(showHub));
+  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, showHub]);
 
   // Reload Warning
   useEffect(() => {
@@ -284,20 +284,21 @@ export default function App() {
       
       <header className="flex-none bg-slate-900 text-white px-3 py-2 flex justify-between items-center shadow-md z-50">
         <div className="flex items-center gap-1.5"><ShieldAlert className="text-red-500" size={14} /><h1 className="font-black text-xs uppercase italic tracking-tighter">LEDGER PRO v3.7</h1></div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <button 
-            onClick={() => setHideRibbon(!hideRibbon)}
-            className="text-slate-500 hover:text-white transition-colors p-1"
+            onClick={() => setShowHub(!showHub)} 
+            className={`p-1 rounded transition-colors ${showHub ? 'text-blue-400 hover:bg-slate-800' : 'text-slate-500 hover:bg-slate-800'}`}
+            title={showHub ? "Hide Hub" : "Show Hub"}
           >
-            {hideRibbon ? <Eye size={14} /> : <EyeOff size={14} />}
+            {showHub ? <Eye size={14} /> : <EyeOff size={14} />}
           </button>
           <div className="text-[8px] font-black text-slate-500 uppercase tracking-widest">v3.7.2</div>
         </div>
       </header>
 
       {/* Wrapping Player Hub */}
-      {!hideRibbon && (
-        <div className="flex-none bg-slate-800 border-b border-slate-700 p-2 shadow-inner transition-all animate-in slide-in-from-top duration-200">
+      {showHub && (
+        <div className="flex-none bg-slate-800 border-b border-slate-700 p-2 shadow-inner animate-in slide-in-from-top-4 duration-200">
           <div className="flex flex-wrap items-center gap-1.5 max-w-4xl mx-auto">
             {/* Narrowed Day Controls */}
             <div className="flex items-center bg-slate-900 rounded-lg h-7 overflow-hidden border border-slate-700 shadow-lg mr-1 w-[58px]">
@@ -316,17 +317,15 @@ export default function App() {
                 >
                   DEATH
                 </button>
-                <div className="flex items-center h-full">
+                <select 
+                  value={selectedReason} 
+                  onChange={(e) => setSelectedReason(e.target.value)} 
+                  className="bg-slate-800 text-white text-[10px] border-none focus:ring-0 h-full px-1"
+                >
                   {REASON_CYCLE.map(reason => (
-                    <button 
-                      key={reason} 
-                      onClick={() => setSelectedReason(reason)}
-                      className={`px-2 h-full text-xs transition-colors ${selectedReason === reason ? 'bg-red-500 text-white' : 'text-slate-400 hover:bg-slate-700'}`}
-                    >
-                      {reason}
-                    </button>
+                    <option key={reason} value={reason}>{reason}</option>
                   ))}
-                </div>
+                </select>
               </div>
 
               {/* Property Assignment */}
