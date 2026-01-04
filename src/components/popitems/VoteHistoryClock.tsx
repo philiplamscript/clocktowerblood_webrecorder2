@@ -29,6 +29,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const [gestureCurrent, setGestureCurrent] = useState<number | null>(null);
   const [isSliding, setIsSliding] = useState(false);
   const [dragAction, setDragAction] = useState<'add' | 'remove' | null>(null);
+  const [hasMoved, setHasMoved] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
 
   // Stats calculation
@@ -176,6 +177,34 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     setDragAction(null);
   };
 
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setHasMoved(true);
+    if (gestureStart === null) return;
+    const touch = e.touches[0];
+    const current = getPlayerAtPos(touch.clientX, touch.clientY);
+    if (!current) return;
+
+    if (isVoting) {
+      if (current !== gestureCurrent) {
+        setGestureCurrent(current);
+        onVoterToggle(current.toString(), dragAction!);
+      }
+    } else {
+      if (current !== gestureCurrent) {
+        setGestureCurrent(current);
+        setIsSliding(true);
+      }
+    }
+  };
+
+  const handleTouchEnd = (num: number) => {
+    if (!hasMoved) {
+      onPlayerClick(num);
+    }
+    handleMouseUp();
+    setHasMoved(false);
+  };
+
   return (
     <div className="w-full flex flex-col items-center">
       <svg 
@@ -185,6 +214,8 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={() => handleMouseUp()}
       >
         {playersList.map((num, i) => {
           const numStr = num.toString();
@@ -218,6 +249,8 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
             <g 
               key={num} 
               onMouseDown={() => handleMouseDown(num)}
+              onTouchStart={() => handleMouseDown(num)}
+              onTouchEnd={() => handleTouchEnd(num)}
               className="cursor-pointer"
             >
               <path d={path} fill={fill} stroke={stroke} strokeWidth="1" className="transition-colors duration-150" />
