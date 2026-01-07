@@ -121,7 +121,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
   };
 
   const cycleDeathReason = () => {
-    const currentReason = death?.reason || '🌑';
+    const currentReason = death?.reason || '⚔️';
     const currentIndex = REASON_CYCLE.indexOf(currentReason);
     const nextIndex = (currentIndex + 1) % REASON_CYCLE.length;
     updateDeathReason(playerNo, REASON_CYCLE[nextIndex]);
@@ -225,7 +225,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
                     onClick={cycleDeathReason}
                     className="flex-[2] h-full bg-white border rounded-lg text-center text-[12px] font-black hover:bg-slate-50 transition-colors"
                   >
-                    {death?.reason || '🌑'}
+                    {death?.reason || '⚔️'}
                   </button>
                 </div>
               ) : (
