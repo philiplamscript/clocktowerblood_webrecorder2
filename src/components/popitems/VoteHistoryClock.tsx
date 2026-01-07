@@ -54,10 +54,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         if (!votedAtDay[n.t]) votedAtDay[n.t] = new Set();
         votedAtDay[n.t].add(day);
       }
-      if (n.f === playerStr) {
-        if (!votedAtDay[playerStr]) votedAtDay[playerStr] = new Set();
-        votedAtDay[playerStr].add(day);
-      }
     } else {
       if (n.t === playerStr) {
         n.voters.split(',').forEach((v: string) => {
@@ -66,8 +62,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
             votedAtDay[v].add(day);
           }
         });
-        if (!votedAtDay[playerStr]) votedAtDay[playerStr] = new Set();
-        votedAtDay[playerStr].add(day);
       }
     }
 
@@ -129,10 +123,10 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
       const y2 = pos.y + arcRadius * Math.sin(arcEndAngle);
 
       return (
-        <g key={`self-${from}-${day}`}>
-          <line x1={pos.x} y1={pos.y} x2={innerX} y2={innerY} stroke={color} strokeWidth={width} strokeLinecap="round" opacity="0.6" />
-          <path d={`M ${x1} ${y1} A ${arcRadius} ${arcRadius} 0 1 1 ${x2} ${y2}`} fill="none" stroke={color} strokeWidth={width} strokeLinecap="round" opacity="0.6" />
-          <polygon points={`${innerX},${innerY} ${innerX+3},${innerY+3} ${innerX-3},${innerY+3}`} fill={color} opacity="0.6" transform={`rotate(${angle+90}, ${innerX}, ${innerY})`} />
+        <g key={`self-${from}-${day}`} opacity="0.6">
+          <line x1={pos.x} y1={pos.y} x2={innerX} y2={innerY} stroke={color} strokeWidth={width} strokeLinecap="round" />
+          <path d={`M ${x1} ${y1} A ${arcRadius} ${arcRadius} 0 1 1 ${x2} ${y2}`} fill="none" stroke={color} strokeWidth={width} strokeLinecap="round" />
+          <polygon points={`${innerX},${innerY} ${innerX+3},${innerY+3} ${innerX-3},${innerY+3}`} fill={color} transform={`rotate(${angle+90}, ${innerX}, ${innerY})`} />
         </g>
       );
     }
@@ -155,9 +149,9 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     const rightY = headY - headLength * Math.sin(angle + Math.PI / 6);
 
     return (
-      <g key={`${from}-${to}-${day}-${type}`}>
-        <line x1={fromPos.x} y1={fromPos.y} x2={headX} y2={headY} stroke={color} strokeWidth={width} strokeLinecap="round" opacity="0.6" />
-        <polygon points={`${headX},${headY} ${leftX},${leftY} ${rightX},${rightY}`} fill={color} opacity="0.6" />
+      <g key={`${from}-${to}-${day}-${type}`} opacity="0.6">
+        <line x1={fromPos.x} y1={fromPos.y} x2={headX} y2={headY} stroke={color} strokeWidth={width} strokeLinecap="round" />
+        <polygon points={`${headX},${headY} ${leftX},${leftY} ${rightX},${rightY}`} fill={color} />
       </g>
     );
   };
