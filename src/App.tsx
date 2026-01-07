@@ -51,7 +51,7 @@ export default function App() {
   const [roleDist, setRoleDist] = useState<RoleDist>(() => getStorage('dist', { townsfolk: 0, outsiders: 0, minions: 0, demons: 1 }));
   const [note, setNote] = useState(() => getStorage('note', ''));
   const [fontSize, setFontSize] = useState<'small' | 'mid' | 'large'>(() => getStorage('font', 'mid'));
-  const [showHub, setShowHub] = useState(() => getStorage('showHub', true));
+  const [showHub, setShowHub] = useState(() => getStorage('showHub', false));
   const [splitView, setSplitView] = useState(() => getStorage('splitView', false));
   
   const [showReset, setShowReset] = useState(false);
