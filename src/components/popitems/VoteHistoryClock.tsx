@@ -215,7 +215,14 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         onMouseLeave={handleMouseUp}
         onTouchMove={handleTouchMove}
         onTouchEnd={() => {
-            if (!hasMoved && gestureStart !== null) onPlayerClick(gestureStart);
+            if (!hasMoved && gestureStart !== null) {
+              // On touch, if not moved, handle as click/toggle
+              if (isVoting) {
+                 // handleMouseDown already triggered it onTouchStart
+              } else {
+                 onPlayerClick(gestureStart);
+              }
+            }
             handleMouseUp();
             setHasMoved(false);
         }}
@@ -233,6 +240,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           const isCurrentViewPlayer = num === playerNo;
           const isDead = deadPlayers.includes(num);
           const activeDays = votedAtDay[numStr] || new Set();
+          const isVoter = isVoting && pendingNom?.voters.includes(numStr);
 
           return (
             <g 
@@ -243,7 +251,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
             >
               <path 
                 d={getSlicePath(i, playerCount, innerRadius, outerRadius)} 
-                fill={isCurrentViewPlayer ? 'url(#playerSpotlight)' : isDead ? '#f8fafc' : '#ffffff'} 
+                fill={isVoter ? '#ef4444' : isCurrentViewPlayer ? 'url(#playerSpotlight)' : isDead ? '#f8fafc' : '#ffffff'} 
                 stroke={isCurrentViewPlayer ? '#eab308' : '#f1f5f9'} 
                 strokeWidth={isCurrentViewPlayer ? "2" : "0.5"} 
                 className="transition-colors duration-150" 
@@ -272,7 +280,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
                 y={getPosition(num, (innerRadius + outerRadius) / 2).y} 
                 textAnchor="middle" 
                 alignmentBaseline="middle" 
-                className={`text-[11px] font-black pointer-events-none ${isCurrentViewPlayer ? 'fill-slate-900' : 'fill-slate-400 opacity-40'}`}
+                className={`text-[11px] font-black pointer-events-none ${isVoter ? 'fill-white' : isCurrentViewPlayer ? 'fill-slate-900' : 'fill-slate-400 opacity-40'}`}
               >
                 {num}
               </text>
