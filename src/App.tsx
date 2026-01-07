@@ -7,7 +7,8 @@ import {
   Minus,
   Eye,
   EyeOff,
-  BookOpen
+  BookOpen,
+  Split
 } from 'lucide-react';
 
 
@@ -24,6 +25,7 @@ import {
 
 
 import PlayerDetailView from './components/PlayerDetailView';
+import GlobalVotingView from './components/GlobalVotingView';
 import LedgerTabsPopup from './components/popitems/popups/LedgerTabsPopup';
 import RoleSelectorPopup from './components/popitems/popups/RoleSelectorPopup';
 import RoleUpdatePopup from './components/popitems/popups/RoleUpdatePopup';
@@ -50,6 +52,7 @@ export default function App() {
   const [note, setNote] = useState(() => getStorage('note', ''));
   const [fontSize, setFontSize] = useState<'small' | 'mid' | 'large'>(() => getStorage('font', 'mid'));
   const [showHub, setShowHub] = useState(() => getStorage('showHub', true));
+  const [splitView, setSplitView] = useState(() => getStorage('splitView', false));
   
   const [showReset, setShowReset] = useState(false);
   const [fabOpen, setFabOpen] = useState(false);
@@ -75,7 +78,8 @@ export default function App() {
     localStorage.setItem('clocktower_note', JSON.stringify(note));
     localStorage.setItem('clocktower_font', JSON.stringify(fontSize));
     localStorage.setItem('clocktower_showHub', JSON.stringify(showHub));
-  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, showHub]);
+    localStorage.setItem('clocktower_splitView', JSON.stringify(splitView));
+  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, showHub, splitView]);
 
   const fontSizeClass = {
     small: 'text-[10px]',
@@ -233,6 +237,12 @@ export default function App() {
         </div>
         <div className="flex items-center gap-2">
           <button 
+            onClick={() => setSplitView(!splitView)} 
+            className={`p-1 rounded transition-colors ${splitView ? 'text-blue-400 hover:bg-slate-800' : 'text-slate-500 hover:bg-slate-800'}`}
+          >
+            <Split size={14} />
+          </button>
+          <button 
             onClick={() => setShowLedger(true)} 
             className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase transition-all shadow-sm"
           >
@@ -325,25 +335,42 @@ export default function App() {
       )}
 
       <main className="flex-1 overflow-hidden relative">
-        <PlayerDetailView 
-          playerNo={focusPlayerNo}
-          setPlayerNo={setFocusPlayerNo}
-          playerCount={playerCount}
-          players={players}
-          deadPlayers={deadPlayers}
-          updatePlayerInfo={updatePlayerInfo}
-          updatePlayerProperty={updatePlayerProperty}
-          togglePlayerAlive={togglePlayerAlive}
-          chars={chars}
-          nominations={nominations}
-          setNominations={setNominations}
-          voteHistoryMode={voteHistoryMode}
-          setVoteHistoryMode={setVoteHistoryMode}
-          setShowRoleSelector={setShowRoleSelector}
-          deaths={deaths}
-          setDeaths={setDeaths}
-          currentDay={currentDay}
-        />
+        <div className={`h-full ${splitView ? 'grid grid-cols-2 divide-x divide-slate-300' : ''}`}>
+          <div className={`${splitView ? 'overflow-hidden' : 'h-full'}`}>
+            <PlayerDetailView 
+              playerNo={focusPlayerNo}
+              setPlayerNo={setFocusPlayerNo}
+              playerCount={playerCount}
+              players={players}
+              deadPlayers={deadPlayers}
+              updatePlayerInfo={updatePlayerInfo}
+              updatePlayerProperty={updatePlayerProperty}
+              togglePlayerAlive={togglePlayerAlive}
+              chars={chars}
+              nominations={nominations}
+              setNominations={setNominations}
+              voteHistoryMode={voteHistoryMode}
+              setVoteHistoryMode={setVoteHistoryMode}
+              setShowRoleSelector={setShowRoleSelector}
+              deaths={deaths}
+              setDeaths={setDeaths}
+              currentDay={currentDay}
+            />
+          </div>
+          {splitView && (
+            <div className="overflow-hidden">
+              <GlobalVotingView 
+                nominations={nominations}
+                playerCount={playerCount}
+                deadPlayers={deadPlayers}
+                players={players}
+                deaths={deaths}
+                currentDay={currentDay}
+                onPlayerClick={setFocusPlayerNo}
+              />
+            </div>
+          )}
+        </div>
       </main>
 
       <LedgerTabsPopup 
