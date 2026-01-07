@@ -308,14 +308,15 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
                 const rStart = innerRadius + rIdx * ringWidth;
                 const rEnd = rStart + ringWidth;
                 const pos = getPosition(num, (rStart + rEnd) / 2);
+                const innerPos = getPosition(num, rStart);
 
                 return (
                   <g key={`${num}-${dayNum}`} className="pointer-events-none">
                     <path 
                       d={getSlicePath(i, playerCount, rStart, rEnd)}
                       fill={
-                        deadAfterThisDay ? 'rgba(148, 163, 184, 0.2)' : 
                         voteCount !== undefined ? (mode === 'vote' ? 'rgba(6, 182, 212, 0.7)' : mode === 'allReceive' ? 'rgba(168, 85, 247, 0.4)' : 'rgba(37, 99, 235, 0.7)') : 
+                        deadAfterThisDay ? 'rgba(148, 163, 184, 0.2)' : 
                         'transparent'
                       }
                     />
@@ -330,7 +331,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
                     )}
                     {voteCount !== undefined && mode === 'allReceive' && !diedThisDay && (
                       <text 
-                        x={pos.x} y={pos.y} 
+                        x={innerPos.x} y={innerPos.y} 
                         textAnchor="middle" alignmentBaseline="middle" 
                         className="font-black fill-white drop-shadow-sm"
                         style={{ fontSize: `${Math.max(8, ringWidth * 0.15)}px` }}
