@@ -308,7 +308,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
                 const rStart = innerRadius + rIdx * ringWidth;
                 const rEnd = rStart + ringWidth;
                 const pos = getPosition(num, (rStart + rEnd) / 2);
-                const innerPos = getPosition(num, rStart);
+                const countPos = getPosition(num, rStart + ringWidth * 0.75);
 
                 return (
                   <g key={`${num}-${dayNum}`} className="pointer-events-none">
@@ -331,7 +331,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
                     )}
                     {voteCount !== undefined && mode === 'allReceive' && !diedThisDay && (
                       <text 
-                        x={innerPos.x} y={innerPos.y} 
+                        x={countPos.x} y={countPos.y} 
                         textAnchor="middle" alignmentBaseline="middle" 
                         className="font-black fill-white drop-shadow-sm"
                         style={{ fontSize: `${Math.max(8, ringWidth * 0.15)}px` }}
