@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 
 interface VoteHistoryClockProps {
   playerNo: number;
@@ -34,8 +34,8 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const [gestureCurrent, setGestureCurrent] = useState<number | null>(null);
   const [isSliding, setIsSliding] = useState(false);
   const [dragAction, setDragAction] = useState<'add' | 'remove' | null>(null);
-  const [hasMoved, setHasMoved] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
+  const lastEventTime = useRef<number>(0);
 
   const cx = 144, cy = 144, outerRadius = 142, innerRadius = 55;
   const maxDay = Math.max(...nominations.map(n => n.day), 1, currentDay);
@@ -140,9 +140,16 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   };
 
   const handleStart = (num: number, e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
+    // Prevent double-firing (touch + mouse) within 100ms
+    const now = Date.now();
+    if (now - lastEventTime.current < 100) return;
+    lastEventTime.current = now;
+
+    if (e.cancelable) e.preventDefault();
+
     if (isVoting) {
-      const action = pendingNom?.voters.includes(num.toString()) ? 'remove' : 'add';
+      const isAlreadyVoter = pendingNom?.voters.includes(num.toString());
+      const action = isAlreadyVoter ? 'remove' : 'add';
       setDragAction(action);
       setGestureStart(num);
       setGestureCurrent(num);
@@ -171,10 +178,16 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
 
   const handleEnd = () => {
     if (gestureStart !== null) {
-      if (!isVoting && !isSliding) onPlayerClick(gestureStart);
-      else if (!isVoting && isSliding && gestureCurrent !== null) onNominationSlideEnd(gestureStart.toString(), gestureCurrent.toString());
+      if (!isVoting && !isSliding) {
+        onPlayerClick(gestureStart);
+      } else if (!isVoting && isSliding && gestureCurrent !== null) {
+        onNominationSlideEnd(gestureStart.toString(), gestureCurrent.toString());
+      }
     }
-    setGestureStart(null); setGestureCurrent(null); setIsSliding(false); setDragAction(null); setHasMoved(false);
+    setGestureStart(null); 
+    setGestureCurrent(null); 
+    setIsSliding(false); 
+    setDragAction(null);
   };
 
   return (
@@ -182,7 +195,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
       <svg ref={svgRef} viewBox="0 0 288 288" className="w-80 h-80 touch-none select-none"
         onMouseMove={(e) => handleMove(e.clientX, e.clientY)}
         onMouseUp={handleEnd} onMouseLeave={handleEnd}
-        onTouchMove={(e) => { setHasMoved(true); handleMove(e.touches[0].clientX, e.touches[0].clientY); }}
+        onTouchMove={(e) => { handleMove(e.touches[0].clientX, e.touches[0].clientY); }}
         onTouchEnd={handleEnd}
       >
         <defs>
