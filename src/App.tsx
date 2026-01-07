@@ -358,6 +358,11 @@ export default function App() {
               deaths={deaths}
               setDeaths={setDeaths}
               currentDay={currentDay}
+              setCurrentDay={setCurrentDay}
+              assignmentMode={assignmentMode}
+              selectedReason={selectedReason}
+              selectedProperty={selectedProperty}
+              onPlayerClick={handlePlayerClick}
             />
           </div>
           {splitView && (
@@ -369,7 +374,11 @@ export default function App() {
                 players={players}
                 deaths={deaths}
                 currentDay={currentDay}
-                onPlayerClick={setFocusPlayerNo}
+                setCurrentDay={setCurrentDay}
+                onPlayerClick={handlePlayerClick}
+                assignmentMode={assignmentMode}
+                selectedReason={selectedReason}
+                selectedProperty={selectedProperty}
               />
             </div>
           )}

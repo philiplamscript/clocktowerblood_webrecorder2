@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface VoteHistoryClockProps {
   playerNo: number;
@@ -18,13 +19,17 @@ interface VoteHistoryClockProps {
   onVoterToggle: (playerNo: string, forceAction?: 'add' | 'remove') => void;
   onToggleVotingPhase: () => void;
   currentDay: number;
+  setCurrentDay?: (day: number) => void;
   showDeathIcons: boolean;
+  assignmentMode?: 'death' | 'property' | null;
+  selectedReason?: string;
+  selectedProperty?: string;
 }
 
 const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({ 
   playerNo, nominations, playerCount, deadPlayers, mode, players, deaths, filterDay,
   onPlayerClick, pendingNom, isVoting, onNominationSlideEnd, onVoterToggle, onToggleVotingPhase,
-  currentDay, showDeathIcons
+  currentDay, setCurrentDay, showDeathIcons, assignmentMode, selectedReason, selectedProperty
 }) => {
   const playerStr = playerNo.toString();
   const [gestureStart, setGestureStart] = useState<number | null>(null);
@@ -285,6 +290,16 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           const activeDaysMap = votedAtDay[numStr] || {};
           const isVoter = isVoting && pendingNom?.voters.includes(numStr);
 
+          // Assignment coloring
+          let fill = isVoter ? '#ef4444' : isCurrentViewPlayer ? 'url(#playerSpotlight)' : playerDeath ? '#f8fafc' : '#ffffff';
+          let stroke = isCurrentViewPlayer ? '#eab308' : '#f1f5f9';
+          
+          if (assignmentMode === 'death') {
+            stroke = '#ef4444';
+          } else if (assignmentMode === 'property') {
+            stroke = '#3b82f6';
+          }
+
           return (
             <g 
               key={num} 
@@ -294,8 +309,8 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
             >
               <path 
                 d={getSlicePath(i, playerCount, innerRadius, outerRadius)} 
-                fill={isVoter ? '#ef4444' : isCurrentViewPlayer ? 'url(#playerSpotlight)' : playerDeath ? '#f8fafc' : '#ffffff'} 
-                stroke={isCurrentViewPlayer ? '#eab308' : '#f1f5f9'} 
+                fill={fill} 
+                stroke={stroke} 
                 strokeWidth={isCurrentViewPlayer ? "2" : "0.5"} 
                 className="transition-colors duration-150" 
               />
@@ -366,15 +381,14 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
 
         {pendingNom && !isSliding && drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), currentDay, pendingNom.f === pendingNom.t ? 'self' : 'to', 4)}
 
-        <g 
-          className="cursor-pointer group" 
-          onClick={(e) => { e.stopPropagation(); onToggleVotingPhase(); }}
-        >
+        <g className="pointer-events-auto">
           <circle 
             cx={cx} cy={cy} r="25" 
-            fill={isVoting ? "#ef4444" : pendingNom ? "#a855f7" : "#0f172a"} 
+            fill={isVoting ? "#ef4444" : pendingNom ? "#a855f7" : assignmentMode === 'death' ? '#ef4444' : assignmentMode === 'property' ? '#3b82f6' : "#0f172a"} 
             className="transition-colors duration-200"
+            onClick={(e) => { e.stopPropagation(); onToggleVotingPhase(); }}
           />
+          
           {pendingNom ? (
             <text 
               x={cx} y={cy} textAnchor="middle" alignmentBaseline="middle" 
@@ -382,13 +396,27 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
             >
               {isVoting ? 'SAVE' : 'V'}
             </text>
+          ) : assignmentMode ? (
+            <text 
+              x={cx} y={cy} textAnchor="middle" alignmentBaseline="middle" 
+              className="text-white text-[8px] font-black uppercase pointer-events-none"
+            >
+              {assignmentMode === 'death' ? selectedReason : 'PROP'}
+            </text>
           ) : (
-            <>
-              <text x={cx} y={cy - 5} textAnchor="middle" className="text-white text-[10px] font-black pointer-events-none">{playerNo}</text>
-              <text x={cx} y={cy + 5} textAnchor="middle" className="text-white text-[5px] font-black uppercase pointer-events-none text-center">
+            <g>
+              <text x={cx} y={cy - 8} textAnchor="middle" className="text-white text-[10px] font-black pointer-events-none">{playerNo}</text>
+              <g className="cursor-pointer" onClick={(e) => { e.stopPropagation(); setCurrentDay?.(Math.max(1, currentDay - 1)); }}>
+                <path d="M 125 144 L 132 140 L 132 148 Z" fill="white" opacity="0.5" className="hover:opacity-100" />
+              </g>
+              <text x={cx} y={cy + 4} textAnchor="middle" className="text-white text-[8px] font-black pointer-events-none">D{currentDay}</text>
+              <g className="cursor-pointer" onClick={(e) => { e.stopPropagation(); setCurrentDay?.(currentDay + 1); }}>
+                <path d="M 163 144 L 156 140 L 156 148 Z" fill="white" opacity="0.5" className="hover:opacity-100" />
+              </g>
+              <text x={cx} y={cy + 14} textAnchor="middle" className="text-white text-[5px] font-black uppercase pointer-events-none text-center">
                 {mode === 'vote' ? 'VOTE' : mode === 'beVoted' ? 'RECV' : 'ALL'}
               </text>
-            </>
+            </g>
           )}
         </g>
       </svg>

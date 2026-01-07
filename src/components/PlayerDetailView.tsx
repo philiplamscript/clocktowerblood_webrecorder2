@@ -32,6 +32,11 @@ interface PlayerDetailViewProps {
   deaths: any[];
   setDeaths: (deaths: any[]) => void;
   currentDay: number;
+  setCurrentDay: (day: number) => void;
+  assignmentMode?: 'death' | 'property' | null;
+  selectedReason?: string;
+  selectedProperty?: string;
+  onPlayerClick?: (num: number) => void;
 }
 
 const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
@@ -51,7 +56,12 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
   setShowRoleSelector,
   deaths,
   setDeaths,
-  currentDay
+  currentDay,
+  setCurrentDay,
+  assignmentMode,
+  selectedReason,
+  selectedProperty,
+  onPlayerClick
 }) => {
   const [pendingNom, setPendingNom] = useState<{ f: string; t: string; voters: string[] } | null>(null);
   const [isVoting, setIsVoting] = useState(false);
@@ -205,14 +215,18 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
                 players={players}
                 deaths={deaths}
                 filterDay={filterDay}
-                onPlayerClick={(num) => setPlayerNo(num)}
+                onPlayerClick={(num) => onPlayerClick?.(num)}
                 pendingNom={pendingNom}
                 isVoting={isVoting}
                 onNominationSlideEnd={handleNominationSlideEnd}
                 onVoterToggle={handleVoterToggle}
                 onToggleVotingPhase={handleToggleVotingPhase}
                 currentDay={currentDay}
+                setCurrentDay={setCurrentDay}
                 showDeathIcons={showDeathIcons}
+                assignmentMode={assignmentMode}
+                selectedReason={selectedReason}
+                selectedProperty={selectedProperty}
               />
 
               {pendingNom && !isVoting && (

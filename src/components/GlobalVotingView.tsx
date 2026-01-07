@@ -17,7 +17,11 @@ interface GlobalVotingViewProps {
   players: any[];
   deaths: any[];
   currentDay: number;
+  setCurrentDay: (day: number) => void;
   onPlayerClick: (num: number) => void;
+  assignmentMode?: 'death' | 'property' | null;
+  selectedReason?: string;
+  selectedProperty?: string;
 }
 
 const GlobalVotingView: React.FC<GlobalVotingViewProps> = ({
@@ -27,7 +31,11 @@ const GlobalVotingView: React.FC<GlobalVotingViewProps> = ({
   players,
   deaths,
   currentDay,
-  onPlayerClick
+  setCurrentDay,
+  onPlayerClick,
+  assignmentMode,
+  selectedReason,
+  selectedProperty
 }) => {
   const [filterDay, setFilterDay] = useState<number | 'all'>('all');
   const dayOptions = ['ALL', ...Array.from({ length: currentDay }, (_, i) => `D${i + 1}`)];
@@ -73,6 +81,11 @@ const GlobalVotingView: React.FC<GlobalVotingViewProps> = ({
             onVoterToggle={() => {}}
             onToggleVotingPhase={() => {}}
             currentDay={currentDay}
+            setCurrentDay={setCurrentDay}
+            showDeathIcons={true}
+            assignmentMode={assignmentMode}
+            selectedReason={selectedReason}
+            selectedProperty={selectedProperty}
           />
         </div>
 
