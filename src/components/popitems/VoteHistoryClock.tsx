@@ -268,7 +268,9 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         onTouchMove={handleTouchMove}
         onTouchEnd={(e) => {
             if (!hasMoved && gestureStart !== null) {
-              onPlayerClick(gestureStart);
+              if (!isVoting) {
+                onPlayerClick(gestureStart);
+              }
               setGestureStart(null);
               setGestureCurrent(null);
               setIsSliding(false);
