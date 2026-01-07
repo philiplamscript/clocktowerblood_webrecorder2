@@ -107,26 +107,38 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     const radius = innerRadius + (day - 0.5) * ringWidth;
 
     if (type === 'self' || from === to) {
-      const pos = getPosition(from, radius);
-      const angle = Math.atan2(pos.y - cy, pos.x - cx);
+      const baseAngle = (from - 1) * (360 / playerCount) - 90 + (360 / (playerCount * 2));
+      const rad = baseAngle * Math.PI / 180;
       
-      const startX = cx;
-      const startY = cy;
-      const endX = pos.x - (10 * Math.cos(angle));
-      const endY = pos.y - (10 * Math.sin(angle));
+      // Arc parameters for the loop
+      const startAngle = rad - 0.25;
+      const endAngle = rad + 0.25;
       
-      const headLength = 8;
-      const headX = endX;
-      const headY = endY;
-      const leftX = headX - headLength * Math.cos(angle - Math.PI / 6);
-      const leftY = headY - headLength * Math.sin(angle - Math.PI / 6);
-      const rightX = headX - headLength * Math.cos(angle + Math.PI / 6);
-      const rightY = headY - headLength * Math.sin(angle + Math.PI / 6);
+      const x1 = cx + radius * Math.cos(startAngle);
+      const y1 = cy + radius * Math.sin(startAngle);
+      const x2 = cx + radius * Math.cos(endAngle);
+      const y2 = cy + radius * Math.sin(endAngle);
+      
+      const cpRadius = radius + 35; // How far the loop extends outwards
+      const cpx1 = cx + cpRadius * Math.cos(startAngle);
+      const cpy1 = cy + cpRadius * Math.sin(startAngle);
+      const cpx2 = cx + cpRadius * Math.cos(endAngle);
+      const cpy2 = cy + cpRadius * Math.sin(endAngle);
+
+      const pathData = `M ${x1} ${y1} C ${cpx1} ${cpy1}, ${cpx2} ${cpy2}, ${x2} ${y2}`;
+      
+      // Calculate arrowhead direction based on the end of the curve
+      const angleAtEnd = Math.atan2(y2 - cpy2, x2 - cpx2);
+      const headLen = 7;
+      const leftX = x2 - headLen * Math.cos(angleAtEnd - Math.PI / 6);
+      const leftY = y2 - headLen * Math.sin(angleAtEnd - Math.PI / 6);
+      const rightX = x2 - headLen * Math.cos(angleAtEnd + Math.PI / 6);
+      const rightY = y2 - headLen * Math.sin(angleAtEnd + Math.PI / 6);
 
       return (
         <g key={`self-${from}-${day}`}>
-          <line x1={startX} y1={startY} x2={endX} y2={endY} stroke={color} strokeWidth={width} strokeLinecap="round" opacity="0.6" />
-          <polygon points={`${headX},${headY} ${leftX},${leftY} ${rightX},${rightY}`} fill={color} opacity="0.6" />
+          <path d={pathData} fill="none" stroke={color} strokeWidth={width} strokeLinecap="round" opacity="0.6" />
+          <polygon points={`${x2},${y2} ${leftX},${leftY} ${rightX},${rightY}`} fill={color} opacity="0.6" />
         </g>
       );
     }
@@ -193,7 +205,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
 
     let target = info.playerNum;
     if (info.dist < 35) {
-      target = gestureStart; // Target is center (Self vote)
+      target = gestureStart; // Map center to gestureStart for self-vote
     }
 
     if (isVoting) {
