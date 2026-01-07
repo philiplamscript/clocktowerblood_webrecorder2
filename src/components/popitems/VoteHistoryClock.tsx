@@ -28,7 +28,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const playerStr = playerNo.toString();
   const [gestureStart, setGestureStart] = useState<number | null>(null);
   const [gestureCurrent, setGestureCurrent] = useState<number | null>(null);
-  const [gesturePath, setGesturePath] = useState<number[]>([]);
   const [isSliding, setIsSliding] = useState(false);
   const [dragAction, setDragAction] = useState<'add' | 'remove' | null>(null);
   const [hasMoved, setHasMoved] = useState(false);
@@ -49,36 +48,25 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     const isFiltered = filterDay !== 'all' && day !== filterDay;
     if (isFiltered) return;
 
-    const voters = n.voters.split(',').filter(v => v !== "");
-    const isSelfNomination = n.f === n.t && n.f !== '-';
-    const playerVoted = voters.includes(playerStr);
-
+    // Collect rings based on mode
     if (mode === 'vote') {
-      if (playerVoted && n.t && n.t !== '-') {
+      if (n.voters.split(',').includes(playerStr) && n.t && n.t !== '-') {
         if (!votedAtDay[n.t]) votedAtDay[n.t] = new Set();
         votedAtDay[n.t].add(day);
-        if (isSelfNomination && n.t === playerStr) {
-          if (!votedAtDay[playerStr]) votedAtDay[playerStr] = new Set();
-          votedAtDay[playerStr].add(day);
-        }
       }
     } else {
       if (n.t === playerStr) {
-        voters.forEach((v: string) => {
+        n.voters.split(',').forEach((v: string) => {
           if (v) {
             if (!votedAtDay[v]) votedAtDay[v] = new Set();
             votedAtDay[v].add(day);
           }
         });
-        if (isSelfNomination && playerVoted) {
-          if (!votedAtDay[playerStr]) votedAtDay[playerStr] = new Set();
-          votedAtDay[playerStr].add(day);
-        }
       }
     }
 
-    // Only add self-arrow if the current player is the self-nominator
-    if (n.f === playerStr && n.f === n.t && playerVoted) {
+    // Collect ALL arrows regardless of mode
+    if (n.f === playerStr && n.t === playerStr) {
       arrowData.push({ from: playerNo, to: playerNo, day, type: 'self' });
     } else if (n.f === playerStr && n.t && n.t !== '-') {
       arrowData.push({ from: playerNo, to: parseInt(n.t), day, type: 'to' });
@@ -120,8 +108,12 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
       const pos = getPosition(from, radius);
       const angle = ((from - 1) * (360 / playerCount)) - 90 + (360 / (playerCount * 2));
       const rad = angle * Math.PI / 180;
+      
+      // Line pointing to center
       const innerX = cx + (radius - 15) * Math.cos(rad);
       const innerY = cy + (radius - 15) * Math.sin(rad);
+      
+      // Circular arc (loading arrow look)
       const arcRadius = 10;
       const arcStartAngle = rad - 0.5;
       const arcEndAngle = rad + 1.5;
@@ -150,6 +142,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     const headLength = 8;
     const headX = toPos.x - 4 * Math.cos(angle);
     const headY = toPos.y - 4 * Math.sin(angle);
+    
     const leftX = headX - headLength * Math.cos(angle - Math.PI / 6);
     const leftY = headY - headLength * Math.sin(angle - Math.PI / 6);
     const rightX = headX - headLength * Math.cos(angle + Math.PI / 6);
@@ -185,14 +178,11 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     }
     setGestureStart(num);
     setGestureCurrent(num);
-    setGesturePath([num]);
     setIsSliding(false);
-    setHasMoved(false);
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (gestureStart === null) return;
-    setHasMoved(true);
     const current = getPlayerAtPos(e.clientX, e.clientY);
     if (!current) return;
 
@@ -204,12 +194,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     } else {
       if (current !== gestureCurrent) {
         setGestureCurrent(current);
-        setGesturePath(prev => {
-          if (prev[prev.length - 1] !== current) {
-            return [...prev, current];
-          }
-          return prev;
-        });
         setIsSliding(true);
       }
     }
@@ -218,24 +202,15 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const handleMouseUp = () => {
     if (gestureStart !== null) {
       if (!isVoting && !isSliding) {
-        if (!hasMoved) {
-          onPlayerClick(gestureStart);
-        }
-      } else if (!isVoting && isSliding) {
-        const isSelfNom = gesturePath.length >= 3 && gesturePath[0] === gesturePath[gesturePath.length - 1] && gesturePath.some(p => p !== gestureStart);
-        if (isSelfNom) {
-          onNominationSlideEnd(gestureStart.toString(), gestureStart.toString());
-        } else if (gestureCurrent !== null && gestureStart !== gestureCurrent) {
-          onNominationSlideEnd(gestureStart.toString(), gestureCurrent.toString());
-        }
+        onPlayerClick(gestureStart);
+      } else if (!isVoting && isSliding && gestureCurrent !== null && gestureStart !== gestureCurrent) {
+        onNominationSlideEnd(gestureStart.toString(), gestureCurrent.toString());
       }
     }
     setGestureStart(null);
     setGestureCurrent(null);
-    setGesturePath([]);
     setIsSliding(false);
     setDragAction(null);
-    setHasMoved(false);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -253,18 +228,10 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     } else {
       if (current !== gestureCurrent) {
         setGestureCurrent(current);
-        setGesturePath(prev => {
-          if (prev[prev.length - 1] !== current) {
-            return [...prev, current];
-          }
-          return prev;
-        });
         setIsSliding(true);
       }
     }
   };
-
-  const isSelfNomPreview = gesturePath.length >= 3 && gesturePath[0] === gesturePath[gesturePath.length - 1] && gesturePath.some(p => p !== gestureStart);
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -317,20 +284,14 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
                 const isVotedDay = activeDays.has(dayNum);
                 const rStart = innerRadius + rIdx * ringWidth;
                 const rEnd = rStart + ringWidth;
+                
                 if (!isVotedDay) return null;
-
-                const isSelfVote = isCurrentViewPlayer && nominations.some(n => 
-                  n.day === dayNum && n.f === playerStr && n.t === playerStr && n.voters.split(',').includes(playerStr)
-                );
 
                 return (
                   <path 
                     key={`${num}-${dayNum}`}
                     d={getSlicePath(i, playerCount, rStart, rEnd)}
-                    fill={isSelfVote ? 'rgba(147, 51, 234, 0.7)' : (mode === 'vote' ? 'rgba(6, 182, 212, 0.7)' : 'rgba(37, 99, 235, 0.7)')}
-                    stroke={isSelfVote ? '#a855f7' : 'none'}
-                    strokeWidth={isSelfVote ? 1 : 0}
-                    strokeDasharray={isSelfVote ? '2,2' : 'none'}
+                    fill={mode === 'vote' ? 'rgba(6, 182, 212, 0.7)' : 'rgba(37, 99, 235, 0.7)'}
                     className="pointer-events-none"
                   />
                 );
@@ -353,17 +314,11 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           drawArrow(arrow.from, arrow.to, arrow.day, arrow.type, 2.5)
         )}
 
-        {isSliding && gestureStart && (
-          isSelfNomPreview 
-            ? drawArrow(gestureStart, gestureStart, maxDay, 'self', 4)
-            : gestureCurrent !== null && gestureStart !== gestureCurrent && drawArrow(gestureStart, gestureCurrent, maxDay, 'to', 3)
+        {isSliding && gestureStart && gestureCurrent && gestureStart !== gestureCurrent && (
+          drawArrow(gestureStart, gestureCurrent, maxDay, 'to', 3)
         )}
 
-        {pendingNom && (
-          pendingNom.f === pendingNom.t 
-            ? drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), currentDay, 'self', 4)
-            : drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), currentDay, 'to', 4)
-        )}
+        {pendingNom && drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), currentDay, 'to', 4)}
 
         <g 
           className="cursor-pointer group" 
