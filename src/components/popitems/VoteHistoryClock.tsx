@@ -179,10 +179,12 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     setGestureStart(num);
     setGestureCurrent(num);
     setIsSliding(false);
+    setHasMoved(false);
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (gestureStart === null) return;
+    setHasMoved(true);
     const current = getPlayerAtPos(e.clientX, e.clientY);
     if (!current) return;
 
@@ -202,7 +204,12 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const handleMouseUp = () => {
     if (gestureStart !== null) {
       if (!isVoting && !isSliding) {
-        onPlayerClick(gestureStart);
+        if (!hasMoved) {
+          onPlayerClick(gestureStart);
+        } else if (gestureStart === gestureCurrent) {
+          // Self-slide: trigger self-nomination
+          onNominationSlideEnd(gestureStart.toString(), gestureStart.toString());
+        }
       } else if (!isVoting && isSliding && gestureCurrent !== null && gestureStart !== gestureCurrent) {
         onNominationSlideEnd(gestureStart.toString(), gestureCurrent.toString());
       }
@@ -211,6 +218,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     setGestureCurrent(null);
     setIsSliding(false);
     setDragAction(null);
+    setHasMoved(false);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
