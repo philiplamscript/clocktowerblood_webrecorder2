@@ -28,6 +28,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const playerStr = playerNo.toString();
   const [gestureStart, setGestureStart] = useState<number | null>(null);
   const [gestureCurrent, setGestureCurrent] = useState<number | null>(null);
+  const [gesturePath, setGesturePath] = useState<number[]>([]);
   const [isSliding, setIsSliding] = useState(false);
   const [dragAction, setDragAction] = useState<'add' | 'remove' | null>(null);
   const [hasMoved, setHasMoved] = useState(false);
@@ -48,25 +49,39 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     const isFiltered = filterDay !== 'all' && day !== filterDay;
     if (isFiltered) return;
 
+    const voters = n.voters.split(',').filter(v => v !== "");
+    const isSelfNomination = n.f === n.t && n.f !== '-';
+    const playerVoted = voters.includes(playerStr);
+
     // Collect rings based on mode
     if (mode === 'vote') {
-      if (n.voters.split(',').includes(playerStr) && n.t && n.t !== '-') {
+      if (playerVoted && n.t && n.t !== '-') {
         if (!votedAtDay[n.t]) votedAtDay[n.t] = new Set();
         votedAtDay[n.t].add(day);
+        // Special handling for self-votes: also mark the player as "voting for themselves"
+        if (isSelfNomination && n.t === playerStr) {
+          if (!votedAtDay[playerStr]) votedAtDay[playerStr] = new Set();
+          votedAtDay[playerStr].add(day); // Add self-vote ring
+        }
       }
-    } else {
+    } else { // receive mode
       if (n.t === playerStr) {
-        n.voters.split(',').forEach((v: string) => {
+        voters.forEach((v: string) => {
           if (v) {
             if (!votedAtDay[v]) votedAtDay[v] = new Set();
             votedAtDay[v].add(day);
           }
         });
+        // For self-votes in receive mode, ensure the player's own ring is highlighted
+        if (isSelfNomination && playerVoted) {
+          if (!votedAtDay[playerStr]) votedAtDay[playerStr] = new Set();
+          votedAtDay[playerStr].add(day);
+        }
       }
     }
 
-    // Collect ALL arrows regardless of mode
-    if (n.f === playerStr && n.t === playerStr) {
+    // Collect arrows (ensure self-arrows only if voted)
+    if (isSelfNomination && playerVoted) {
       arrowData.push({ from: playerNo, to: playerNo, day, type: 'self' });
     } else if (n.f === playerStr && n.t && n.t !== '-') {
       arrowData.push({ from: playerNo, to: parseInt(n.t), day, type: 'to' });
@@ -178,11 +193,14 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     }
     setGestureStart(num);
     setGestureCurrent(num);
+    setGesturePath([num]);
     setIsSliding(false);
+    setHasMoved(false);
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (gestureStart === null) return;
+    setHasMoved(true);
     const current = getPlayerAtPos(e.clientX, e.clientY);
     if (!current) return;
 
@@ -194,6 +212,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     } else {
       if (current !== gestureCurrent) {
         setGestureCurrent(current);
+        setGesturePath(prev => [...new Set([...prev, current])]); // Add unique players to path
         setIsSliding(true);
       }
     }
@@ -202,15 +221,25 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const handleMouseUp = () => {
     if (gestureStart !== null) {
       if (!isVoting && !isSliding) {
-        onPlayerClick(gestureStart);
-      } else if (!isVoting && isSliding && gestureCurrent !== null && gestureStart !== gestureCurrent) {
-        onNominationSlideEnd(gestureStart.toString(), gestureCurrent.toString());
+        if (!hasMoved) {
+          onPlayerClick(gestureStart);
+        }
+      } else if (!isVoting && isSliding) {
+        // Check for self-nomination: path starts and ends with same player, and has at least one other
+        const isSelfNom = gesturePath.length >= 3 && gesturePath[0] === gesturePath[gesturePath.length - 1] && gesturePath.some(p => p !== gestureStart);
+        if (isSelfNom) {
+          onNominationSlideEnd(gestureStart.toString(), gestureStart.toString());
+        } else if (gestureCurrent !== null && gestureStart !== gestureCurrent) {
+          onNominationSlideEnd(gestureStart.toString(), gestureCurrent.toString());
+        }
       }
     }
     setGestureStart(null);
     setGestureCurrent(null);
+    setGesturePath([]);
     setIsSliding(false);
     setDragAction(null);
+    setHasMoved(false);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -228,6 +257,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     } else {
       if (current !== gestureCurrent) {
         setGestureCurrent(current);
+        setGesturePath(prev => [...new Set([...prev, current])]); // Add unique players to path
         setIsSliding(true);
       }
     }
@@ -287,11 +317,19 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
                 
                 if (!isVotedDay) return null;
 
+                // Check if this is a self-vote day for the current player
+                const isSelfVote = isCurrentViewPlayer && nominations.some(n => 
+                  n.day === dayNum && n.f === playerStr && n.t === playerStr && n.voters.split(',').includes(playerStr)
+                );
+
                 return (
                   <path 
                     key={`${num}-${dayNum}`}
                     d={getSlicePath(i, playerCount, rStart, rEnd)}
-                    fill={mode === 'vote' ? 'rgba(6, 182, 212, 0.7)' : 'rgba(37, 99, 235, 0.7)'}
+                    fill={isSelfVote ? 'rgba(147, 51, 234, 0.7)' : (mode === 'vote' ? 'rgba(6, 182, 212, 0.7)' : 'rgba(37, 99, 235, 0.7)')}
+                    stroke={isSelfVote ? '#a855f7' : 'none'}
+                    strokeWidth={isSelfVote ? 1 : 0}
+                    strokeDasharray={isSelfVote ? '2,2' : 'none'}
                     className="pointer-events-none"
                   />
                 );
