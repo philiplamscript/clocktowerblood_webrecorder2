@@ -220,22 +220,6 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
               )}
             </div>
 
-            {/* Player Note Section with Keyword button on the right */}
-            <div className="flex gap-2 items-start">
-              <textarea 
-                className="flex-1 min-h-[150px] border border-slate-200 bg-white rounded-lg p-4 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none resize-none font-medium leading-relaxed shadow-sm transition-all"
-                placeholder="Type social reads, role claims, or night info here..."
-                value={currentPlayer?.inf || ''}
-                onChange={(e) => updatePlayerInfo(playerNo, e.target.value)}
-              />
-              <button 
-                onClick={() => setShowKeywords(!showKeywords)}
-                className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow-sm transition-all"
-              >
-                <Key size={14} />
-              </button>
-            </div>
-
             {/* Expandable Keywords Section */}
             {showKeywords && (
               <div className="bg-white border rounded-lg p-3 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
@@ -289,6 +273,22 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
                 )}
               </div>
             )}
+
+            {/* Player Note Section with Keyword button on the right */}
+            <div className="flex gap-2 items-start">
+              <textarea 
+                className="flex-1 min-h-[150px] border border-slate-200 bg-white rounded-lg p-4 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none resize-none font-medium leading-relaxed shadow-sm transition-all"
+                placeholder="Type social reads, role claims, or night info here..."
+                value={currentPlayer?.inf || ''}
+                onChange={(e) => updatePlayerInfo(playerNo, e.target.value)}
+              />
+              <button 
+                onClick={() => setShowKeywords(!showKeywords)}
+                className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow-sm transition-all"
+              >
+                <Key size={14} />
+              </button>
+            </div>
 
             {/* Death Status and Prop in one row, always visible */}
             <div className="flex items-center gap-2">
