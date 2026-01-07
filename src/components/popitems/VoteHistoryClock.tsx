@@ -104,7 +104,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     const color = type === 'to' ? '#ef4444' : type === 'from' ? '#22c55e' : '#a855f7';
     const radius = innerRadius + (day - 0.5) * ringWidth;
 
-    if (type === 'self') {
+    if (type === 'self' || from === to) {
       const pos = getPosition(from, radius);
       const angle = ((from - 1) * (360 / playerCount)) - 90 + (360 / (playerCount * 2));
       const rad = angle * Math.PI / 180;
@@ -202,8 +202,10 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const handleMouseUp = () => {
     if (gestureStart !== null) {
       if (!isVoting && !isSliding) {
+        // Simple click logic
         onPlayerClick(gestureStart);
-      } else if (!isVoting && isSliding && gestureCurrent !== null && gestureStart !== gestureCurrent) {
+      } else if (!isVoting && isSliding && gestureCurrent !== null) {
+        // Sliding logic: allows gestureStart === gestureCurrent for self-nomination
         onNominationSlideEnd(gestureStart.toString(), gestureCurrent.toString());
       }
     }
@@ -243,9 +245,15 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onTouchMove={handleTouchMove}
-        onTouchEnd={() => {
-            if (!hasMoved && gestureStart !== null) onPlayerClick(gestureStart);
-            handleMouseUp();
+        onTouchEnd={(e) => {
+            if (!hasMoved && gestureStart !== null) {
+              onPlayerClick(gestureStart);
+              setGestureStart(null);
+              setGestureCurrent(null);
+              setIsSliding(false);
+            } else {
+              handleMouseUp();
+            }
             setHasMoved(false);
         }}
       >
@@ -314,11 +322,11 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           drawArrow(arrow.from, arrow.to, arrow.day, arrow.type, 2.5)
         )}
 
-        {isSliding && gestureStart && gestureCurrent && gestureStart !== gestureCurrent && (
-          drawArrow(gestureStart, gestureCurrent, maxDay, 'to', 3)
+        {isSliding && gestureStart && gestureCurrent && (
+          drawArrow(gestureStart, gestureCurrent, maxDay, gestureStart === gestureCurrent ? 'self' : 'to', 3)
         )}
 
-        {pendingNom && drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), currentDay, 'to', 4)}
+        {pendingNom && drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), currentDay, pendingNom.f === pendingNom.t ? 'self' : 'to', 4)}
 
         <g 
           className="cursor-pointer group" 
