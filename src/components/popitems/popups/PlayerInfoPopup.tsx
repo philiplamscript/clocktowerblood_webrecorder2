@@ -26,8 +26,8 @@ interface PlayerInfoPopupProps {
   chars: any;
   nominations: any[];
   setNominations: (noms: any[]) => void;
-  voteHistoryMode: 'vote' | 'beVoted';
-  setVoteHistoryMode: (mode: 'vote' | 'beVoted') => void;
+  voteHistoryMode: 'vote' | 'beVoted' | 'allReceive';
+  setVoteHistoryMode: (mode: 'vote' | 'beVoted' | 'allReceive') => void;
   setShowRoleSelector: (selector: { playerNo: number; roles: { role: string; category: string }[] } | null) => void;
   deaths: any[];
   setDeaths: (deaths: any[]) => void;
@@ -113,6 +113,18 @@ const PlayerInfoPopup: React.FC<PlayerInfoPopupProps> = ({
   const isDead = deadPlayers.includes(popupPlayerNo);
   const dayOptions = ['ALL', ...Array.from({ length: currentDay }, (_, i) => `D${i + 1}`)];
   const currentFilterText = filterDay === 'all' ? 'ALL' : `D${filterDay}`;
+
+  const cycleMode = () => {
+    if (voteHistoryMode === 'vote') setVoteHistoryMode('beVoted');
+    else if (voteHistoryMode === 'beVoted') setVoteHistoryMode('allReceive');
+    else setVoteHistoryMode('vote');
+  };
+
+  const modeLabels = {
+    vote: 'Votes',
+    beVoted: 'Received',
+    allReceive: 'All Global'
+  };
 
   return (
     <div className="fixed inset-0 z-[10001] flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-[2px]" onClick={closePopup}>
@@ -248,11 +260,11 @@ const PlayerInfoPopup: React.FC<PlayerInfoPopupProps> = ({
                 )}
                 
                 <button 
-                  onClick={() => setVoteHistoryMode(voteHistoryMode === 'vote' ? 'beVoted' : 'vote')}
-                  className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-2 py-1 rounded text-[8px] font-bold uppercase"
+                  onClick={cycleMode}
+                  className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-2 py-1 rounded text-[8px] font-bold uppercase min-w-[70px]"
                   disabled={isVoting}
                 >
-                  {voteHistoryMode === 'vote' ? 'Votes' : 'Received'}
+                  {modeLabels[voteHistoryMode]}
                 </button>
               </div>
             </div>
