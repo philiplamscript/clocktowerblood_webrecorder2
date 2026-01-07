@@ -248,7 +248,6 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
                           key={idx} 
                           onClick={() => {
                             updatePlayerInfo(playerNo, (currentPlayer?.inf || '') + (currentPlayer?.inf ? '\n' : '') + item.role);
-                            setShowKeywords(false);
                           }}
                           className={`${categoryBg[item.category as keyof typeof categoryBg]} text-slate-900 px-2 py-1 rounded text-[9px] font-bold transition-colors text-left`}
                         >
@@ -263,7 +262,6 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
                           key={idx} 
                           onClick={() => {
                             updatePlayerInfo(playerNo, (currentPlayer?.inf || '') + (currentPlayer?.inf ? '\n' : '') + item.role);
-                            setShowKeywords(false);
                           }}
                           className={`${categoryBg[item.category as keyof typeof categoryBg]} text-slate-900 px-2 py-1 rounded text-[9px] font-bold transition-colors text-left`}
                         >
@@ -278,7 +276,6 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
                           key={idx} 
                           onClick={() => {
                             updatePlayerInfo(playerNo, (currentPlayer?.inf || '') + (currentPlayer?.inf ? '\n' : '') + item.role);
-                            setShowKeywords(false);
                           }}
                           className={`${categoryBg[item.category as keyof typeof categoryBg]} text-slate-900 px-2 py-1 rounded text-[9px] font-bold transition-colors text-left`}
                         >
