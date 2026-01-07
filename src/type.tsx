@@ -55,7 +55,7 @@ interface SortConfig {
 // --- CONSTANTS ---
 
 const INITIAL_PLAYERS = 18;
-const REASON_CYCLE = ['⚔️', '☀️', '🌑', '🌗', '🌕'];
+const REASON_CYCLE = ['⚔️', '☀️', '🌑'];
 const STATUS_OPTIONS = ["—", "POSS", "CONF", "NOT"];
 
 const createInitialChars = (): CharDict => ({
