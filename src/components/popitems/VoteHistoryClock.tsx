@@ -7,7 +7,7 @@ interface VoteHistoryClockProps {
   nominations: any[];
   playerCount: number;
   deadPlayers: number[];
-  mode: 'vote' | 'beVoted';
+  mode: 'vote' | 'beVoted' | 'allReceive';
   players: any[];
   deaths: any[];
   filterDay: number | 'all';
@@ -40,7 +40,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const ringWidth = (outerRadius - innerRadius) / ringCount;
 
   // Data maps
-  const votedAtDay: Record<string, Set<number>> = {}; 
+  const votedAtDay: Record<string, Record<number, number>> = {}; 
   const arrowData: { from: number, to: number, day: number, type: 'to' | 'from' | 'self' }[] = [];
 
   nominations.forEach(n => {
@@ -48,30 +48,53 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     const isFiltered = filterDay !== 'all' && day !== filterDay;
     if (isFiltered) return;
 
-    // Collect rings based on mode
-    if (mode === 'vote') {
-      if (n.voters.split(',').includes(playerStr) && n.t && n.t !== '-') {
-        if (!votedAtDay[n.t]) votedAtDay[n.t] = new Set();
-        votedAtDay[n.t].add(day);
+    const voteCount = n.voters ? n.voters.split(',').filter((v: string) => v).length : 0;
+
+    if (mode === 'allReceive') {
+      // Global mode: Record any nomination target and its count
+      if (n.t && n.t !== '-') {
+        if (!votedAtDay[n.t]) votedAtDay[n.t] = {};
+        votedAtDay[n.t][day] = voteCount;
+      }
+      
+      // Global mode: show all arrows
+      if (n.f && n.f !== '-' && n.t && n.t !== '-') {
+        let type: 'to' | 'from' | 'self' = 'to';
+        const fromNum = parseInt(n.f);
+        const toNum = parseInt(n.t);
+        
+        if (fromNum === toNum) type = 'self';
+        else if (toNum === playerNo) type = 'from';
+        else if (fromNum === playerNo) type = 'to';
+        
+        arrowData.push({ from: fromNum, to: toNum, day, type });
       }
     } else {
-      if (n.t === playerStr) {
-        n.voters.split(',').forEach((v: string) => {
-          if (v) {
-            if (!votedAtDay[v]) votedAtDay[v] = new Set();
-            votedAtDay[v].add(day);
-          }
-        });
+      // Player-specific modes
+      if (mode === 'vote') {
+        if (n.voters.split(',').includes(playerStr) && n.t && n.t !== '-' && n.t !== playerStr) {
+          if (!votedAtDay[n.t]) votedAtDay[n.t] = {};
+          votedAtDay[n.t][day] = voteCount;
+        }
+      } else {
+        if (n.t === playerStr) {
+          n.voters.split(',').forEach((v: string) => {
+            if (v && v !== playerStr) {
+              if (!votedAtDay[v]) votedAtDay[v] = {};
+              votedAtDay[v][day] = voteCount;
+            }
+          });
+        }
       }
-    }
 
-    // Collect ALL arrows regardless of mode
-    if (n.f === playerStr && n.t === playerStr) {
-      arrowData.push({ from: playerNo, to: playerNo, day, type: 'self' });
-    } else if (n.f === playerStr && n.t && n.t !== '-') {
-      arrowData.push({ from: playerNo, to: parseInt(n.t), day, type: 'to' });
-    } else if (n.t === playerStr && n.f && n.f !== '-') {
-      arrowData.push({ from: parseInt(n.f), to: playerNo, day, type: 'from' });
+      // Arrows for specific modes (relative to current player)
+      if (n.f === playerStr && n.t === playerStr) {
+        arrowData.push({ from: playerNo, to: playerNo, day, type: 'self' });
+      } else if (n.f === playerStr && n.t && n.t !== '-') {
+        arrowData.push({ from: playerNo, to: parseInt(n.t), day, type: 'to' });
+      } else if (n.t === playerStr && n.f && n.f !== '-') {
+        arrowData.push({ from: parseInt(n.f), to: playerNo, day, type: 'from' });
+      }
     }
   });
 
@@ -108,12 +131,8 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
       const pos = getPosition(from, radius);
       const angle = ((from - 1) * (360 / playerCount)) - 90 + (360 / (playerCount * 2));
       const rad = angle * Math.PI / 180;
-      
-      // Line pointing to center
       const innerX = cx + (radius - 15) * Math.cos(rad);
       const innerY = cy + (radius - 15) * Math.sin(rad);
-      
-      // Circular arc (loading arrow look)
       const arcRadius = 10;
       const arcStartAngle = rad - 0.5;
       const arcEndAngle = rad + 1.5;
@@ -142,7 +161,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     const headLength = 8;
     const headX = toPos.x - 4 * Math.cos(angle);
     const headY = toPos.y - 4 * Math.sin(angle);
-    
     const leftX = headX - headLength * Math.cos(angle - Math.PI / 6);
     const leftY = headY - headLength * Math.sin(angle - Math.PI / 6);
     const rightX = headX - headLength * Math.cos(angle + Math.PI / 6);
@@ -202,10 +220,8 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const handleMouseUp = () => {
     if (gestureStart !== null) {
       if (!isVoting && !isSliding) {
-        // Simple click logic
         onPlayerClick(gestureStart);
       } else if (!isVoting && isSliding && gestureCurrent !== null) {
-        // Sliding logic: allows gestureStart === gestureCurrent for self-nomination
         onNominationSlideEnd(gestureStart.toString(), gestureCurrent.toString());
       }
     }
@@ -269,7 +285,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           const numStr = num.toString();
           const isCurrentViewPlayer = num === playerNo;
           const isDead = deadPlayers.includes(num);
-          const activeDays = votedAtDay[numStr] || new Set();
+          const activeDaysMap = votedAtDay[numStr] || {};
           const isVoter = isVoting && pendingNom?.voters.includes(numStr);
 
           return (
@@ -289,19 +305,31 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
 
               {Array.from({ length: ringCount }).map((_, rIdx) => {
                 const dayNum = rIdx + 1;
-                const isVotedDay = activeDays.has(dayNum);
+                const voteCount = activeDaysMap[dayNum];
+                if (voteCount === undefined) return null;
+
                 const rStart = innerRadius + rIdx * ringWidth;
                 const rEnd = rStart + ringWidth;
                 
-                if (!isVotedDay) return null;
+                const pos = getPosition(num, (rStart + rEnd) / 2);
 
                 return (
-                  <path 
-                    key={`${num}-${dayNum}`}
-                    d={getSlicePath(i, playerCount, rStart, rEnd)}
-                    fill={mode === 'vote' ? 'rgba(6, 182, 212, 0.7)' : 'rgba(37, 99, 235, 0.7)'}
-                    className="pointer-events-none"
-                  />
+                  <g key={`${num}-${dayNum}`} className="pointer-events-none">
+                    <path 
+                      d={getSlicePath(i, playerCount, rStart, rEnd)}
+                      fill={mode === 'vote' ? 'rgba(6, 182, 212, 0.7)' : mode === 'allReceive' ? 'rgba(168, 85, 247, 0.4)' : 'rgba(37, 99, 235, 0.7)'}
+                    />
+                    {mode === 'allReceive' && (
+                      <text 
+                        x={pos.x} y={pos.y} 
+                        textAnchor="middle" alignmentBaseline="middle" 
+                        className="font-black fill-white drop-shadow-sm"
+                        style={{ fontSize: `${Math.max(8, ringWidth * 0.15)}px` }}
+                      >
+                        {voteCount}
+                      </text>
+                    )}
+                  </g>
                 );
               })}
 
@@ -318,8 +346,8 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           );
         })}
 
-        {!isVoting && arrowData.map(arrow => 
-          drawArrow(arrow.from, arrow.to, arrow.day, arrow.type, 2.5)
+        {!isVoting && arrowData.map((arrow, idx) => 
+          drawArrow(arrow.from, arrow.to, arrow.day, arrow.type, mode === 'allReceive' ? 1.5 : 2.5)
         )}
 
         {isSliding && gestureStart && gestureCurrent && (
@@ -347,7 +375,9 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           ) : (
             <>
               <text x={cx} y={cy - 5} textAnchor="middle" className="text-white text-[10px] font-black pointer-events-none">{playerNo}</text>
-              <text x={cx} y={cy + 5} textAnchor="middle" className="text-white text-[6px] font-black uppercase pointer-events-none">{mode === 'vote' ? 'VOTE' : 'BE VOTED'}</text>
+              <text x={cx} y={cy + 5} textAnchor="middle" className="text-white text-[5px] font-black uppercase pointer-events-none text-center">
+                {mode === 'vote' ? 'VOTE' : mode === 'beVoted' ? 'RECV' : 'ALL'}
+              </text>
             </>
           )}
         </g>

@@ -2,15 +2,12 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
-  Users, 
-  Vote, 
   ShieldAlert, 
-  FileText, 
   Plus, 
-  Skull, 
   Minus,
   Eye,
-  EyeOff
+  EyeOff,
+  BookOpen
 } from 'lucide-react';
 
 
@@ -26,12 +23,8 @@ import {
 } from './type'
 
 
-import PlayersTab from './components/tabs/PlayersTab';
-import VotesTab from './components/tabs/VotesTab';
-import CharsTab from './components/tabs/CharsTab';
-import NotesTab from './components/tabs/NotesTab';
-
-import PlayerInfoPopup from './components/popitems/popups/PlayerInfoPopup';
+import PlayerDetailView from './components/PlayerDetailView';
+import LedgerTabsPopup from './components/popitems/popups/LedgerTabsPopup';
 import RoleSelectorPopup from './components/popitems/popups/RoleSelectorPopup';
 import RoleUpdatePopup from './components/popitems/popups/RoleUpdatePopup';
 import ResetConfirmation from './components/popitems/popups/ResetConfirmation';
@@ -60,11 +53,12 @@ export default function App() {
   
   const [showReset, setShowReset] = useState(false);
   const [fabOpen, setFabOpen] = useState(false);
-  const [popupPlayerNo, setPopupPlayerNo] = useState<number | null>(null);
+  const [focusPlayerNo, setFocusPlayerNo] = useState<number>(1);
   const [showRoleSelector, setShowRoleSelector] = useState<{ playerNo: number; roles: { role: string; category: string }[] } | null>(null);
   const [showRoleUpdate, setShowRoleUpdate] = useState(false);
+  const [showLedger, setShowLedger] = useState(false);
   const [roleUpdateText, setRoleUpdateText] = useState('');
-  const [voteHistoryMode, setVoteHistoryMode] = useState<'vote' | 'beVoted'>('vote');
+  const [voteHistoryMode, setVoteHistoryMode] = useState<'vote' | 'beVoted' | 'allReceive'>('allReceive');
 
   const [assignmentMode, setAssignmentMode] = useState<'death' | 'property' | null>(null);
   const [selectedReason, setSelectedReason] = useState<string>('⚔️');
@@ -82,15 +76,6 @@ export default function App() {
     localStorage.setItem('clocktower_font', JSON.stringify(fontSize));
     localStorage.setItem('clocktower_showHub', JSON.stringify(showHub));
   }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, showHub]);
-
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      e.returnValue = '';
-    };
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, []);
 
   const fontSizeClass = {
     small: 'text-[10px]',
@@ -132,7 +117,7 @@ export default function App() {
 
   const reset = () => {
     setPlayers(Array.from({ length: playerCount }, (_, i) => ({ no: i + 1, inf: '', day: '', reason: '', red: '', property: '' })));
-    setNominations([{ id: Math.random().toString(36), day: 1, f: '-', t: '-', voters: '', note: '' }]);
+    setNominations([{ id: Math.random().toString(), day: 1, f: '-', t: '-', voters: '', note: '' }]);
     setDeaths([
       { id: 'default-execution', day: 1, playerNo: '', reason: '⚔️', note: '', isConfirmed: true },
       { id: 'default-night', day: 1, playerNo: '', reason: '🌑', note: '', isConfirmed: true }
@@ -151,13 +136,16 @@ export default function App() {
 
   const addNomination = () => {
     setNominations([...nominations, { id: Math.random().toString(), day: currentDay, f: '-', t: '-', voters: '', note: '' }]);
-    setActiveTab('votes');
     setFabOpen(false);
+    setShowLedger(true);
+    setActiveTab('votes');
   };
 
   const addDeath = () => {
     setDeaths([...deaths, { id: Math.random().toString(), day: currentDay, playerNo: '', reason: '🌑', note: '', isConfirmed: true }]);
     setFabOpen(false);
+    setShowLedger(true);
+    setActiveTab('players');
   };
 
   const updatePlayerInfo = (no: number, text: string) => {
@@ -204,13 +192,6 @@ export default function App() {
     setRoleUpdateText('');
   };
 
-  const categoryBg = {
-    Townsfolk: 'bg-blue-100 hover:bg-blue-200',
-    Outsider: 'bg-blue-50 hover:bg-blue-100',
-    Minion: 'bg-orange-50 hover:bg-orange-100',
-    Demon: 'bg-red-100 hover:bg-red-200'
-  };
-
   const handlePlayerClick = (num: number) => {
     if (assignmentMode === 'death') {
       const existingDeath = deaths.find(d => parseInt(d.playerNo) === num);
@@ -231,29 +212,45 @@ export default function App() {
         return p;
       }));
     } else {
-      setPopupPlayerNo(num);
+      setFocusPlayerNo(num);
     }
+  };
+
+  const categoryBg = {
+    Townsfolk: 'bg-blue-100 hover:bg-blue-200',
+    Outsider: 'bg-blue-50 hover:bg-blue-100',
+    Minion: 'bg-orange-50 hover:bg-orange-100',
+    Demon: 'bg-red-100 hover:bg-red-200'
   };
 
   return (
     <div className={`fixed inset-0 bg-slate-100 flex flex-col font-sans select-none ${fontSizeClass}`} onMouseUp={() => setIsDragging(false)}>
       
       <header className="flex-none bg-slate-900 text-white px-3 py-2 flex justify-between items-center shadow-md z-50">
-        <div className="flex items-center gap-1.5"><ShieldAlert className="text-red-500" size={14} /><h1 className="font-black text-xs uppercase italic tracking-tighter">LEDGER PRO v3.8</h1></div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5">
+          <ShieldAlert className="text-red-500" size={14} />
+          <h1 className="font-black text-xs uppercase italic tracking-tighter">LEDGER PRO v3.8</h1>
+        </div>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => setShowLedger(true)} 
+            className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase transition-all shadow-sm"
+          >
+            <BookOpen size={12} /> Full Ledger
+          </button>
+          <div className="h-4 w-px bg-slate-700 mx-1" />
           <button 
             onClick={() => setShowHub(!showHub)} 
             className={`p-1 rounded transition-colors ${showHub ? 'text-blue-400 hover:bg-slate-800' : 'text-slate-500 hover:bg-slate-800'}`}
           >
             {showHub ? <Eye size={14} /> : <EyeOff size={14} />}
           </button>
-          <div className="text-[8px] font-black text-slate-500 uppercase tracking-widest">v3.8.0</div>
         </div>
       </header>
 
       {showHub && (
         <div className="flex-none bg-slate-800 border-b border-slate-700 p-2 shadow-inner animate-in slide-in-from-top-4 duration-200">
-          <div className="flex flex-wrap items-center gap-1.5 max-w-4xl mx-auto">
+          <div className="flex flex-wrap items-center gap-1.5 max-w-5xl mx-auto">
             <div className="flex items-center bg-slate-900 rounded-lg h-7 overflow-hidden border border-slate-700 shadow-lg mr-1 w-[58px]">
               <button onClick={() => setCurrentDay(Math.max(1, currentDay - 1))} className="flex-1 hover:bg-slate-800 text-slate-500 transition-colors flex items-center justify-center"><Minus size={10} /></button>
               <div className="w-6 font-black text-[9px] text-white bg-slate-800 h-full flex items-center justify-center tracking-tighter border-x border-slate-700">D{currentDay}</div>
@@ -307,15 +304,12 @@ export default function App() {
                   key={num} 
                   onClick={() => handlePlayerClick(num)}
                   className={`flex-none w-7 h-7 rounded-full flex flex-col items-center justify-center text-[10px] font-black transition-all border-2 shadow-sm ${
-                    assignmentMode 
-                      ? 'bg-slate-700 text-slate-300 border-slate-600 hover:bg-slate-600' 
-                      : isDead 
-                        ? 'bg-slate-900 text-white border-red-900/50' 
-                        : hasInfo 
-                          ? 'bg-blue-600 text-white border-blue-400' 
-                          : hasProperty
-                            ? 'bg-green-600 text-white border-green-400'
-                            : 'bg-slate-700 text-slate-300 border-slate-600'
+                    assignmentMode ? 'bg-slate-700 text-slate-300 border-slate-600 hover:bg-slate-600' :
+                    num === focusPlayerNo ? 'bg-white text-slate-900 border-red-500 scale-110 z-10' :
+                    isDead ? 'bg-slate-900 text-white border-red-900/50' : 
+                    hasInfo ? 'bg-blue-600 text-white border-blue-400' : 
+                    hasProperty ? 'bg-green-600 text-white border-green-400' : 
+                    'bg-slate-700 text-slate-300 border-slate-600'
                   } active:scale-90`}
                 >
                   <span>{num}</span>
@@ -327,46 +321,55 @@ export default function App() {
         </div>
       )}
 
-      <nav className="flex-none bg-white border-b flex shadow-sm z-40">
-        {[
-          { id: 'players', icon: Users, label: 'PLAYERS' },
-          { id: 'votes', icon: Vote, label: 'VOTES' },
-          { id: 'chars', icon: ShieldAlert, label: 'ROLES' },
-          { id: 'notes', icon: FileText, label: 'NOTES' },
-        ].map((t) => (
-          <button key={t.id} onClick={() => setActiveTab(t.id as any)} className={`flex-1 py-2 flex flex-col items-center gap-0.5 border-b-2 transition-all ${activeTab === t.id ? 'border-red-600 bg-red-50 text-red-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`}>
-            <t.icon size={12} /><span className="text-[8px] font-black">{t.label}</span>
-          </button>
-        ))}
-      </nav>
-
-      <main className="flex-1 overflow-y-auto p-3 no-scrollbar relative">
-        <div className="max-w-4xl mx-auto space-y-3 pb-24">
-          {activeTab === 'players' && <PlayersTab players={players} setPlayers={setPlayers} />}
-          {activeTab === 'votes' && <VotesTab nominations={nominations} setNominations={setNominations} isDragging={isDragging} setIsDragging={setIsDragging} dragAction={dragAction} setDragAction={setDragAction} lastDraggedPlayer={lastDraggedPlayer} setLastDraggedPlayer={setLastDraggedPlayer} deadPlayers={deadPlayers} playerCount={playerCount} addNomination={addNomination} />}
-          {activeTab === 'chars' && <CharsTab chars={chars} setChars={setChars} playerCount={playerCount} setPlayerCount={setPlayerCount} roleDist={roleDist} setRoleDist={setRoleDist} />}
-          {activeTab === 'notes' && <NotesTab note={note} setNote={setNote} />}
+      <main className="flex-1 overflow-hidden p-3 relative">
+        <div className="max-w-4xl mx-auto h-full pb-20">
+          <PlayerDetailView 
+            playerNo={focusPlayerNo}
+            setPlayerNo={setFocusPlayerNo}
+            playerCount={playerCount}
+            players={players}
+            deadPlayers={deadPlayers}
+            updatePlayerInfo={updatePlayerInfo}
+            updatePlayerProperty={updatePlayerProperty}
+            togglePlayerAlive={togglePlayerAlive}
+            chars={chars}
+            nominations={nominations}
+            setNominations={setNominations}
+            voteHistoryMode={voteHistoryMode}
+            setVoteHistoryMode={setVoteHistoryMode}
+            setShowRoleSelector={setShowRoleSelector}
+            deaths={deaths}
+            setDeaths={setDeaths}
+            currentDay={currentDay}
+          />
         </div>
       </main>
 
-      <PlayerInfoPopup
-        popupPlayerNo={popupPlayerNo}
-        setPopupPlayerNo={setPopupPlayerNo}
-        playerCount={playerCount}
+      <LedgerTabsPopup 
+        isOpen={showLedger}
+        onClose={() => setShowLedger(false)}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
         players={players}
-        deadPlayers={deadPlayers}
-        updatePlayerInfo={updatePlayerInfo}
-        updatePlayerProperty={updatePlayerProperty}
-        togglePlayerAlive={togglePlayerAlive}
-        chars={chars}
+        setPlayers={setPlayers}
         nominations={nominations}
         setNominations={setNominations}
-        voteHistoryMode={voteHistoryMode}
-        setVoteHistoryMode={setVoteHistoryMode}
-        setShowRoleSelector={setShowRoleSelector}
-        deaths={deaths}
-        setDeaths={setDeaths}
-        currentDay={currentDay}
+        chars={chars}
+        setChars={setChars}
+        note={note}
+        setNote={setNote}
+        playerCount={playerCount}
+        setPlayerCount={setPlayerCount}
+        roleDist={roleDist}
+        setRoleDist={setRoleDist}
+        deadPlayers={deadPlayers}
+        addNomination={addNomination}
+        isDragging={isDragging}
+        setIsDragging={setIsDragging}
+        dragAction={dragAction}
+        setDragAction={setDragAction}
+        lastDraggedPlayer={lastDraggedPlayer}
+        setLastDraggedPlayer={setLastDraggedPlayer}
       />
 
       <RoleSelectorPopup
@@ -402,7 +405,7 @@ export default function App() {
         setFontSize={setFontSize}
       />
 
-      <div className="bg-white border-t px-3 py-1 text-[9px] font-bold text-slate-400 flex justify-between items-center">
+      <div className="bg-white border-t px-3 py-1 text-[9px] font-bold text-slate-400 flex justify-between items-center z-50">
         <span>PLAYERS REGISTERED: {players.filter(p => p.inf).length} / {playerCount}</span>
         <div className="w-32 h-1 bg-slate-100 rounded-full overflow-hidden">
           <div className="h-full bg-red-500" style={{ width: `${(players.filter(p => p.inf).length / playerCount) * 100}%` }} />
