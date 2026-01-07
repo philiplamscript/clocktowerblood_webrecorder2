@@ -120,6 +120,13 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
     setDeaths(deaths.map(d => d.playerNo === playerNo.toString() ? { ...d, reason: newReason } : d));
   };
 
+  const cycleDeathReason = () => {
+    const currentReason = death?.reason || '🌑';
+    const currentIndex = REASON_CYCLE.indexOf(currentReason);
+    const nextIndex = (currentIndex + 1) % REASON_CYCLE.length;
+    updateDeathReason(playerNo, REASON_CYCLE[nextIndex]);
+  };
+
   return (
     <div className="h-full bg-white overflow-hidden">
       <div className="h-full overflow-y-auto p-4 space-y-4">
@@ -214,15 +221,12 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
                     onChange={(e) => updateDeathDay(playerNo, parseInt(e.target.value) || currentDay)} 
                     className="flex-1 h-full bg-white border rounded-lg text-center text-[10px] font-black focus:ring-0" 
                   />
-                  <select 
-                    value={death?.reason || '⚔️'} 
-                    onChange={(e) => updateDeathReason(playerNo, e.target.value)} 
-                    className="flex-[2] h-full bg-white border rounded-lg text-center text-[10px] font-black focus:ring-0"
+                  <button 
+                    onClick={cycleDeathReason}
+                    className="flex-[2] h-full bg-white border rounded-lg text-center text-[12px] font-black hover:bg-slate-50 transition-colors"
                   >
-                    {REASON_CYCLE.map(reason => (
-                      <option key={reason} value={reason}>{reason}</option>
-                    ))}
-                  </select>
+                    {death?.reason || '🌑'}
+                  </button>
                 </div>
               ) : (
                 <button 

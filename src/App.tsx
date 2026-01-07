@@ -64,7 +64,7 @@ export default function App() {
   const [voteHistoryMode, setVoteHistoryMode] = useState<'vote' | 'beVoted' | 'allReceive'>('allReceive');
 
   const [assignmentMode, setAssignmentMode] = useState<'death' | 'property' | null>(null);
-  const [selectedReason, setSelectedReason] = useState<string>('⚔️');
+  const [selectedReason, setSelectedReason] = useState<string>('🌑');
   const [selectedProperty, setSelectedProperty] = useState<string>('');
 
   useEffect(() => {
@@ -220,6 +220,12 @@ export default function App() {
     }
   };
 
+  const cycleSelectedReason = () => {
+    const currentIndex = REASON_CYCLE.indexOf(selectedReason);
+    const nextIndex = (currentIndex + 1) % REASON_CYCLE.length;
+    setSelectedReason(REASON_CYCLE[nextIndex]);
+  };
+
   const categoryBg = {
     Townsfolk: 'bg-blue-100 hover:bg-blue-200',
     Outsider: 'bg-blue-50 hover:bg-blue-100',
@@ -275,15 +281,12 @@ export default function App() {
                 >
                   DEATH
                 </button>
-                <select 
-                  value={selectedReason} 
-                  onChange={(e) => setSelectedReason(e.target.value)} 
-                  className="bg-slate-800 text-white text-[10px] border-none focus:ring-0 h-full px-1"
+                <button 
+                  onClick={cycleSelectedReason}
+                  className="bg-slate-800 text-white text-[10px] border-none focus:ring-0 h-full px-2 hover:bg-slate-700 transition-colors"
                 >
-                  {REASON_CYCLE.map(reason => (
-                    <option key={reason} value={reason}>{reason}</option>
-                  ))}
-                </select>
+                  {selectedReason}
+                </button>
               </div>
 
               <div className="flex items-center bg-slate-900 rounded-lg h-7 overflow-hidden border border-slate-700 shadow-lg">
