@@ -326,7 +326,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
                 return (
                   <path 
                     key={`${num}-${dayNum}`}
-                    d={getSlicePath(i, playerCount, rStart, rEnd)
+                    d={getSlicePath(i, playerCount, rStart, rEnd)}
                     fill={isSelfVote ? 'rgba(147, 51, 234, 0.7)' : (mode === 'vote' ? 'rgba(6, 182, 212, 0.7)' : 'rgba(37, 99, 235, 0.7)')}
                     stroke={isSelfVote ? '#a855f7' : 'none'}
                     strokeWidth={isSelfVote ? 1 : 0}
