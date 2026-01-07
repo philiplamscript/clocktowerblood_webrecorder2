@@ -52,17 +52,18 @@ src/
 │   ├── tabs/             # Tab content components
 │   │   ├── PlayersTab.tsx
 │   │   ├── VotesTab.tsx
-│   │   ├── DeathsTab.tsx
 │   │   ├── CharsTab.tsx
 │   │   └── NotesTab.tsx
-│   └── popitems/         # UI components and popups
-│       ├── popups/
-│       │   ├── PlayerInfoPopup.tsx
-│       │   ├── RoleSelectorPopup.tsx
-│       │   ├── RoleUpdatePopup.tsx
-│       │   └── ResetConfirmation.tsx
-│       ├── VoteHistoryClock.tsx
-│       └── FAB.tsx
+│   ├── popitems/         # UI components and popups
+│   │   ├── popups/
+│   │   │   ├── LedgerTabsPopup.tsx
+│   │   │   ├── RoleSelectorPopup.tsx
+│   │   │   ├── RoleUpdatePopup.tsx
+│   │   │   └── ResetConfirmation.tsx
+│   │   ├── VoteHistoryClock.tsx
+│   │   └── FAB.tsx
+│   ├── PlayerDetailView.tsx # Main player focus view
+│   └── GlobalVotingView.tsx # Global game state view
 ├── type.tsx              # TypeScript type definitions
 ├── App.tsx               # Main application component
 ├── main.tsx              # Application entry point
