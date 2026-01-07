@@ -354,7 +354,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           drawArrow(gestureStart, gestureCurrent, maxDay, gestureStart === gestureCurrent ? 'self' : 'to', 3)
         )}
 
-        {pendingNom && drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), currentDay, pendingNom.f === pendingNom.t ? 'self' : 'to', 4)}
+        {pendingNom && !isSliding && drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), currentDay, pendingNom.f === pendingNom.t ? 'self' : 'to', 4)}
 
         <g 
           className="cursor-pointer group" 
