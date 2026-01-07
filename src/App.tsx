@@ -64,7 +64,7 @@ export default function App() {
   const [showRoleSelector, setShowRoleSelector] = useState<{ playerNo: number; roles: { role: string; category: string }[] } | null>(null);
   const [showRoleUpdate, setShowRoleUpdate] = useState(false);
   const [roleUpdateText, setRoleUpdateText] = useState('');
-  const [voteHistoryMode, setVoteHistoryMode] = useState<'vote' | 'beVoted'>('vote');
+  const [voteHistoryMode, setVoteHistoryMode] = useState<'vote' | 'beVoted' | 'allReceive'>('allReceive');
 
   const [assignmentMode, setAssignmentMode] = useState<'death' | 'property' | null>(null);
   const [selectedReason, setSelectedReason] = useState<string>('⚔️');
@@ -132,7 +132,7 @@ export default function App() {
 
   const reset = () => {
     setPlayers(Array.from({ length: playerCount }, (_, i) => ({ no: i + 1, inf: '', day: '', reason: '', red: '', property: '' })));
-    setNominations([{ id: Math.random().toString(36), day: 1, f: '-', t: '-', voters: '', note: '' }]);
+    setNominations([{ id: Math.random().toString(), day: 1, f: '-', t: '-', voters: '', note: '' }]);
     setDeaths([
       { id: 'default-execution', day: 1, playerNo: '', reason: '⚔️', note: '', isConfirmed: true },
       { id: 'default-night', day: 1, playerNo: '', reason: '🌑', note: '', isConfirmed: true }
@@ -306,17 +306,7 @@ export default function App() {
                 <button 
                   key={num} 
                   onClick={() => handlePlayerClick(num)}
-                  className={`flex-none w-7 h-7 rounded-full flex flex-col items-center justify-center text-[10px] font-black transition-all border-2 shadow-sm ${
-                    assignmentMode 
-                      ? 'bg-slate-700 text-slate-300 border-slate-600 hover:bg-slate-600' 
-                      : isDead 
-                        ? 'bg-slate-900 text-white border-red-900/50' 
-                        : hasInfo 
-                          ? 'bg-blue-600 text-white border-blue-400' 
-                          : hasProperty
-                            ? 'bg-green-600 text-white border-green-400'
-                            : 'bg-slate-700 text-slate-300 border-slate-600'
-                  } active:scale-90`}
+                  className={`flex-none w-7 h-7 rounded-full flex flex-col items-center justify-center text-[10px] font-black transition-all border-2 shadow-sm ${assignmentMode ? 'bg-slate-700 text-slate-300 border-slate-600 hover:bg-slate-600' : isDead ? 'bg-slate-900 text-white border-red-900/50' : hasInfo ? 'bg-blue-600 text-white border-blue-400' : hasProperty ? 'bg-green-600 text-white border-green-400' : 'bg-slate-700 text-slate-300 border-slate-600'} active:scale-90`}
                 >
                   <span>{num}</span>
                   {isDead && <span className="text-[5px] leading-none opacity-75">{deathReason}</span>}

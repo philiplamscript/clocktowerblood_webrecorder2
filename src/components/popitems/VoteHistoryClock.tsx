@@ -323,7 +323,8 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
                       <text 
                         x={pos.x} y={pos.y} 
                         textAnchor="middle" alignmentBaseline="middle" 
-                        className="text-[6px] font-black fill-white drop-shadow-sm"
+                        className="font-black fill-white drop-shadow-sm"
+                        style={{ fontSize: `${Math.max(8, ringWidth * 0.15)}px` }}
                       >
                         {voteCount}
                       </text>
