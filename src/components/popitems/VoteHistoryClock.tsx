@@ -33,13 +33,11 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const [hasMoved, setHasMoved] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
 
-  // Constants for geometry
   const cx = 144, cy = 144, outerRadius = 142, innerRadius = 55;
   const maxDay = Math.max(...nominations.map(n => n.day), 1, currentDay);
   const ringCount = Math.max(maxDay, 1);
   const ringWidth = (outerRadius - innerRadius) / ringCount;
 
-  // Data maps
   const votedAtDay: Record<string, Set<number>> = {}; 
   const arrowData: { from: number, to: number, day: number, type: 'to' | 'from' | 'self' }[] = [];
 
@@ -48,7 +46,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     const isFiltered = filterDay !== 'all' && day !== filterDay;
     if (isFiltered) return;
 
-    // Collect rings based on mode
     if (mode === 'vote') {
       if (n.voters.split(',').includes(playerStr) && n.t && n.t !== '-') {
         if (!votedAtDay[n.t]) votedAtDay[n.t] = new Set();
@@ -71,9 +68,8 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
       }
     }
 
-    // Collect ALL arrows regardless of mode
-    if (n.f === playerStr && n.t === playerStr) {
-      arrowData.push({ from: playerNo, to: playerNo, day, type: 'self' });
+    if (n.f === n.t && n.f !== '-') {
+       arrowData.push({ from: parseInt(n.f), to: parseInt(n.t), day, type: 'self' });
     } else if (n.f === playerStr && n.t && n.t !== '-') {
       arrowData.push({ from: playerNo, to: parseInt(n.t), day, type: 'to' });
     } else if (n.t === playerStr && n.f && n.f !== '-') {
@@ -110,20 +106,15 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     const color = type === 'to' ? '#ef4444' : type === 'from' ? '#22c55e' : '#a855f7';
     const radius = innerRadius + (day - 0.5) * ringWidth;
 
-    if (type === 'self') {
+    if (type === 'self' || from === to) {
       const pos = getPosition(from, radius);
-      const dx = pos.x - cx;
-      const dy = pos.y - cy;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      const angle = Math.atan2(dy, dx);
+      const angle = Math.atan2(pos.y - cy, pos.x - cx);
       
-      // Arrow from center to player
       const startX = cx;
       const startY = cy;
-      const endX = pos.x - (15 * Math.cos(angle)); // Stop short of the slice edge
-      const endY = pos.y - (15 * Math.sin(angle));
+      const endX = pos.x - (10 * Math.cos(angle));
+      const endY = pos.y - (10 * Math.sin(angle));
       
-      // Arrowhead at the player end
       const headLength = 8;
       const headX = endX;
       const headY = endY;
@@ -165,44 +156,54 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     );
   };
 
-  const getPlayerAtPos = (clientX: number, clientY: number) => {
+  const getPosInfo = (clientX: number, clientY: number) => {
     if (!svgRef.current) return null;
     const rect = svgRef.current.getBoundingClientRect();
-    const x = clientX - (rect.left + rect.width / 2);
-    const y = clientY - (rect.top + rect.height / 2);
+    const scale = 288 / rect.width;
+    const x = (clientX - rect.left) * scale - 144;
+    const y = (clientY - rect.top) * scale - 144;
+    const dist = Math.sqrt(x * x + y * y);
+    
     let angle = Math.atan2(y, x) * (180 / Math.PI) + 90;
     if (angle < 0) angle += 360;
-    const index = Math.floor(angle / (360 / playerCount));
-    return (index % playerCount) + 1;
+    const playerNum = (Math.floor(angle / (360 / playerCount)) % playerCount) + 1;
+    
+    return { dist, playerNum };
   };
 
-  const handleMouseDown = (num: number) => {
+  const handleMouseDown = (e: React.MouseEvent, num: number | 'center') => {
+    const startNum = num === 'center' ? playerNo : num;
     if (isVoting) {
-      const action = pendingNom?.voters.includes(num.toString()) ? 'remove' : 'add';
+      const action = pendingNom?.voters.includes(startNum.toString()) ? 'remove' : 'add';
       setDragAction(action);
-      setGestureStart(num);
-      setGestureCurrent(num);
-      onVoterToggle(num.toString(), action);
+      setGestureStart(startNum);
+      setGestureCurrent(startNum);
+      onVoterToggle(startNum.toString(), action);
       return;
     }
-    setGestureStart(num);
-    setGestureCurrent(num);
+    setGestureStart(startNum);
+    setGestureCurrent(startNum);
     setIsSliding(false);
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (gestureStart === null) return;
-    const current = getPlayerAtPos(e.clientX, e.clientY);
-    if (!current) return;
+    const info = getPosInfo(e.clientX, e.clientY);
+    if (!info) return;
+
+    let target = info.playerNum;
+    if (info.dist < 35) {
+      target = gestureStart; // Target is center (Self vote)
+    }
 
     if (isVoting) {
-      if (current !== gestureCurrent) {
-        setGestureCurrent(current);
-        onVoterToggle(current.toString(), dragAction!);
+      if (target !== gestureCurrent) {
+        setGestureCurrent(target);
+        onVoterToggle(target.toString(), dragAction!);
       }
     } else {
-      if (current !== gestureCurrent) {
-        setGestureCurrent(current);
+      if (target !== gestureCurrent || info.dist < 35 || info.dist > 50) {
+        setGestureCurrent(target);
         setIsSliding(true);
       }
     }
@@ -212,7 +213,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     if (gestureStart !== null) {
       if (!isVoting && !isSliding) {
         onPlayerClick(gestureStart);
-      } else if (!isVoting && isSliding && gestureCurrent !== null && gestureStart !== gestureCurrent) {
+      } else if (!isVoting && isSliding && gestureCurrent !== null) {
         onNominationSlideEnd(gestureStart.toString(), gestureCurrent.toString());
       }
     }
@@ -222,21 +223,31 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     setDragAction(null);
   };
 
+  const handleTouchStart = (e: React.TouchEvent, num: number | 'center') => {
+    const startNum = num === 'center' ? playerNo : num;
+    setGestureStart(startNum);
+    setGestureCurrent(startNum);
+    setIsSliding(false);
+  };
+
   const handleTouchMove = (e: React.TouchEvent) => {
     setHasMoved(true);
     if (gestureStart === null) return;
     const touch = e.touches[0];
-    const current = getPlayerAtPos(touch.clientX, touch.clientY);
-    if (!current) return;
+    const info = getPosInfo(touch.clientX, touch.clientY);
+    if (!info) return;
+
+    let target = info.playerNum;
+    if (info.dist < 35) target = gestureStart;
 
     if (isVoting) {
-      if (current !== gestureCurrent) {
-        setGestureCurrent(current);
-        onVoterToggle(current.toString(), dragAction!);
+      if (target !== gestureCurrent) {
+        setGestureCurrent(target);
+        onVoterToggle(target.toString(), dragAction!);
       }
     } else {
-      if (current !== gestureCurrent) {
-        setGestureCurrent(current);
+      if (target !== gestureCurrent || info.dist < 35) {
+        setGestureCurrent(target);
         setIsSliding(true);
       }
     }
@@ -276,8 +287,8 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           return (
             <g 
               key={num} 
-              onMouseDown={() => handleMouseDown(num)}
-              onTouchStart={() => handleMouseDown(num)}
+              onMouseDown={(e) => handleMouseDown(e, num)}
+              onTouchStart={(e) => handleTouchStart(e, num)}
               className="cursor-pointer"
             >
               <path 
@@ -290,12 +301,9 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
 
               {Array.from({ length: ringCount }).map((_, rIdx) => {
                 const dayNum = rIdx + 1;
-                const isVotedDay = activeDays.has(dayNum);
+                if (!activeDays.has(dayNum)) return null;
                 const rStart = innerRadius + rIdx * ringWidth;
                 const rEnd = rStart + ringWidth;
-                
-                if (!isVotedDay) return null;
-
                 return (
                   <path 
                     key={`${num}-${dayNum}`}
@@ -319,18 +327,20 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           );
         })}
 
-        {!isVoting && arrowData.map(arrow => 
+        {!isVoting && arrowData.map((arrow, idx) => 
           drawArrow(arrow.from, arrow.to, arrow.day, arrow.type, 2.5)
         )}
 
-        {isSliding && gestureStart && gestureCurrent && gestureStart !== gestureCurrent && (
-          drawArrow(gestureStart, gestureCurrent, maxDay, 'to', 3)
+        {isSliding && gestureStart && gestureCurrent && (
+          drawArrow(gestureStart, gestureCurrent, maxDay, gestureStart === gestureCurrent ? 'self' : 'to', 3)
         )}
 
-        {pendingNom && drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), currentDay, 'to', 4)}
+        {pendingNom && drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), currentDay, parseInt(pendingNom.f) === parseInt(pendingNom.t) ? 'self' : 'to', 4)}
 
         <g 
           className="cursor-pointer group" 
+          onMouseDown={(e) => handleMouseDown(e, 'center')}
+          onTouchStart={(e) => handleTouchStart(e, 'center')}
           onClick={(e) => { e.stopPropagation(); onToggleVotingPhase(); }}
         >
           <circle 
