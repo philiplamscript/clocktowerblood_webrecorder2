@@ -51,7 +51,7 @@ export default function App() {
   const [roleDist, setRoleDist] = useState<RoleDist>(() => getStorage('dist', { townsfolk: 0, outsiders: 0, minions: 0, demons: 1 }));
   const [note, setNote] = useState(() => getStorage('note', ''));
   const [fontSize, setFontSize] = useState<'small' | 'mid' | 'large'>(() => getStorage('font', 'mid'));
-  const [showHub, setShowHub] = useState(() => getStorage('showHub', false));
+  const [showHub, setShowHub] = useState(() => getStorage('showHub', true));
   const [splitView, setSplitView] = useState(() => getStorage('splitView', false));
   
   const [showReset, setShowReset] = useState(false);
@@ -63,6 +63,21 @@ export default function App() {
   const [roleUpdateText, setRoleUpdateText] = useState('');
   const [voteHistoryMode, setVoteHistoryMode] = useState<'vote' | 'beVoted' | 'allReceive'>('allReceive');
 
+  const [assignmentMode, setAssignmentMode] = useState<'death' | 'property' | null>(null);
+  const [selectedReason, setSelectedReason] = useState<string>('🌑');
+  const [selectedProperty, setSelectedProperty] = useState<string>('');
+
+  useEffect(() => {
+    localStorage.setItem('clocktower_day', JSON.stringify(currentDay));
+    localStorage.setItem('clocktower_count', JSON.stringify(playerCount));
+    localStorage.setItem('clocktower_players', JSON.stringify(players));
+    localStorage.setItem('clocktower_nominations', JSON.stringify(nominations));
+    localStorage.setItem('clocktower_deaths', JSON.stringify(deaths));
+    localStorage.setItem('clocktower_chars', JSON.stringify(chars));
+    localStorage.setItem('clocktower_dist', JSON.stringify(roleDist));
+    localStorage.setItem('clocktower_note', JSON.stringify(note));
+    localStorage.setItem('clocktower_font', JSON.stringify(fontSize));
+    localStorage.setItem('clocktower<dyad-write path="src/App.tsx" description="Completing the App.tsx update to pass assignment setters to PlayerDetailView.">
   const [assignmentMode, setAssignmentMode] = useState<'death' | 'property' | null>(null);
   const [selectedReason, setSelectedReason] = useState<string>('🌑');
   const [selectedProperty, setSelectedProperty] = useState<string>('');
@@ -259,7 +274,7 @@ export default function App() {
             onClick={() => setShowHub(!showHub)} 
             className={`p-1 rounded transition-colors ${showHub ? 'text-blue-400 hover:bg-slate-800' : 'text-slate-500 hover:bg-slate-800'}`}
           >
-            {showHub ? <Eye size={14} /> : <EyeOff size={14} />}
+            <Eye size={14} />
           </button>
         </div>
       </header>
@@ -363,6 +378,9 @@ export default function App() {
               selectedReason={selectedReason}
               selectedProperty={selectedProperty}
               onPlayerClick={handlePlayerClick}
+              setAssignmentMode={setAssignmentMode}
+              setSelectedReason={setSelectedReason}
+              setSelectedProperty={setSelectedProperty}
             />
           </div>
           {splitView && (

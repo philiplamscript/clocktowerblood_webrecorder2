@@ -384,7 +384,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         <g className="pointer-events-auto">
           <circle 
             cx={cx} cy={cy} r="25" 
-            fill={isVoting ? "#ef4444" : pendingNom ? "#a855f7" : assignmentMode === 'death' ? '#ef4444' : assignmentMode === 'property' ? '#3b82f6' : "#0f172a"} 
+            fill={assignmentMode === 'death' ? '#dc2626' : assignmentMode === 'property' ? '#2563eb' : '#1f2937'} 
             className="transition-colors duration-200"
             onClick={(e) => { e.stopPropagation(); onToggleVotingPhase(); }}
           />
