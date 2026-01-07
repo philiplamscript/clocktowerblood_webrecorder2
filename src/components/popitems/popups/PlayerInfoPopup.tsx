@@ -53,7 +53,6 @@ const PlayerInfoPopup: React.FC<PlayerInfoPopupProps> = ({
   setDeaths,
   currentDay
 }) => {
-  // Local interaction state
   const [pendingNom, setPendingNom] = useState<{ f: string; t: string; voters: string[] } | null>(null);
   const [isVoting, setIsVoting] = useState(false);
   const [filterDay, setFilterDay] = useState<number | 'all'>('all');
@@ -66,7 +65,6 @@ const PlayerInfoPopup: React.FC<PlayerInfoPopupProps> = ({
     if (!isVoting) {
       setIsVoting(true);
     } else {
-      // Save the nomination
       const newNom = {
         id: Math.random().toString(36).substr(2, 9),
         day: currentDay,
@@ -93,7 +91,6 @@ const PlayerInfoPopup: React.FC<PlayerInfoPopupProps> = ({
       } else if (forceAction === 'remove') {
         voters = voters.filter(v => v !== voterNo);
       } else {
-        // Toggle behavior
         voters = hasVoter ? voters.filter(v => v !== voterNo) : [...voters, voterNo];
       }
       
@@ -119,7 +116,6 @@ const PlayerInfoPopup: React.FC<PlayerInfoPopupProps> = ({
   return (
     <div className="fixed inset-0 z-[10001] flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-[2px]" onClick={closePopup}>
       <div className="bg-white rounded-lg shadow-2xl border border-slate-200 w-full max-w-[400px] max-h-[80vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col" onClick={e => e.stopPropagation()}>
-        {/* Player Ribbon */}
         <div className="flex-none bg-slate-800 border-b border-slate-700 p-2 shadow-inner">
           <div className="flex flex-wrap items-center gap-1 justify-center">
             {Array.from({ length: playerCount }, (_, i) => i + 1).map(num => {
@@ -147,7 +143,6 @@ const PlayerInfoPopup: React.FC<PlayerInfoPopupProps> = ({
         </div>
 
         <div className="flex-1 overflow-y-auto p-3 space-y-3">
-          {/* Status Section */}
           <div className="bg-slate-50 rounded border p-2">
             <div className="flex justify-between items-start mb-2">
               <div className="flex items-center gap-2">
@@ -174,26 +169,34 @@ const PlayerInfoPopup: React.FC<PlayerInfoPopupProps> = ({
               </div>
             </div>
             {deadPlayers.includes(popupPlayerNo) && (
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold text-red-600">Day {currentPlayer?.day}</span>
-                <div className="flex-1 h-8">
-                  <TextRotaryPicker 
-                    value={currentPlayer?.reason || ''} 
-                    options={REASON_CYCLE} 
-                    onChange={(val) => {
-                      const death = deaths.find(d => parseInt(d.playerNo) === popupPlayerNo);
-                      if (death) {
-                        setDeaths(deaths.map(d => d.id === death.id ? { ...d, reason: val } : d));
-                      }
-                    }}
-                    color="text-red-500"
-                  />
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                   <span className="text-[10px] font-bold text-red-600 uppercase">Reason for Death:</span>
+                   <span className="text-[10px] font-black text-slate-400">Day {currentPlayer?.day}</span>
+                </div>
+                <div className="flex justify-around bg-white border rounded p-1">
+                  {REASON_CYCLE.map(reason => {
+                    const death = deaths.find(d => parseInt(d.playerNo) === popupPlayerNo);
+                    const isSelected = death?.reason === reason;
+                    return (
+                      <button 
+                        key={reason}
+                        onClick={() => {
+                          if (death) {
+                            setDeaths(deaths.map(d => d.id === death.id ? { ...d, reason: reason } : d));
+                          }
+                        }}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all ${isSelected ? 'bg-red-600 scale-110 shadow-md' : 'hover:bg-slate-100'}`}
+                      >
+                        {reason}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
           </div>
 
-          {/* Player Notepad */}
           <textarea 
             autoFocus
             className="w-full min-h-[120px] border-none bg-slate-50 rounded p-2 text-xs focus:ring-1 focus:ring-blue-500/50 resize-none font-medium leading-relaxed"
@@ -202,15 +205,14 @@ const PlayerInfoPopup: React.FC<PlayerInfoPopupProps> = ({
             onChange={(e) => updatePlayerInfo(popupPlayerNo, e.target.value)}
           />
 
-          {/* Role Selector */}
           <div className="flex gap-2">
             <button 
               onClick={() => {
                 const allRoles = [
-                  ...chars.Townsfolk.map(c => ({ role: c.name, category: 'Townsfolk' })).filter(item => item.role),
-                  ...chars.Outsider.map(c => ({ role: c.name, category: 'Outsider' })).filter(item => item.role),
-                  ...chars.Minion.map(c => ({ role: c.name, category: 'Minion' })).filter(item => item.role),
-                  ...chars.Demon.map(c => ({ role: c.name, category: 'Demon' })).filter(item => item.role)
+                  ...chars.Townsfolk.map((c: any) => ({ role: c.name, category: 'Townsfolk' })).filter((item: any) => item.role),
+                  ...chars.Outsider.map((c: any) => ({ role: c.name, category: 'Outsider' })).filter((item: any) => item.role),
+                  ...chars.Minion.map((c: any) => ({ role: c.name, category: 'Minion' })).filter((item: any) => item.role),
+                  ...chars.Demon.map((c: any) => ({ role: c.name, category: 'Demon' })).filter((item: any) => item.role)
                 ];
                 setShowRoleSelector({ playerNo: popupPlayerNo, roles: allRoles });
               }}
@@ -228,7 +230,6 @@ const PlayerInfoPopup: React.FC<PlayerInfoPopupProps> = ({
             )}
           </div>
 
-          {/* Vote History / Interaction Clock */}
           <div className="bg-slate-50 rounded border p-2 space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -239,7 +240,6 @@ const PlayerInfoPopup: React.FC<PlayerInfoPopupProps> = ({
               </div>
               
               <div className="flex items-center gap-2">
-                {/* Day Filter Rotary */}
                 {!isVoting && !pendingNom && (
                   <div className="flex items-center gap-1 bg-white border rounded px-1 h-6">
                     <Calendar size={10} className="text-slate-400" />
@@ -273,7 +273,6 @@ const PlayerInfoPopup: React.FC<PlayerInfoPopupProps> = ({
               players={players}
               deaths={deaths}
               filterDay={filterDay}
-              // Interactive Props
               onPlayerClick={(num) => setPopupPlayerNo(num)}
               pendingNom={pendingNom}
               isVoting={isVoting}

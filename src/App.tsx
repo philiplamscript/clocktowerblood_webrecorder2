@@ -1,31 +1,14 @@
 "use client";
 
-import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Users, 
   Vote, 
   ShieldAlert, 
   FileText, 
   Plus, 
-  Trash2, 
-  Calendar,
-  Zap,
   Skull, 
-  RefreshCcw,
-  AlertTriangle,
   Minus,
-  Check,
-  Megaphone,
-  Target,
-  Hand,
-  ArrowUpDown,
-  ChevronUp,
-  ChevronDown,
-  X,
-  Download,
-  Scroll,
-  Type,
-  Edit,
   Eye,
   EyeOff
 } from 'lucide-react';
@@ -35,20 +18,16 @@ import {
   type Player,
   type Nomination,
   type Death,
-  type Character,
   type CharDict,
   type RoleDist,
   
-  INITIAL_PLAYERS,
   REASON_CYCLE,
-  STATUS_OPTIONS,
   createInitialChars,
 } from './type'
 
 
 import PlayersTab from './components/tabs/PlayersTab';
 import VotesTab from './components/tabs/VotesTab';
-import DeathsTab from './components/tabs/DeathsTab';
 import CharsTab from './components/tabs/CharsTab';
 import NotesTab from './components/tabs/NotesTab';
 
@@ -59,13 +38,12 @@ import ResetConfirmation from './components/popitems/popups/ResetConfirmation';
 import FAB from './components/popitems/FAB';
 
 export default function App() {
-  // Persistence Helper
   const getStorage = (key: string, fallback: any) => {
     const saved = localStorage.getItem(`clocktower_${key}`);
     return saved ? JSON.parse(saved) : fallback;
   };
 
-  const [activeTab, setActiveTab] = useState<'players' | 'votes' | 'deaths' | 'chars' | 'notes'>('players');
+  const [activeTab, setActiveTab] = useState<'players' | 'votes' | 'chars' | 'notes'>('players');
   const [currentDay, setCurrentDay] = useState(() => getStorage('day', 1));
   const [playerCount, setPlayerCount] = useState(() => getStorage('count', 15));
   const [players, setPlayers] = useState<Player[]>(() => getStorage('players', Array.from({ length: 15 }, (_, i) => ({ no: i + 1, inf: '', day: '', reason: '', red: '', property: '' }))));
@@ -88,12 +66,10 @@ export default function App() {
   const [roleUpdateText, setRoleUpdateText] = useState('');
   const [voteHistoryMode, setVoteHistoryMode] = useState<'vote' | 'beVoted'>('vote');
 
-  // New states for assignment modes
   const [assignmentMode, setAssignmentMode] = useState<'death' | 'property' | null>(null);
   const [selectedReason, setSelectedReason] = useState<string>('⚔️');
   const [selectedProperty, setSelectedProperty] = useState<string>('');
 
-  // Auto-Save Effect
   useEffect(() => {
     localStorage.setItem('clocktower_day', JSON.stringify(currentDay));
     localStorage.setItem('clocktower_count', JSON.stringify(playerCount));
@@ -107,7 +83,6 @@ export default function App() {
     localStorage.setItem('clocktower_showHub', JSON.stringify(showHub));
   }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, showHub]);
 
-  // Reload Warning
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
@@ -136,14 +111,12 @@ export default function App() {
     });
   }, [playerCount]);
 
-  // AUTO-SYNC DEATHS TO PLAYERS
   useEffect(() => {
     setPlayers(prev => prev.map(p => {
       const death = deaths.find(d => parseInt(d.playerNo) === p.no);
       if (death) {
         return { ...p, day: death.day.toString(), reason: death.reason };
       } else {
-        // Clear day and reason if no death entry
         return { ...p, day: '', reason: '' };
       }
     }));
@@ -184,7 +157,6 @@ export default function App() {
 
   const addDeath = () => {
     setDeaths([...deaths, { id: Math.random().toString(), day: currentDay, playerNo: '', reason: '🌑', note: '', isConfirmed: true }]);
-    setActiveTab('deaths');
     setFabOpen(false);
   };
 
@@ -198,23 +170,21 @@ export default function App() {
 
   const togglePlayerAlive = (no: number) => {
     if (deadPlayers.includes(no)) {
-      // Make alive: remove death entry
       setDeaths(deaths.filter(d => parseInt(d.playerNo) !== no));
     } else {
-      // Make dead: add death entry
       setDeaths([...deaths, { id: Math.random().toString(), day: currentDay, playerNo: no.toString(), reason: '🌑', note: '', isConfirmed: true }]);
     }
   };
 
   const parseRoleUpdate = () => {
     const lines = roleUpdateText.split('\n').map(l => l.trim()).filter(l => l);
-    const newChars: CharDict = {
+    const newChars: any = {
       Townsfolk: [],
       Outsider: [],
       Minion: [],
       Demon: []
     };
-    let currentCategory: keyof CharDict | null = null;
+    let currentCategory: string | null = null;
     lines.forEach(line => {
       if (line.includes('鎮民:')) currentCategory = 'Townsfolk';
       else if (line.includes('外來者:')) currentCategory = 'Outsider';
@@ -224,22 +194,14 @@ export default function App() {
         newChars[currentCategory].push({ name: line, status: '—', note: '' });
       }
     });
-    // Pad to 8
     Object.keys(newChars).forEach(cat => {
-      while (newChars[cat as keyof CharDict].length < 8) {
-        newChars[cat as keyof CharDict].push({ name: '', status: '—', note: '' });
+      while (newChars[cat].length < 8) {
+        newChars[cat].push({ name: '', status: '—', note: '' });
       }
     });
     setChars(newChars);
     setShowRoleUpdate(false);
     setRoleUpdateText('');
-  };
-
-  const categoryColors = {
-    Townsfolk: 'text-blue-400',
-    Outsider: 'text-blue-200',
-    Minion: 'text-red-400',
-    Demon: 'text-red-600'
   };
 
   const categoryBg = {
@@ -249,20 +211,15 @@ export default function App() {
     Demon: 'bg-red-100 hover:bg-red-200'
   };
 
-  // New function to handle player button clicks in assignment mode
   const handlePlayerClick = (num: number) => {
     if (assignmentMode === 'death') {
-      // Assign death reason to player
       const existingDeath = deaths.find(d => parseInt(d.playerNo) === num);
       if (existingDeath) {
-        // Overwrite existing death
         setDeaths(deaths.map(d => d.id === existingDeath.id ? { ...d, reason: selectedReason, day: currentDay } : d));
       } else {
-        // Add new death
         setDeaths([...deaths, { id: Math.random().toString(), day: currentDay, playerNo: num.toString(), reason: selectedReason, note: '', isConfirmed: true }]);
       }
     } else if (assignmentMode === 'property') {
-      // Assign property to player - now appends with |
       setPlayers(prev => prev.map(p => {
         if (p.no === num) {
           const currentProps = p.property ? p.property.split('|').map(pr => pr.trim()) : [];
@@ -274,7 +231,6 @@ export default function App() {
         return p;
       }));
     } else {
-      // Normal behavior: open popup
       setPopupPlayerNo(num);
     }
   };
@@ -283,33 +239,28 @@ export default function App() {
     <div className={`fixed inset-0 bg-slate-100 flex flex-col font-sans select-none ${fontSizeClass}`} onMouseUp={() => setIsDragging(false)}>
       
       <header className="flex-none bg-slate-900 text-white px-3 py-2 flex justify-between items-center shadow-md z-50">
-        <div className="flex items-center gap-1.5"><ShieldAlert className="text-red-500" size={14} /><h1 className="font-black text-xs uppercase italic tracking-tighter">LEDGER PRO v3.7</h1></div>
+        <div className="flex items-center gap-1.5"><ShieldAlert className="text-red-500" size={14} /><h1 className="font-black text-xs uppercase italic tracking-tighter">LEDGER PRO v3.8</h1></div>
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setShowHub(!showHub)} 
             className={`p-1 rounded transition-colors ${showHub ? 'text-blue-400 hover:bg-slate-800' : 'text-slate-500 hover:bg-slate-800'}`}
-            title={showHub ? "Hide Hub" : "Show Hub"}
           >
             {showHub ? <Eye size={14} /> : <EyeOff size={14} />}
           </button>
-          <div className="text-[8px] font-black text-slate-500 uppercase tracking-widest">v3.7.2</div>
+          <div className="text-[8px] font-black text-slate-500 uppercase tracking-widest">v3.8.0</div>
         </div>
       </header>
 
-      {/* Wrapping Player Hub */}
       {showHub && (
         <div className="flex-none bg-slate-800 border-b border-slate-700 p-2 shadow-inner animate-in slide-in-from-top-4 duration-200">
           <div className="flex flex-wrap items-center gap-1.5 max-w-4xl mx-auto">
-            {/* Narrowed Day Controls */}
             <div className="flex items-center bg-slate-900 rounded-lg h-7 overflow-hidden border border-slate-700 shadow-lg mr-1 w-[58px]">
               <button onClick={() => setCurrentDay(Math.max(1, currentDay - 1))} className="flex-1 hover:bg-slate-800 text-slate-500 transition-colors flex items-center justify-center"><Minus size={10} /></button>
               <div className="w-6 font-black text-[9px] text-white bg-slate-800 h-full flex items-center justify-center tracking-tighter border-x border-slate-700">D{currentDay}</div>
               <button onClick={() => setCurrentDay(currentDay + 1)} className="flex-1 hover:bg-slate-800 text-slate-500 transition-colors flex items-center justify-center"><Plus size={10} /></button>
             </div>
 
-            {/* Assignment Controls */}
             <div className="flex items-center gap-1 mr-2">
-              {/* Death Reason Assignment */}
               <div className="flex items-center bg-slate-900 rounded-lg h-7 overflow-hidden border border-slate-700 shadow-lg">
                 <button 
                   onClick={() => setAssignmentMode(assignmentMode === 'death' ? null : 'death')} 
@@ -328,7 +279,6 @@ export default function App() {
                 </select>
               </div>
 
-              {/* Property Assignment */}
               <div className="flex items-center bg-slate-900 rounded-lg h-7 overflow-hidden border border-slate-700 shadow-lg">
                 <button 
                   onClick={() => setAssignmentMode(assignmentMode === 'property' ? null : 'property')} 
@@ -346,7 +296,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Player Nodes */}
             {Array.from({ length: playerCount }, (_, i) => i + 1).map(num => {
               const isDead = deadPlayers.includes(num);
               const hasInfo = players.find(p => p.no === num)?.inf !== '';
@@ -382,7 +331,6 @@ export default function App() {
         {[
           { id: 'players', icon: Users, label: 'PLAYERS' },
           { id: 'votes', icon: Vote, label: 'VOTES' },
-          { id: 'deaths', icon: Skull, label: 'DEATHS' },
           { id: 'chars', icon: ShieldAlert, label: 'ROLES' },
           { id: 'notes', icon: FileText, label: 'NOTES' },
         ].map((t) => (
@@ -396,13 +344,11 @@ export default function App() {
         <div className="max-w-4xl mx-auto space-y-3 pb-24">
           {activeTab === 'players' && <PlayersTab players={players} setPlayers={setPlayers} />}
           {activeTab === 'votes' && <VotesTab nominations={nominations} setNominations={setNominations} isDragging={isDragging} setIsDragging={setIsDragging} dragAction={dragAction} setDragAction={setDragAction} lastDraggedPlayer={lastDraggedPlayer} setLastDraggedPlayer={setLastDraggedPlayer} deadPlayers={deadPlayers} playerCount={playerCount} addNomination={addNomination} />}
-          {activeTab === 'deaths' && <DeathsTab deaths={deaths} setDeaths={setDeaths} deadPlayers={deadPlayers} playerCount={playerCount} addDeath={addDeath} />}
           {activeTab === 'chars' && <CharsTab chars={chars} setChars={setChars} playerCount={playerCount} setPlayerCount={setPlayerCount} roleDist={roleDist} setRoleDist={setRoleDist} />}
           {activeTab === 'notes' && <NotesTab note={note} setNote={setNote} />}
         </div>
       </main>
 
-      {/* Extracted Popups */}
       <PlayerInfoPopup
         popupPlayerNo={popupPlayerNo}
         setPopupPlayerNo={setPopupPlayerNo}
@@ -445,7 +391,6 @@ export default function App() {
         reset={reset}
       />
 
-      {/* Extracted FAB */}
       <FAB
         fabOpen={fabOpen}
         setFabOpen={setFabOpen}

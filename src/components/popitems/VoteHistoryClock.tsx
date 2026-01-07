@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 
 interface VoteHistoryClockProps {
   playerNo: number;
@@ -11,7 +11,6 @@ interface VoteHistoryClockProps {
   players: any[];
   deaths: any[];
   filterDay: number | 'all';
-  // Interaction Props
   onPlayerClick: (num: number) => void;
   pendingNom: { f: string; t: string; voters: string[] } | null;
   isVoting: boolean;
@@ -32,17 +31,14 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const [hasMoved, setHasMoved] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
 
-  // Stats calculation
   const votedToCounts: { [key: string]: number } = {};
   const nominatedByCounts: { [key: string]: number } = {};
   const nominatedToArrows: { from: number, to: number }[] = [];
   const nominatedByArrows: { from: number, to: number }[] = [];
 
-  // Filter nominations by day if needed
   const filteredNoms = nominations.filter(n => filterDay === 'all' || n.day === filterDay);
 
   filteredNoms.forEach(n => {
-    // Heatmap data: based on votes
     if (n.voters.split(',').includes(playerStr) && n.t && n.t !== '-') {
       votedToCounts[n.t] = (votedToCounts[n.t] || 0) + 1;
     }
@@ -52,7 +48,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
       });
     }
 
-    // Arrow data: based on nominations
     if (n.f === playerStr && n.t && n.t !== '-') {
       nominatedToArrows.push({ from: playerNo, to: parseInt(n.t) });
     }
@@ -163,11 +158,9 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
 
   const handleMouseUp = () => {
     if (gestureStart !== null) {
-      if (isVoting) {
-        // Just clear dragging
-      } else if (!isSliding) {
+      if (!isVoting && !isSliding) {
         onPlayerClick(gestureStart);
-      } else if (gestureCurrent !== null && gestureStart !== gestureCurrent) {
+      } else if (!isVoting && isSliding && gestureCurrent !== null && gestureStart !== gestureCurrent) {
         onNominationSlideEnd(gestureStart.toString(), gestureCurrent.toString());
       }
     }
@@ -197,14 +190,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     }
   };
 
-  const handleTouchEnd = (num: number) => {
-    if (!hasMoved) {
-      onPlayerClick(num);
-    }
-    handleMouseUp();
-    setHasMoved(false);
-  };
-
   return (
     <div className="w-full flex flex-col items-center">
       <svg 
@@ -215,31 +200,42 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onTouchMove={handleTouchMove}
-        onTouchEnd={() => handleMouseUp()}
+        onTouchEnd={() => {
+            if (!hasMoved && gestureStart !== null) onPlayerClick(gestureStart);
+            handleMouseUp();
+            setHasMoved(false);
+        }}
       >
+        <defs>
+          <radialGradient id="playerSpotlight" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+            <stop offset="0%" stopColor="#facc15" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#fef08a" stopOpacity="0.2" />
+          </radialGradient>
+        </defs>
+
         {playersList.map((num, i) => {
           const numStr = num.toString();
+          const isCurrentViewPlayer = num === playerNo;
           
-          // Background Color Logic
           let fill = '#ffffff';
-          // Hide historical heat map ONLY during active voting
           const showHistorical = !isVoting;
           const intensity = showHistorical ? (counts[numStr] ? counts[numStr] / maxCount : 0) : 0;
           
-          if (isVoting && pendingNom?.voters.includes(numStr)) {
-            fill = '#ef4444'; // Solid Red for active voters
+          if (isCurrentViewPlayer) {
+            fill = 'url(#playerSpotlight)';
+          } else if (isVoting && pendingNom?.voters.includes(numStr)) {
+            fill = '#ef4444';
           } else if (intensity > 0) {
-            fill = `rgba(6, 182, 212, ${intensity})`; // Cyan intensity
+            fill = `rgba(6, 182, 212, ${intensity})`;
           }
 
-          const stroke = '#f1f5f9';
+          const stroke = isCurrentViewPlayer ? '#eab308' : '#f1f5f9';
           const path = getSlicePath(i, playerCount);
           const isDead = deadPlayers.includes(num);
           const death = deaths.find(d => parseInt(d.playerNo) === num);
           const deathReason = death?.reason || '';
           const playerData = players.find(p => p.no === num);
           
-          // Multiple Properties Splitting
           const properties = playerData?.property ? playerData.property.split('|').map((p: string) => p.trim()) : [];
           
           const middlePos = getPosition(num, middleRadius);
@@ -250,24 +246,21 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
               key={num} 
               onMouseDown={() => handleMouseDown(num)}
               onTouchStart={() => handleMouseDown(num)}
-              onTouchEnd={() => handleTouchEnd(num)}
               className="cursor-pointer"
             >
-              <path d={path} fill={fill} stroke={stroke} strokeWidth="1" className="transition-colors duration-150" />
+              <path d={path} fill={fill} stroke={stroke} strokeWidth={isCurrentViewPlayer ? "2" : "1"} className="transition-colors duration-150" />
               {isDead && deathReason && (
                 <text x={innerPos.x} y={innerPos.y} textAnchor="middle" alignmentBaseline="middle" className="text-[10px] font-black fill-slate-600 pointer-events-none">
                   {deathReason}
                 </text>
               )}
-              <text x={middlePos.x} y={middlePos.y} textAnchor="middle" alignmentBaseline="middle" className={`text-[12px] font-black pointer-events-none ${(intensity > 0 || (isVoting && pendingNom?.voters.includes(numStr))) ? 'fill-white' : 'fill-slate-600'}`}>
+              <text x={middlePos.x} y={middlePos.y} textAnchor="middle" alignmentBaseline="middle" className={`text-[12px] font-black pointer-events-none ${(intensity > 0 || (isVoting && pendingNom?.voters.includes(numStr)) || isCurrentViewPlayer) ? 'fill-slate-900' : 'fill-slate-600'}`}>
                 {num}
               </text>
               
-              {/* Stacked Properties: from middle towards outer */}
               {properties.map((prop: string, idx: number) => {
                 const stepRadius = 15;
                 const propRadius = middleRadius + 15 + (idx * stepRadius);
-                // Cap at outer radius
                 if (propRadius > outerRadius - 5) return null;
                 const propPos = getPosition(num, propRadius);
                 
@@ -278,7 +271,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
                     y={propPos.y} 
                     textAnchor="middle" 
                     alignmentBaseline="middle" 
-                    className={`text-[8px] font-bold pointer-events-none ${(intensity > 0 || (isVoting && pendingNom?.voters.includes(numStr))) ? 'fill-white' : 'fill-slate-600'}`}
+                    className={`text-[8px] font-bold pointer-events-none ${(intensity > 0 || (isVoting && pendingNom?.voters.includes(numStr)) || isCurrentViewPlayer) ? 'fill-slate-800' : 'fill-slate-600'}`}
                   >
                     {prop.length > 5 ? prop.substring(0, 5) + '..' : prop}
                   </text>
@@ -288,7 +281,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           );
         })}
 
-        {/* Historical Arrows (Only if not in active voting phase) */}
         {!isVoting && (
           <>
             {nominatedToArrows.map(arrow => drawArrow(arrow.from, arrow.to, '#ef4444'))}
@@ -296,15 +288,12 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           </>
         )}
 
-        {/* Active Gesture Arrow */}
         {isSliding && gestureStart && gestureCurrent && gestureStart !== gestureCurrent && (
           drawArrow(gestureStart, gestureCurrent, '#a855f7', 3)
         )}
 
-        {/* Pending Nomination Arrow (Purple) */}
         {pendingNom && drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), '#a855f7', 4)}
 
-        {/* Center Control */}
         <g 
           className="cursor-pointer group" 
           onClick={(e) => { e.stopPropagation(); onToggleVotingPhase(); }}

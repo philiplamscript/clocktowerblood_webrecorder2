@@ -3,7 +3,6 @@
 import React from 'react';
 import { Scroll } from 'lucide-react';
 import RotaryPicker from '../pickers/RotaryPicker/RotaryPicker';
-import TextRotaryPicker from '../pickers/RotaryPicker/TextRotaryPicker';
 import { STATUS_OPTIONS, type Character, type CharDict, type RoleDist } from '../../type';
 
 interface CharsTabProps {
@@ -16,6 +15,31 @@ interface CharsTabProps {
 }
 
 const CharsTab: React.FC<CharsTabProps> = ({ chars, setChars, playerCount, setPlayerCount, roleDist, setRoleDist }) => {
+  // Reorder categories to put Townsfolk last
+  const categories: (keyof CharDict)[] = ['Outsider', 'Minion', 'Demon', 'Townsfolk'];
+
+  const toggleStatus = (category: keyof CharDict, index: number) => {
+    const currentStatus = chars[category][index].status;
+    const nextIndex = (STATUS_OPTIONS.indexOf(currentStatus) + 1) % STATUS_OPTIONS.length;
+    const nextStatus = STATUS_OPTIONS[nextIndex];
+    
+    setChars({
+      ...chars,
+      [category]: chars[category].map((item, idx) => 
+        idx === index ? { ...item, status: nextStatus } : item
+      )
+    });
+  };
+
+  const getStatusStyle = (status: string) => {
+    switch(status) {
+      case "POSS": return "bg-blue-500 text-white";
+      case "CONF": return "bg-emerald-500 text-white";
+      case "NOT": return "bg-red-500 text-white";
+      default: return "bg-slate-100 text-slate-400";
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="bg-slate-900 rounded border border-slate-800 shadow-2xl overflow-hidden max-w-lg mx-auto">
@@ -49,20 +73,24 @@ const CharsTab: React.FC<CharsTabProps> = ({ chars, setChars, playerCount, setPl
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-        {(Object.entries(chars) as any).map(([f, list]: any) => (
+        {categories.map((f) => (
           <div key={f} className="space-y-1">
             <h3 className="text-[9px] font-black text-slate-400 px-1 uppercase tracking-widest">{f}s</h3>
             <div className="bg-white rounded border overflow-hidden">
-              {list.map((c: Character, i: number) => (
+              {chars[f].map((c: Character, i: number) => (
                 <div key={i} className="flex border-b last:border-0 h-8 items-center px-2 gap-2">
-                  <input className="flex-1 bg-transparent border-none p-0 text-[10px] focus:ring-0 font-bold" placeholder="..." value={c.name} onChange={(e) => setChars({ ...chars, [f]: chars[f as keyof CharDict].map((item, idx) => idx === i ? { ...item, name: e.target.value } : item) })} />
-                  <div className="w-12 bg-slate-50 rounded border-l border-slate-100 h-full">
-                    <TextRotaryPicker 
-                      value={c.status} 
-                      options={STATUS_OPTIONS} 
-                      onChange={(val) => setChars({ ...chars, [f]: chars[f as keyof CharDict].map((item, idx) => idx === i ? { ...item, status: val } : item) })}
-                    />
-                  </div>
+                  <input 
+                    className="flex-1 bg-transparent border-none p-0 text-[10px] focus:ring-0 font-bold" 
+                    placeholder="..." 
+                    value={c.name} 
+                    onChange={(e) => setChars({ ...chars, [f]: chars[f].map((item, idx) => idx === i ? { ...item, name: e.target.value } : item) })} 
+                  />
+                  <button 
+                    onClick={() => toggleStatus(f, i)}
+                    className={`w-10 h-5 rounded text-[7px] font-black flex items-center justify-center transition-colors ${getStatusStyle(c.status)}`}
+                  >
+                    {c.status}
+                  </button>
                 </div>
               ))}
             </div>
