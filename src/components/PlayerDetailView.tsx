@@ -5,7 +5,9 @@ import {
   Skull,
   Vote,
   Tag,
-  Calendar
+  Calendar,
+  Key,
+  X
 } from 'lucide-react';
 
 import { REASON_CYCLE } from '../type';
@@ -54,6 +56,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
   const [pendingNom, setPendingNom] = useState<{ f: string; t: string; voters: string[] } | null>(null);
   const [isVoting, setIsVoting] = useState(false);
   const [filterDay, setFilterDay] = useState<number | 'all'>('all');
+  const [showKeywords, setShowKeywords] = useState(false);
 
   const handleToggleVotingPhase = () => {
     if (!pendingNom) return;
@@ -127,6 +130,20 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
     updateDeathReason(playerNo, REASON_CYCLE[nextIndex]);
   };
 
+  const allRoles = [
+    ...chars.Townsfolk.map((c: any) => ({ role: c.name, category: 'Townsfolk' })).filter((item: any) => item.role),
+    ...chars.Outsider.map((c: any) => ({ role: c.name, category: 'Outsider' })).filter((item: any) => item.role),
+    ...chars.Minion.map((c: any) => ({ role: c.name, category: 'Minion' })).filter((item: any) => item.role),
+    ...chars.Demon.map((c: any) => ({ role: c.name, category: 'Demon' })).filter((item: any) => item.role)
+  ];
+
+  const categoryBg = {
+    Townsfolk: 'bg-blue-100 hover:bg-blue-200',
+    Outsider: 'bg-blue-50 hover:bg-blue-100',
+    Minion: 'bg-orange-50 hover:bg-orange-100',
+    Demon: 'bg-red-100 hover:bg-red-200'
+  };
+
   return (
     <div className="h-full bg-white overflow-hidden">
       <div className="h-full overflow-y-auto p-4 space-y-4">
@@ -193,6 +210,12 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
                 <div className="bg-blue-600 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase flex items-center gap-2 animate-bounce shadow-lg">
                   <span className="w-2 h-2 bg-white rounded-full" />
                   Nomination Ready: {pendingNom.f} ➔ {pendingNom.t}
+                  <button 
+                    onClick={() => setPendingNom(null)} 
+                    className="ml-2 bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-[8px] font-bold flex items-center gap-1"
+                  >
+                    <X size={10} /> CANCEL
+                  </button>
                 </div>
               )}
             </div>
@@ -248,22 +271,72 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
               </div>
             </div>
 
-            <div className="flex justify-center">
+            {/* Keyword button on the right */}
+            <div className="flex justify-end">
               <button 
-                onClick={() => {
-                  const allRoles = [
-                    ...chars.Townsfolk.map((c: any) => ({ role: c.name, category: 'Townsfolk' })).filter((item: any) => item.role),
-                    ...chars.Outsider.map((c: any) => ({ role: c.name, category: 'Outsider' })).filter((item: any) => item.role),
-                    ...chars.Minion.map((c: any) => ({ role: c.name, category: 'Minion' })).filter((item: any) => item.role),
-                    ...chars.Demon.map((c: any) => ({ role: c.name, category: 'Demon' })).filter((item: any) => item.role)
-                  ];
-                  setShowRoleSelector({ playerNo: playerNo, roles: allRoles });
-                }}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-[10px] font-black uppercase transition-colors"
+                onClick={() => setShowKeywords(!showKeywords)}
+                className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow-sm transition-all"
               >
-                Keywords
+                <Key size={14} />
               </button>
             </div>
+
+            {/* Expandable Keywords Section */}
+            {showKeywords && (
+              <div className="bg-white border rounded-lg p-3 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
+                {allRoles.length > 0 ? (
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="space-y-1">
+                      <h4 className="text-[8px] font-black text-blue-400 uppercase">Townsfolk</h4>
+                      {allRoles.filter(r => r.category === 'Townsfolk').map((item, idx) => (
+                        <button 
+                          key={idx} 
+                          onClick={() => {
+                            updatePlayerInfo(playerNo, (currentPlayer?.inf || '') + (currentPlayer?.inf ? '\n' : '') + item.role);
+                            setShowKeywords(false);
+                          }}
+                          className={`${categoryBg[item.category as keyof typeof categoryBg]} text-slate-900 px-2 py-1 rounded text-[9px] font-bold transition-colors text-left`}
+                        >
+                          {item.role}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="text-[8px] font-black text-blue-200 uppercase">Outsider</h4>
+                      {allRoles.filter(r => r.category === 'Outsider').map((item, idx) => (
+                        <button 
+                          key={idx} 
+                          onClick={() => {
+                            updatePlayerInfo(playerNo, (currentPlayer?.inf || '') + (currentPlayer?.inf ? '\n' : '') + item.role);
+                            setShowKeywords(false);
+                          }}
+                          className={`${categoryBg[item.category as keyof typeof categoryBg]} text-slate-900 px-2 py-1 rounded text-[9px] font-bold transition-colors text-left`}
+                        >
+                          {item.role}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="text-[8px] font-black text-red-400 uppercase">Minions & Demons</h4>
+                      {allRoles.filter(r => r.category === 'Minion' || r.category === 'Demon').map((item, idx) => (
+                        <button 
+                          key={idx} 
+                          onClick={() => {
+                            updatePlayerInfo(playerNo, (currentPlayer?.inf || '') + (currentPlayer?.inf ? '\n' : '') + item.role);
+                            setShowKeywords(false);
+                          }}
+                          className={`${categoryBg[item.category as keyof typeof categoryBg]} text-slate-900 px-2 py-1 rounded text-[9px] font-bold transition-colors text-left`}
+                        >
+                          {item.role}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-slate-500 text-xs">No roles defined yet.</p>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

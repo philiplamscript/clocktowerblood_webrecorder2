@@ -60,6 +60,9 @@ const VoteLedger = ({
       <table className="w-full border-collapse table-fixed min-w-[900px]">
         <thead>
           <tr className="bg-slate-100 border-b text-[8px] uppercase text-slate-500 font-black">
+            <th className="w-6 py-2 text-center border-r">
+              <Trash2 size={10} className="mx-auto opacity-20" />
+            </th>
             <th className="w-6 py-2 border-r text-center">D</th>
             <th className="w-8 py-2 border-r text-center text-slate-400"><Megaphone size={12} className="mx-auto" /></th>
             <th className="w-8 py-2 border-r text-center text-slate-400"><Target size={12} className="mx-auto" /></th>
@@ -73,12 +76,19 @@ const VoteLedger = ({
               </div>
             </th>
             <th className="w-24 py-2 px-2">NOTES</th>
-            <th className="w-6 py-2"></th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 font-mono">
           {nominations.map((n: Nomination) => (
             <tr key={n.id} className="h-10">
+              <td className="p-0 text-center border-r border-slate-100">
+                <button 
+                  onClick={() => setNominations(nominations.filter((nom: any) => nom.id !== n.id))} 
+                  className="text-slate-200 hover:text-red-500 transition-colors"
+                >
+                  <Trash2 size={12} />
+                </button>
+              </td>
               <td className="p-0 border-r border-slate-100"><input type="number" className="w-full text-center border-none bg-transparent focus:ring-0 text-[10px] p-0 font-bold" value={n.day} onChange={(e) => setNominations(nominations.map((item: any) => item.id === n.id ? { ...item, day: parseInt(e.target.value) || 1 } : item))} /></td>
               
               {/* Replaced ClockPicker with simple input for For */}
@@ -122,8 +132,7 @@ const VoteLedger = ({
                   })}
                 </div>
               </td>
-              <td className="p-0 border-l border-slate-100"><input placeholder="..." className="w-full border-none bg-transparent focus:ring-0 text-[9px] px-2 h-10 font-sans" value={n.note} onChange={(e) => setNominations(nominations.map((item: any) => item.id === n.id ? { ...item, note: e.target.value } : item))} /></td>
-              <td className="p-0 text-center border-l border-slate-100"><button onClick={() => setNominations(nominations.filter((nom: any) => nom.id !== n.id))} className="text-slate-200 hover:text-red-500"><Trash2 size={12} /></button></td>
+              <td className="p-0 px-2 font-sans"><input placeholder="..." className="w-full border-none bg-transparent focus:ring-0 text-[9px] px-2 h-10 font-sans" value={n.note} onChange={(e) => setNominations(nominations.map((item: any) => item.id === n.id ? { ...item, note: e.target.value } : item))} /></td>
             </tr>
           ))}
         </tbody>
