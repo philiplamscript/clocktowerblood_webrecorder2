@@ -110,6 +110,7 @@ const PlayerInfoPopup: React.FC<PlayerInfoPopupProps> = ({
   };
 
   const currentPlayer = players.find(p => p.no === popupPlayerNo);
+  const isDead = deadPlayers.includes(popupPlayerNo);
   const dayOptions = ['ALL', ...Array.from({ length: currentDay }, (_, i) => `D${i + 1}`)];
   const currentFilterText = filterDay === 'all' ? 'ALL' : `D${filterDay}`;
 
@@ -119,7 +120,7 @@ const PlayerInfoPopup: React.FC<PlayerInfoPopupProps> = ({
         <div className="flex-none bg-slate-800 border-b border-slate-700 p-2 shadow-inner">
           <div className="flex flex-wrap items-center gap-1 justify-center">
             {Array.from({ length: playerCount }, (_, i) => i + 1).map(num => {
-              const isDead = deadPlayers.includes(num);
+              const numIsDead = deadPlayers.includes(num);
               const hasInfo = players.find(p => p.no === num)?.inf !== '';
               return (
                 <button 
@@ -128,14 +129,14 @@ const PlayerInfoPopup: React.FC<PlayerInfoPopupProps> = ({
                   className={`flex-none w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black transition-all border shadow-sm ${
                     num === popupPlayerNo
                       ? 'bg-red-600 text-white border-red-400'
-                      : isDead 
+                      : numIsDead 
                         ? 'bg-slate-900 text-slate-500 border-red-900/50 grayscale' 
                         : hasInfo 
                           ? 'bg-blue-600 text-white border-blue-400' 
                           : 'bg-slate-700 text-slate-300 border-slate-600'
                   } active:scale-90`}
                 >
-                  {isDead ? <Skull size={8} /> : num}
+                  {numIsDead ? <Skull size={8} /> : num}
                 </button>
               );
             })}
@@ -143,21 +144,16 @@ const PlayerInfoPopup: React.FC<PlayerInfoPopupProps> = ({
         </div>
 
         <div className="flex-1 overflow-y-auto p-3 space-y-3">
-          <div className="bg-slate-50 rounded border p-2">
-            <div className="flex justify-between items-start mb-2">
-              <div className="flex items-center gap-2">
-                <Skull size={12} className="text-red-500" />
-                <span className="text-[9px] font-black text-slate-600 uppercase">Status & Properties</span>
-              </div>
-            </div>
-            <div className="flex gap-2 mb-2">
+          <div className="bg-slate-50 rounded border p-2 space-y-2">
+            <div className="flex items-center gap-2">
               <button 
                 onClick={() => togglePlayerAlive(popupPlayerNo)}
-                className={`flex-1 py-2 rounded text-[10px] font-black uppercase transition-colors ${deadPlayers.includes(popupPlayerNo) ? 'bg-red-600 text-white' : 'bg-green-600 text-white'}`}
+                className={`flex-1 h-9 rounded text-[10px] font-black uppercase transition-colors flex items-center justify-center gap-2 ${isDead ? 'bg-red-600 text-white' : 'bg-green-600 text-white'}`}
               >
-                {deadPlayers.includes(popupPlayerNo) ? 'DEAD' : 'ALIVE'}
+                {isDead ? <Skull size={12} /> : null}
+                {isDead ? 'DEAD' : 'ALIVE'}
               </button>
-              <div className="flex-1 flex items-center bg-white border rounded px-2 h-9">
+              <div className="flex-[1.5] flex items-center bg-white border rounded px-2 h-9">
                 <Tag size={10} className="text-slate-400 mr-2" />
                 <input 
                   type="text" 
@@ -168,13 +164,11 @@ const PlayerInfoPopup: React.FC<PlayerInfoPopupProps> = ({
                 />
               </div>
             </div>
-            {deadPlayers.includes(popupPlayerNo) && (
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                   <span className="text-[10px] font-bold text-red-600 uppercase">Reason for Death:</span>
-                   <span className="text-[10px] font-black text-slate-400">Day {currentPlayer?.day}</span>
-                </div>
-                <div className="flex justify-around bg-white border rounded p-1">
+            
+            {isDead && (
+              <div className="flex items-center bg-white border rounded p-1 gap-1">
+                <span className="text-[8px] font-black text-slate-400 uppercase px-1 min-w-[30px]">D{currentPlayer?.day}</span>
+                <div className="flex-1 flex justify-around">
                   {REASON_CYCLE.map(reason => {
                     const death = deaths.find(d => parseInt(d.playerNo) === popupPlayerNo);
                     const isSelected = death?.reason === reason;
@@ -186,7 +180,7 @@ const PlayerInfoPopup: React.FC<PlayerInfoPopupProps> = ({
                             setDeaths(deaths.map(d => d.id === death.id ? { ...d, reason: reason } : d));
                           }
                         }}
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all ${isSelected ? 'bg-red-600 scale-110 shadow-md' : 'hover:bg-slate-100'}`}
+                        className={`w-7 h-7 rounded-full flex items-center justify-center text-xs transition-all ${isSelected ? 'bg-red-600 scale-110 shadow-sm text-white' : 'hover:bg-slate-100'}`}
                       >
                         {reason}
                       </button>
@@ -198,8 +192,7 @@ const PlayerInfoPopup: React.FC<PlayerInfoPopupProps> = ({
           </div>
 
           <textarea 
-            autoFocus
-            className="w-full min-h-[120px] border-none bg-slate-50 rounded p-2 text-xs focus:ring-1 focus:ring-blue-500/50 resize-none font-medium leading-relaxed"
+            className="w-full min-h-[100px] border-none bg-slate-50 rounded p-2 text-xs focus:ring-1 focus:ring-blue-500/50 resize-none font-medium leading-relaxed"
             placeholder="Enter player info/role/reads..."
             value={currentPlayer?.inf || ''}
             onChange={(e) => updatePlayerInfo(popupPlayerNo, e.target.value)}
@@ -235,7 +228,7 @@ const PlayerInfoPopup: React.FC<PlayerInfoPopupProps> = ({
               <div className="flex items-center gap-2">
                 <Vote size={12} className="text-blue-500" />
                 <span className="text-[9px] font-black text-slate-600 uppercase">
-                  {isVoting ? 'Voting Mode' : 'Vote History'}
+                  {isVoting ? 'Voting Mode' : 'History'}
                 </span>
               </div>
               
@@ -259,7 +252,7 @@ const PlayerInfoPopup: React.FC<PlayerInfoPopupProps> = ({
                   className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-2 py-1 rounded text-[8px] font-bold uppercase"
                   disabled={isVoting}
                 >
-                  {voteHistoryMode === 'vote' ? 'Vote Count' : 'Be Voted Count'}
+                  {voteHistoryMode === 'vote' ? 'Votes' : 'Received'}
                 </button>
               </div>
             </div>

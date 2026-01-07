@@ -40,16 +40,16 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const ringWidth = (outerRadius - innerRadius) / ringCount;
 
   // Data maps
-  const votedAtDay: Record<string, Set<number>> = {}; // playerNum -> Set of days
-  const arrowData: { from: number, to: number, day: number, type: 'to' | 'from' }[] = [];
+  const votedAtDay: Record<string, Set<number>> = {}; 
+  const arrowData: { from: number, to: number, day: number, type: 'to' | 'from' | 'self' }[] = [];
 
   nominations.forEach(n => {
     const day = n.day;
     const isFiltered = filterDay !== 'all' && day !== filterDay;
     if (isFiltered) return;
 
+    // Collect rings based on mode
     if (mode === 'vote') {
-      // VOTE VIEW
       if (n.voters.split(',').includes(playerStr) && n.t && n.t !== '-') {
         if (!votedAtDay[n.t]) votedAtDay[n.t] = new Set();
         votedAtDay[n.t].add(day);
@@ -57,10 +57,8 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
       if (n.f === playerStr) {
         if (!votedAtDay[playerStr]) votedAtDay[playerStr] = new Set();
         votedAtDay[playerStr].add(day);
-        if (n.t && n.t !== '-') arrowData.push({ from: playerNo, to: parseInt(n.t), day, type: 'to' });
       }
     } else {
-      // BE VOTED VIEW
       if (n.t === playerStr) {
         n.voters.split(',').forEach((v: string) => {
           if (v) {
@@ -70,8 +68,16 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         });
         if (!votedAtDay[playerStr]) votedAtDay[playerStr] = new Set();
         votedAtDay[playerStr].add(day);
-        if (n.f && n.f !== '-') arrowData.push({ from: parseInt(n.f), to: playerNo, day, type: 'from' });
       }
+    }
+
+    // Collect ALL arrows regardless of mode
+    if (n.f === playerStr && n.t === playerStr) {
+      arrowData.push({ from: playerNo, to: playerNo, day, type: 'self' });
+    } else if (n.f === playerStr && n.t && n.t !== '-') {
+      arrowData.push({ from: playerNo, to: parseInt(n.t), day, type: 'to' });
+    } else if (n.t === playerStr && n.f && n.f !== '-') {
+      arrowData.push({ from: parseInt(n.f), to: playerNo, day, type: 'from' });
     }
   });
 
@@ -100,8 +106,37 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     return `M ${p1.x} ${p1.y} A ${rOuter} ${rOuter} 0 ${largeArcFlag} 1 ${p2.x} ${p2.y} L ${p3.x} ${p3.y} A ${rInner} ${rInner} 0 ${largeArcFlag} 0 ${p4.x} ${p4.y} Z`;
   };
 
-  const drawArrow = (from: number, to: number, day: number, color: string, width = 2) => {
+  const drawArrow = (from: number, to: number, day: number, type: 'to' | 'from' | 'self', width = 2) => {
+    const color = type === 'to' ? '#ef4444' : type === 'from' ? '#22c55e' : '#a855f7';
     const radius = innerRadius + (day - 0.5) * ringWidth;
+
+    if (type === 'self') {
+      const pos = getPosition(from, radius);
+      const angle = ((from - 1) * (360 / playerCount)) - 90 + (360 / (playerCount * 2));
+      const rad = angle * Math.PI / 180;
+      
+      // Line pointing to center
+      const innerX = cx + (radius - 15) * Math.cos(rad);
+      const innerY = cy + (radius - 15) * Math.sin(rad);
+      
+      // Circular arc (loading arrow look)
+      const arcRadius = 10;
+      const arcStartAngle = rad - 0.5;
+      const arcEndAngle = rad + 1.5;
+      const x1 = pos.x + arcRadius * Math.cos(arcStartAngle);
+      const y1 = pos.y + arcRadius * Math.sin(arcStartAngle);
+      const x2 = pos.x + arcRadius * Math.cos(arcEndAngle);
+      const y2 = pos.y + arcRadius * Math.sin(arcEndAngle);
+
+      return (
+        <g key={`self-${from}-${day}`}>
+          <line x1={pos.x} y1={pos.y} x2={innerX} y2={innerY} stroke={color} strokeWidth={width} strokeLinecap="round" opacity="0.6" />
+          <path d={`M ${x1} ${y1} A ${arcRadius} ${arcRadius} 0 1 1 ${x2} ${y2}`} fill="none" stroke={color} strokeWidth={width} strokeLinecap="round" opacity="0.6" />
+          <polygon points={`${innerX},${innerY} ${innerX+3},${innerY+3} ${innerX-3},${innerY+3}`} fill={color} opacity="0.6" transform={`rotate(${angle+90}, ${innerX}, ${innerY})`} />
+        </g>
+      );
+    }
+
     const fromPos = getPosition(from, radius);
     const toPos = getPosition(to, radius);
     const dx = toPos.x - fromPos.x;
@@ -120,7 +155,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     const rightY = headY - headLength * Math.sin(angle + Math.PI / 6);
 
     return (
-      <g key={`${from}-${to}-${day}-${color}-${Math.random()}`}>
+      <g key={`${from}-${to}-${day}-${type}`}>
         <line x1={fromPos.x} y1={fromPos.y} x2={headX} y2={headY} stroke={color} strokeWidth={width} strokeLinecap="round" opacity="0.6" />
         <polygon points={`${headX},${headY} ${leftX},${leftY} ${rightX},${rightY}`} fill={color} opacity="0.6" />
       </g>
@@ -215,14 +250,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         onMouseLeave={handleMouseUp}
         onTouchMove={handleTouchMove}
         onTouchEnd={() => {
-            if (!hasMoved && gestureStart !== null) {
-              // On touch, if not moved, handle as click/toggle
-              if (isVoting) {
-                 // handleMouseDown already triggered it onTouchStart
-              } else {
-                 onPlayerClick(gestureStart);
-              }
-            }
+            if (!hasMoved && gestureStart !== null) onPlayerClick(gestureStart);
             handleMouseUp();
             setHasMoved(false);
         }}
@@ -269,7 +297,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
                   <path 
                     key={`${num}-${dayNum}`}
                     d={getSlicePath(i, playerCount, rStart, rEnd)}
-                    fill={mode === 'vote' ? 'rgba(6, 182, 212, 0.7)' : 'rgba(16, 185, 129, 0.7)'}
+                    fill={mode === 'vote' ? 'rgba(6, 182, 212, 0.7)' : 'rgba(37, 99, 235, 0.7)'}
                     className="pointer-events-none"
                   />
                 );
@@ -289,14 +317,14 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         })}
 
         {!isVoting && arrowData.map(arrow => 
-          drawArrow(arrow.from, arrow.to, arrow.day, arrow.type === 'to' ? '#ef4444' : '#22c55e', 2.5)
+          drawArrow(arrow.from, arrow.to, arrow.day, arrow.type, 2.5)
         )}
 
         {isSliding && gestureStart && gestureCurrent && gestureStart !== gestureCurrent && (
-          drawArrow(gestureStart, gestureCurrent, maxDay, '#a855f7', 3)
+          drawArrow(gestureStart, gestureCurrent, maxDay, 'to', 3)
         )}
 
-        {pendingNom && drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), currentDay, '#a855f7', 4)}
+        {pendingNom && drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), currentDay, 'to', 4)}
 
         <g 
           className="cursor-pointer group" 
@@ -322,12 +350,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           )}
         </g>
       </svg>
-      {pendingNom && (
-        <div className="mt-2 text-[10px] font-black uppercase text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
-          <span className="text-purple-600">{pendingNom.f}</span> Nominated <span className="text-purple-600">{pendingNom.t}</span>
-          {isVoting && <span className="ml-2 border-l border-slate-300 pl-2 text-red-600">Recording Voters...</span>}
-        </div>
-      )}
     </div>
   );
 };
