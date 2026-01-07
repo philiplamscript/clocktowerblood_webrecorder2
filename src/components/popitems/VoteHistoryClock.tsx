@@ -53,18 +53,16 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     const isSelfNomination = n.f === n.t && n.f !== '-';
     const playerVoted = voters.includes(playerStr);
 
-    // Collect rings based on mode
     if (mode === 'vote') {
       if (playerVoted && n.t && n.t !== '-') {
         if (!votedAtDay[n.t]) votedAtDay[n.t] = new Set();
         votedAtDay[n.t].add(day);
-        // Special handling for self-votes: also mark the player as "voting for themselves"
         if (isSelfNomination && n.t === playerStr) {
           if (!votedAtDay[playerStr]) votedAtDay[playerStr] = new Set();
-          votedAtDay[playerStr].add(day); // Add self-vote ring
+          votedAtDay[playerStr].add(day);
         }
       }
-    } else { // receive mode
+    } else {
       if (n.t === playerStr) {
         voters.forEach((v: string) => {
           if (v) {
@@ -72,7 +70,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
             votedAtDay[v].add(day);
           }
         });
-        // For self-votes in receive mode, ensure the player's own ring is highlighted
         if (isSelfNomination && playerVoted) {
           if (!votedAtDay[playerStr]) votedAtDay[playerStr] = new Set();
           votedAtDay[playerStr].add(day);
@@ -80,7 +77,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
       }
     }
 
-    // Collect arrows (ensure self-arrows only if voted)
     if (isSelfNomination && playerVoted) {
       arrowData.push({ from: playerNo, to: playerNo, day, type: 'self' });
     } else if (n.f === playerStr && n.t && n.t !== '-') {
@@ -123,12 +119,8 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
       const pos = getPosition(from, radius);
       const angle = ((from - 1) * (360 / playerCount)) - 90 + (360 / (playerCount * 2));
       const rad = angle * Math.PI / 180;
-      
-      // Line pointing to center
       const innerX = cx + (radius - 15) * Math.cos(rad);
       const innerY = cy + (radius - 15) * Math.sin(rad);
-      
-      // Circular arc (loading arrow look)
       const arcRadius = 10;
       const arcStartAngle = rad - 0.5;
       const arcEndAngle = rad + 1.5;
@@ -157,7 +149,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     const headLength = 8;
     const headX = toPos.x - 4 * Math.cos(angle);
     const headY = toPos.y - 4 * Math.sin(angle);
-    
     const leftX = headX - headLength * Math.cos(angle - Math.PI / 6);
     const leftY = headY - headLength * Math.sin(angle - Math.PI / 6);
     const rightX = headX - headLength * Math.cos(angle + Math.PI / 6);
@@ -212,7 +203,12 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     } else {
       if (current !== gestureCurrent) {
         setGestureCurrent(current);
-        setGesturePath(prev => [...new Set([...prev, current])]); // Add unique players to path
+        setGesturePath(prev => {
+          if (prev[prev.length - 1] !== current) {
+            return [...prev, current];
+          }
+          return prev;
+        });
         setIsSliding(true);
       }
     }
@@ -225,7 +221,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           onPlayerClick(gestureStart);
         }
       } else if (!isVoting && isSliding) {
-        // Check for self-nomination: path starts and ends with same player, and has at least one other
         const isSelfNom = gesturePath.length >= 3 && gesturePath[0] === gesturePath[gesturePath.length - 1] && gesturePath.some(p => p !== gestureStart);
         if (isSelfNom) {
           onNominationSlideEnd(gestureStart.toString(), gestureStart.toString());
@@ -257,11 +252,18 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     } else {
       if (current !== gestureCurrent) {
         setGestureCurrent(current);
-        setGesturePath(prev => [...new Set([...prev, current])]); // Add unique players to path
+        setGesturePath(prev => {
+          if (prev[prev.length - 1] !== current) {
+            return [...prev, current];
+          }
+          return prev;
+        });
         setIsSliding(true);
       }
     }
   };
+
+  const isSelfNomPreview = gesturePath.length >= 3 && gesturePath[0] === gesturePath[gesturePath.length - 1] && gesturePath.some(p => p !== gestureStart);
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -314,10 +316,8 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
                 const isVotedDay = activeDays.has(dayNum);
                 const rStart = innerRadius + rIdx * ringWidth;
                 const rEnd = rStart + ringWidth;
-                
                 if (!isVotedDay) return null;
 
-                // Check if this is a self-vote day for the current player
                 const isSelfVote = isCurrentViewPlayer && nominations.some(n => 
                   n.day === dayNum && n.f === playerStr && n.t === playerStr && n.voters.split(',').includes(playerStr)
                 );
@@ -352,11 +352,17 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           drawArrow(arrow.from, arrow.to, arrow.day, arrow.type, 2.5)
         )}
 
-        {isSliding && gestureStart && gestureCurrent && gestureStart !== gestureCurrent && (
-          drawArrow(gestureStart, gestureCurrent, maxDay, 'to', 3)
+        {isSliding && gestureStart && (
+          isSelfNomPreview 
+            ? drawArrow(gestureStart, gestureStart, maxDay, 'self', 4)
+            : gestureCurrent !== null && gestureStart !== gestureCurrent && drawArrow(gestureStart, gestureCurrent, maxDay, 'to', 3)
         )}
 
-        {pendingNom && drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), currentDay, 'to', 4)}
+        {pendingNom && (
+          pendingNom.f === pendingNom.t 
+            ? drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), currentDay, 'self', 4)
+            : drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), currentDay, 'to', 4)
+        )}
 
         <g 
           className="cursor-pointer group" 
