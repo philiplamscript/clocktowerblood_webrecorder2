@@ -51,13 +51,11 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     const voteCount = n.voters ? n.voters.split(',').filter((v: string) => v).length : 0;
 
     if (mode === 'allReceive') {
-      // Global mode: Record any nomination target and its count
       if (n.t && n.t !== '-') {
         if (!votedAtDay[n.t]) votedAtDay[n.t] = {};
         votedAtDay[n.t][day] = voteCount;
       }
       
-      // Global mode: show all arrows
       if (n.f && n.f !== '-' && n.t && n.t !== '-') {
         let type: 'to' | 'from' | 'self' = 'to';
         const fromNum = parseInt(n.f);
@@ -70,7 +68,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         arrowData.push({ from: fromNum, to: toNum, day, type });
       }
     } else {
-      // Player-specific modes
       if (mode === 'vote') {
         if (n.voters.split(',').includes(playerStr) && n.t && n.t !== '-' && n.t !== playerStr) {
           if (!votedAtDay[n.t]) votedAtDay[n.t] = {};
@@ -87,7 +84,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         }
       }
 
-      // Arrows for specific modes (relative to current player)
       if (n.f === playerStr && n.t === playerStr) {
         arrowData.push({ from: playerNo, to: playerNo, day, type: 'self' });
       } else if (n.f === playerStr && n.t && n.t !== '-') {
@@ -284,7 +280,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         {Array.from({ length: playerCount }, (_, i) => i + 1).map((num, i) => {
           const numStr = num.toString();
           const isCurrentViewPlayer = num === playerNo;
-          const isDead = deadPlayers.includes(num);
+          const playerDeath = deaths.find(d => d.playerNo === numStr);
           const activeDaysMap = votedAtDay[numStr] || {};
           const isVoter = isVoting && pendingNom?.voters.includes(numStr);
 
@@ -297,7 +293,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
             >
               <path 
                 d={getSlicePath(i, playerCount, innerRadius, outerRadius)} 
-                fill={isVoter ? '#ef4444' : isCurrentViewPlayer ? 'url(#playerSpotlight)' : isDead ? '#f8fafc' : '#ffffff'} 
+                fill={isVoter ? '#ef4444' : isCurrentViewPlayer ? 'url(#playerSpotlight)' : playerDeath ? '#f8fafc' : '#ffffff'} 
                 stroke={isCurrentViewPlayer ? '#eab308' : '#f1f5f9'} 
                 strokeWidth={isCurrentViewPlayer ? "2" : "0.5"} 
                 className="transition-colors duration-150" 
@@ -306,20 +302,33 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
               {Array.from({ length: ringCount }).map((_, rIdx) => {
                 const dayNum = rIdx + 1;
                 const voteCount = activeDaysMap[dayNum];
-                if (voteCount === undefined) return null;
-
+                const diedThisDay = playerDeath && dayNum === playerDeath.day;
+                const deadAfterThisDay = playerDeath && dayNum > playerDeath.day;
+                
                 const rStart = innerRadius + rIdx * ringWidth;
                 const rEnd = rStart + ringWidth;
-                
                 const pos = getPosition(num, (rStart + rEnd) / 2);
 
                 return (
                   <g key={`${num}-${dayNum}`} className="pointer-events-none">
                     <path 
                       d={getSlicePath(i, playerCount, rStart, rEnd)}
-                      fill={mode === 'vote' ? 'rgba(6, 182, 212, 0.7)' : mode === 'allReceive' ? 'rgba(168, 85, 247, 0.4)' : 'rgba(37, 99, 235, 0.7)'}
+                      fill={
+                        deadAfterThisDay ? 'rgba(148, 163, 184, 0.2)' : 
+                        voteCount !== undefined ? (mode === 'vote' ? 'rgba(6, 182, 212, 0.7)' : mode === 'allReceive' ? 'rgba(168, 85, 247, 0.4)' : 'rgba(37, 99, 235, 0.7)') : 
+                        'transparent'
+                      }
                     />
-                    {mode === 'allReceive' && (
+                    {diedThisDay && (
+                      <text 
+                        x={pos.x} y={pos.y} 
+                        textAnchor="middle" alignmentBaseline="middle" 
+                        className="text-[12px] drop-shadow-sm select-none"
+                      >
+                        {playerDeath.reason}
+                      </text>
+                    )}
+                    {voteCount !== undefined && mode === 'allReceive' && !diedThisDay && (
                       <text 
                         x={pos.x} y={pos.y} 
                         textAnchor="middle" alignmentBaseline="middle" 
@@ -338,7 +347,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
                 y={getPosition(num, (innerRadius + outerRadius) / 2).y} 
                 textAnchor="middle" 
                 alignmentBaseline="middle" 
-                className={`text-[11px] font-black pointer-events-none ${isVoter ? 'fill-white' : isCurrentViewPlayer ? 'fill-slate-900' : 'fill-slate-400 opacity-40'}`}
+                className={`text-[11px] font-black pointer-events-none ${isVoter ? 'fill-white' : isCurrentViewPlayer ? 'fill-slate-900' : playerDeath ? 'fill-slate-300' : 'fill-slate-400 opacity-40'}`}
               >
                 {num}
               </text>
