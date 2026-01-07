@@ -48,16 +48,18 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     const isFiltered = filterDay !== 'all' && day !== filterDay;
     if (isFiltered) return;
 
-    // Collect rings based on mode
+    // Collect rings based on mode, but exclude self-votes
     if (mode === 'vote') {
-      if (n.voters.split(',').includes(playerStr) && n.t && n.t !== '-') {
+      // Only show votes if the voter is not the target (exclude self-votes)
+      if (n.voters.split(',').includes(playerStr) && n.t && n.t !== '-' && n.t !== playerStr) {
         if (!votedAtDay[n.t]) votedAtDay[n.t] = new Set();
         votedAtDay[n.t].add(day);
       }
     } else {
+      // Receive mode: Show who voted for this player, but exclude self-votes
       if (n.t === playerStr) {
         n.voters.split(',').forEach((v: string) => {
-          if (v) {
+          if (v && v !== playerStr) {  // Exclude self-votes
             if (!votedAtDay[v]) votedAtDay[v] = new Set();
             votedAtDay[v].add(day);
           }
@@ -65,7 +67,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
       }
     }
 
-    // Collect ALL arrows regardless of mode
+    // Collect arrows (unchanged, including self-arrows)
     if (n.f === playerStr && n.t === playerStr) {
       arrowData.push({ from: playerNo, to: playerNo, day, type: 'self' });
     } else if (n.f === playerStr && n.t && n.t !== '-') {
