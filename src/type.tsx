@@ -54,9 +54,16 @@ interface SortConfig {
 
 // --- CONSTANTS ---
 
-const INITIAL_PLAYERS = 18;
-const REASON_CYCLE = ['⚔️', '☀️', '🌑'];
-const STATUS_OPTIONS = ["—", "POSS", "CONF", "NOT"];
+const INITIAL_PLAYERS = 15;
+const REASON_CYCLE = ['⚔️', //Excuted
+  '☀️', //Innomoral death at day
+   '🌑', //Death at night
+  ];
+const STATUS_OPTIONS = ["—", // no sign
+   "POSS", // Some sign of possibility
+   "CONF", // Confirmed Existence
+   "NOT", // Confirmed NOT Exist
+  ];
 
 const createInitialChars = (): CharDict => ({
   Townsfolk: Array(8).fill(null).map(() => ({ name: '', status: '—', note: '' })),
