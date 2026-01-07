@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 interface VoteHistoryClockProps {
   playerNo: number;
@@ -11,6 +11,7 @@ interface VoteHistoryClockProps {
   players: any[];
   deaths: any[];
   filterDay: number | 'all';
+  // Interaction Props
   onPlayerClick: (num: number) => void;
   pendingNom: { f: string; t: string; voters: string[] } | null;
   isVoting: boolean;
@@ -33,49 +34,40 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const [hasMoved, setHasMoved] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const cx = 144, cy = 144, outerRadius = 142, innerRadius = 55;
-  const maxDay = Math.max(...nominations.map(n => n.day), 1, currentDay);
-  const ringCount = Math.max(maxDay, 1);
-  const ringWidth = (outerRadius - innerRadius) / ringCount;
+  // Stats calculation
+  const votedToCounts: { [key: string]: number } = {};
+  const nominatedByCounts: { [key: string]: number } = {};
+  const nominatedToArrows: { from: number, to: number }[] = [];
+  const nominatedByArrows: { from: number, to: number }[] = [];
 
-  const votedAtDay: Record<string, Set<number>> = {}; 
-  const arrowData: { from: number, to: number, day: number, type: 'to' | 'from' | 'self' }[] = [];
+  // Filter nominations by day if needed
+  const filteredNoms = nominations.filter(n => filterDay === 'all' || n.day === filterDay);
 
-  nominations.forEach(n => {
-    const day = n.day;
-    const isFiltered = filterDay !== 'all' && day !== filterDay;
-    if (isFiltered) return;
-
-    if (mode === 'vote') {
-      if (n.voters.split(',').includes(playerStr) && n.t && n.t !== '-') {
-        if (!votedAtDay[n.t]) votedAtDay[n.t] = new Set();
-        votedAtDay[n.t].add(day);
-      }
-      if (n.f === playerStr) {
-        if (!votedAtDay[playerStr]) votedAtDay[playerStr] = new Set();
-        votedAtDay[playerStr].add(day);
-      }
-    } else {
-      if (n.t === playerStr) {
-        n.voters.split(',').forEach((v: string) => {
-          if (v) {
-            if (!votedAtDay[v]) votedAtDay[v] = new Set();
-            votedAtDay[v].add(day);
-          }
-        });
-        if (!votedAtDay[playerStr]) votedAtDay[playerStr] = new Set();
-        votedAtDay[playerStr].add(day);
-      }
+  filteredNoms.forEach(n => {
+    // Heatmap data: based on votes
+    if (n.voters.split(',').includes(playerStr) && n.t && n.t !== '-') {
+      votedToCounts[n.t] = (votedToCounts[n.t] || 0) + 1;
+    }
+    if (n.t === playerStr && n.voters.length > 0) {
+      n.voters.split(',').forEach((v: string) => {
+        if (v) nominatedByCounts[v] = (nominatedByCounts[v] || 0) + 1;
+      });
     }
 
-    if (n.f === n.t && n.f !== '-') {
-       arrowData.push({ from: parseInt(n.f), to: parseInt(n.t), day, type: 'self' });
-    } else if (n.f === playerStr && n.t && n.t !== '-') {
-      arrowData.push({ from: playerNo, to: parseInt(n.t), day, type: 'to' });
-    } else if (n.t === playerStr && n.f && n.f !== '-') {
-      arrowData.push({ from: parseInt(n.f), to: playerNo, day, type: 'from' });
+    // Arrow data: based on nominations
+    if (n.f === playerStr && n.t && n.t !== '-') {
+      nominatedToArrows.push({ from: playerNo, to: parseInt(n.t) });
+    }
+    if (n.t === playerStr && n.f && n.f !== '-') {
+      nominatedByArrows.push({ from: parseInt(n.f), to: playerNo });
     }
   });
+
+  const counts = mode === 'vote' ? votedToCounts : nominatedByCounts;
+  const maxCount = Math.max(...Object.values(counts), 1);
+
+  const playersList = Array.from({ length: playerCount }, (_, i) => i + 1);
+  const cx = 144, cy = 144, outerRadius = 142, middleRadius = 95, innerRadius = 65;
 
   const getPosition = (num: number, radius: number) => {
     const index = num - 1;
@@ -223,9 +215,11 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
 
   const handleMouseUp = () => {
     if (gestureStart !== null) {
-      if (!isVoting && !isSliding) {
+      if (isVoting) {
+        // Just clear dragging
+      } else if (!isSliding) {
         onPlayerClick(gestureStart);
-      } else if (!isVoting && isSliding && gestureCurrent !== null) {
+      } else if (gestureCurrent !== null && gestureStart !== gestureCurrent) {
         onNominationSlideEnd(gestureStart.toString(), gestureCurrent.toString());
       }
     }
@@ -265,6 +259,14 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     }
   };
 
+  const handleTouchEnd = (num: number) => {
+    if (!hasMoved) {
+      onPlayerClick(num);
+    }
+    handleMouseUp();
+    setHasMoved(false);
+  };
+
   return (
     <div className="w-full flex flex-col items-center">
       <svg 
@@ -275,54 +277,73 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onTouchMove={handleTouchMove}
-        onTouchEnd={() => {
-            if (!hasMoved && gestureStart !== null) onPlayerClick(gestureStart);
-            handleMouseUp();
-            setHasMoved(false);
-        }}
+        onTouchEnd={() => handleMouseUp()}
       >
-        <defs>
-          <radialGradient id="playerSpotlight" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-            <stop offset="0%" stopColor="#facc15" stopOpacity="0.8" />
-            <stop offset="70%" stopColor="#fef08a" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#fef08a" stopOpacity="0.1" />
-          </radialGradient>
-        </defs>
-
-        {Array.from({ length: playerCount }, (_, i) => i + 1).map((num, i) => {
+        {playersList.map((num, i) => {
           const numStr = num.toString();
-          const isCurrentViewPlayer = num === playerNo;
+          
+          // Background Color Logic
+          let fill = '#ffffff';
+          // Hide historical heat map ONLY during active voting
+          const showHistorical = !isVoting;
+          const intensity = showHistorical ? (counts[numStr] ? counts[numStr] / maxCount : 0) : 0;
+          
+          if (isVoting && pendingNom?.voters.includes(numStr)) {
+            fill = '#ef4444'; // Solid Red for active voters
+          } else if (intensity > 0) {
+            fill = `rgba(6, 182, 212, ${intensity})`; // Cyan intensity
+          }
+
+          const stroke = '#f1f5f9';
+          const path = getSlicePath(i, playerCount);
           const isDead = deadPlayers.includes(num);
-          const activeDays = votedAtDay[numStr] || new Set();
-          const isVoter = isVoting && pendingNom?.voters.includes(numStr);
+          const death = deaths.find(d => parseInt(d.playerNo) === num);
+          const deathReason = death?.reason || '';
+          const playerData = players.find(p => p.no === num);
+          
+          // Multiple Properties Splitting
+          const properties = playerData?.property ? playerData.property.split('|').map((p: string) => p.trim()) : [];
+          
+          const middlePos = getPosition(num, middleRadius);
+          const innerPos = getPosition(num, innerRadius);
 
           return (
             <g 
               key={num} 
-              onMouseDown={(e) => handleMouseDown(e, num)}
-              onTouchStart={(e) => handleTouchStart(e, num)}
+              onMouseDown={() => handleMouseDown(num)}
+              onTouchStart={() => handleMouseDown(num)}
+              onTouchEnd={() => handleTouchEnd(num)}
               className="cursor-pointer"
             >
-              <path 
-                d={getSlicePath(i, playerCount, innerRadius, outerRadius)} 
-                fill={isVoter ? '#ef4444' : isCurrentViewPlayer ? 'url(#playerSpotlight)' : isDead ? '#f8fafc' : '#ffffff'} 
-                stroke={isCurrentViewPlayer ? '#eab308' : '#f1f5f9'} 
-                strokeWidth={isCurrentViewPlayer ? "2" : "0.5"} 
-                className="transition-colors duration-150" 
-              />
-
-              {Array.from({ length: ringCount }).map((_, rIdx) => {
-                const dayNum = rIdx + 1;
-                if (!activeDays.has(dayNum)) return null;
-                const rStart = innerRadius + rIdx * ringWidth;
-                const rEnd = rStart + ringWidth;
+              <path d={path} fill={fill} stroke={stroke} strokeWidth="1" className="transition-colors duration-150" />
+              {isDead && deathReason && (
+                <text x={innerPos.x} y={innerPos.y} textAnchor="middle" alignmentBaseline="middle" className="text-[10px] font-black fill-slate-600 pointer-events-none">
+                  {deathReason}
+                </text>
+              )}
+              <text x={middlePos.x} y={middlePos.y} textAnchor="middle" alignmentBaseline="middle" className={`text-[12px] font-black pointer-events-none ${(intensity > 0 || (isVoting && pendingNom?.voters.includes(numStr))) ? 'fill-white' : 'fill-slate-600'}`}>
+                {num}
+              </text>
+              
+              {/* Stacked Properties: from middle towards outer */}
+              {properties.map((prop: string, idx: number) => {
+                const stepRadius = 15;
+                const propRadius = middleRadius + 15 + (idx * stepRadius);
+                // Cap at outer radius
+                if (propRadius > outerRadius - 5) return null;
+                const propPos = getPosition(num, propRadius);
+                
                 return (
-                  <path 
-                    key={`${num}-${dayNum}`}
-                    d={getSlicePath(i, playerCount, rStart, rEnd)}
-                    fill={mode === 'vote' ? 'rgba(6, 182, 212, 0.7)' : 'rgba(37, 99, 235, 0.7)'}
-                    className="pointer-events-none"
-                  />
+                  <text 
+                    key={idx}
+                    x={propPos.x} 
+                    y={propPos.y} 
+                    textAnchor="middle" 
+                    alignmentBaseline="middle" 
+                    className={`text-[8px] font-bold pointer-events-none ${(intensity > 0 || (isVoting && pendingNom?.voters.includes(numStr))) ? 'fill-white' : 'fill-slate-600'}`}
+                  >
+                    {prop.length > 5 ? prop.substring(0, 5) + '..' : prop}
+                  </text>
                 );
               })}
 
@@ -339,16 +360,23 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           );
         })}
 
-        {!isVoting && arrowData.map((arrow, idx) => 
-          drawArrow(arrow.from, arrow.to, arrow.day, arrow.type, 2.5)
+        {/* Historical Arrows (Only if not in active voting phase) */}
+        {!isVoting && (
+          <>
+            {nominatedToArrows.map(arrow => drawArrow(arrow.from, arrow.to, '#ef4444'))}
+            {nominatedByArrows.map(arrow => drawArrow(arrow.from, arrow.to, '#22c55e'))}
+          </>
         )}
 
-        {isSliding && gestureStart && gestureCurrent && (
-          drawArrow(gestureStart, gestureCurrent, maxDay, gestureStart === gestureCurrent ? 'self' : 'to', 3)
+        {/* Active Gesture Arrow */}
+        {isSliding && gestureStart && gestureCurrent && gestureStart !== gestureCurrent && (
+          drawArrow(gestureStart, gestureCurrent, '#a855f7', 3)
         )}
 
-        {pendingNom && drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), currentDay, parseInt(pendingNom.f) === parseInt(pendingNom.t) ? 'self' : 'to', 4)}
+        {/* Pending Nomination Arrow (Purple) */}
+        {pendingNom && drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), '#a855f7', 4)}
 
+        {/* Center Control */}
         <g 
           className="cursor-pointer group" 
           onMouseDown={(e) => handleMouseDown(e, 'center')}
