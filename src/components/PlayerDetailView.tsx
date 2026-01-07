@@ -220,59 +220,14 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
               )}
             </div>
 
-            {/* Player Note Section (without title) */}
-            <textarea 
-              className="w-full min-h-[150px] border border-slate-200 bg-white rounded-lg p-4 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none resize-none font-medium leading-relaxed shadow-sm transition-all"
-              placeholder="Type social reads, role claims, or night info here..."
-              value={currentPlayer?.inf || ''}
-              onChange={(e) => updatePlayerInfo(playerNo, e.target.value)}
-            />
-
-            {/* Death Status and Prop in one row, always visible */}
-            <div className="flex items-center gap-2">
-              {isDead ? (
-                <div className="flex-[8] flex items-center gap-1 h-10">
-                  <button 
-                    onClick={() => togglePlayerAlive(playerNo)} 
-                    className="flex-1 h-full bg-red-600 text-white rounded-lg flex items-center justify-center shadow-sm transition-all"
-                  >
-                    <Skull size={14} />
-                  </button>
-                  <input 
-                    type="number" 
-                    value={death?.day || currentDay} 
-                    onChange={(e) => updateDeathDay(playerNo, parseInt(e.target.value) || currentDay)} 
-                    className="flex-1 h-full bg-white border rounded-lg text-center text-[10px] font-black focus:ring-0" 
-                  />
-                  <button 
-                    onClick={cycleDeathReason}
-                    className="flex-[2] h-full bg-white border rounded-lg text-center text-[12px] font-black hover:bg-slate-50 transition-colors"
-                  >
-                    {death?.reason || '⚔️'}
-                  </button>
-                </div>
-              ) : (
-                <button 
-                  onClick={() => togglePlayerAlive(playerNo)}
-                  className="flex-[8] h-10 rounded-lg text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 shadow-sm bg-emerald-600 text-white"
-                >
-                  ALIVE
-                </button>
-              )}
-              <div className="flex-[2] flex items-center bg-white border rounded-lg px-3 h-10 shadow-sm">
-                <Tag size={12} className="text-slate-400 mr-2" />
-                <input 
-                  type="text" 
-                  value={currentPlayer?.property || ''} 
-                  onChange={(e) => updatePlayerProperty(playerNo, e.target.value)}
-                  placeholder="Properties"
-                  className="bg-transparent border-none p-0 text-[11px] font-bold focus:ring-0 w-full"
-                />
-              </div>
-            </div>
-
-            {/* Keyword button on the right */}
-            <div className="flex justify-end">
+            {/* Player Note Section with Keyword button on the right */}
+            <div className="flex gap-2 items-start">
+              <textarea 
+                className="flex-1 min-h-[150px] border border-slate-200 bg-white rounded-lg p-4 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none resize-none font-medium leading-relaxed shadow-sm transition-all"
+                placeholder="Type social reads, role claims, or night info here..."
+                value={currentPlayer?.inf || ''}
+                onChange={(e) => updatePlayerInfo(playerNo, e.target.value)}
+              />
               <button 
                 onClick={() => setShowKeywords(!showKeywords)}
                 className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow-sm transition-all"
@@ -337,6 +292,49 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
                 )}
               </div>
             )}
+
+            {/* Death Status and Prop in one row, always visible */}
+            <div className="flex items-center gap-2">
+              {isDead ? (
+                <div className="flex-[8] flex items-center gap-1 h-10">
+                  <button 
+                    onClick={() => togglePlayerAlive(playerNo)} 
+                    className="flex-1 h-full bg-red-600 text-white rounded-lg flex items-center justify-center shadow-sm transition-all"
+                  >
+                    <Skull size={14} />
+                  </button>
+                  <input 
+                    type="number" 
+                    value={death?.day || currentDay} 
+                    onChange={(e) => updateDeathDay(playerNo, parseInt(e.target.value) || currentDay)} 
+                    className="flex-1 h-full bg-white border rounded-lg text-center text-[10px] font-black focus:ring-0" 
+                  />
+                  <button 
+                    onClick={cycleDeathReason}
+                    className="flex-[2] h-full bg-white border rounded-lg text-center text-[12px] font-black hover:bg-slate-50 transition-colors"
+                  >
+                    {death?.reason || '⚔️'}
+                  </button>
+                </div>
+              ) : (
+                <button 
+                  onClick={() => togglePlayerAlive(playerNo)}
+                  className="flex-[8] h-10 rounded-lg text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 shadow-sm bg-emerald-600 text-white"
+                >
+                  ALIVE
+                </button>
+              )}
+              <div className="flex-[2] flex items-center bg-white border rounded-lg px-3 h-10 shadow-sm">
+                <Tag size={12} className="text-slate-400 mr-2" />
+                <input 
+                  type="text" 
+                  value={currentPlayer?.property || ''} 
+                  onChange={(e) => updatePlayerProperty(playerNo, e.target.value)}
+                  placeholder="Properties"
+                  className="bg-transparent border-none p-0 text-[11px] font-bold focus:ring-0 w-full"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
