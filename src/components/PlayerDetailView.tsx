@@ -115,29 +115,90 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
       <div className="h-full overflow-y-auto p-4 space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-4">
-            <div className="bg-slate-50 rounded-lg border p-3 space-y-3 shadow-sm">
-              <div className="flex items-center gap-2">
-                <button 
-                  onClick={() => togglePlayerAlive(playerNo)}
-                  className={`flex-1 h-10 rounded-lg text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 shadow-sm ${isDead ? 'bg-red-600 text-white' : 'bg-emerald-600 text-white'}`}
-                >
-                  {isDead ? <Skull size={14} /> : null}
-                  {isDead ? 'DEAD' : 'ALIVE'}
-                </button>
-                <div className="flex-[1.5] flex items-center bg-white border rounded-lg px-3 h-10 shadow-sm">
-                  <Tag size={12} className="text-slate-400 mr-2" />
-                  <input 
-                    type="text" 
-                    value={currentPlayer?.property || ''} 
-                    onChange={(e) => updatePlayerProperty(playerNo, e.target.value)}
-                    placeholder="Properties (Good | ⭐)"
-                    className="bg-transparent border-none p-0 text-[11px] font-bold focus:ring-0 w-full"
-                  />
+            {/* Voting Patterns Section */}
+            <div className="bg-slate-50 rounded-lg border p-4 space-y-3 shadow-sm flex flex-col items-center">
+              <div className="w-full flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Vote size={14} className="text-blue-600" />
+                  <span className="text-[10px] font-black text-slate-700 uppercase tracking-wider">
+                    {isVoting ? 'Voting Recording' : 'Voting Patterns'}
+                  </span>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  {!isVoting && !pendingNom && (
+                    <div className="flex items-center gap-1 bg-white border rounded-full px-2 h-7 shadow-sm">
+                      <Calendar size={12} className="text-slate-400" />
+                      <div className="w-10">
+                        <TextRotaryPicker 
+                          value={currentFilterText} 
+                          options={dayOptions} 
+                          onChange={(val) => setFilterDay(val === 'ALL' ? 'all' : parseInt(val.replace('D', '')))}
+                          color="text-slate-800"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
+                  <button 
+                    onClick={() => {
+                      if (voteHistoryMode === 'vote') setVoteHistoryMode('beVoted');
+                      else if (voteHistoryMode === 'beVoted') setVoteHistoryMode('allReceive');
+                      else setVoteHistoryMode('vote');
+                    }}
+                    className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1 rounded-full text-[9px] font-black uppercase transition-colors shadow-sm min-w-[80px]"
+                    disabled={isVoting}
+                  >
+                    {modeLabels[voteHistoryMode]}
+                  </button>
                 </div>
               </div>
               
-              {isDead && (
-                <div className="flex items-center bg-white border rounded-lg p-2 gap-2 shadow-sm">
+              <VoteHistoryClock 
+                playerNo={playerNo} 
+                nominations={nominations} 
+                playerCount={playerCount} 
+                deadPlayers={deadPlayers} 
+                mode={voteHistoryMode} 
+                players={players}
+                deaths={deaths}
+                filterDay={filterDay}
+                onPlayerClick={(num) => setPlayerNo(num)}
+                pendingNom={pendingNom}
+                isVoting={isVoting}
+                onNominationSlideEnd={handleNominationSlideEnd}
+                onVoterToggle={handleVoterToggle}
+                onToggleVotingPhase={handleToggleVotingPhase}
+                currentDay={currentDay}
+              />
+
+              {pendingNom && !isVoting && (
+                <div className="bg-blue-600 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase flex items-center gap-2 animate-bounce shadow-lg">
+                  <span className="w-2 h-2 bg-white rounded-full" />
+                  Nomination Ready: {pendingNom.f} ➔ {pendingNom.t}
+                </div>
+              )}
+            </div>
+
+            {/* Player Note Section (without title) */}
+            <textarea 
+              className="w-full min-h-[150px] border border-slate-200 bg-white rounded-lg p-4 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none resize-none font-medium leading-relaxed shadow-sm transition-all"
+              placeholder="Type social reads, role claims, or night info here..."
+              value={currentPlayer?.inf || ''}
+              onChange={(e) => updatePlayerInfo(playerNo, e.target.value)}
+            />
+
+            {/* Death Status and Prop in one row */}
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => togglePlayerAlive(playerNo)}
+                className={`flex-1 h-10 rounded-lg text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 shadow-sm ${isDead ? 'bg-red-600 text-white' : 'bg-emerald-600 text-white'}`}
+              >
+                {isDead ? <Skull size={14} /> : null}
+                {isDead ? 'DEAD' : 'ALIVE'}
+              </button>
+              {isDead ? (
+                <div className="flex-1 flex items-center bg-white border rounded-lg px-3 h-10 shadow-sm gap-2">
                   <div className="bg-slate-100 rounded px-2 py-1">
                     <span className="text-[9px] font-black text-slate-500 uppercase">Day {currentPlayer?.day}</span>
                   </div>
@@ -161,19 +222,18 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
                     })}
                   </div>
                 </div>
+              ) : (
+                <div className="flex-1 flex items-center bg-white border rounded-lg px-3 h-10 shadow-sm">
+                  <Tag size={12} className="text-slate-400 mr-2" />
+                  <input 
+                    type="text" 
+                    value={currentPlayer?.property || ''} 
+                    onChange={(e) => updatePlayerProperty(playerNo, e.target.value)}
+                    placeholder="Properties (Good | ⭐)"
+                    className="bg-transparent border-none p-0 text-[11px] font-bold focus:ring-0 w-full"
+                  />
+                </div>
               )}
-            </div>
-
-            <div className="relative group">
-              <div className="absolute top-2 left-2 pointer-events-none opacity-50 group-focus-within:opacity-100 transition-opacity">
-                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Player Reads & Notes</span>
-              </div>
-              <textarea 
-                className="w-full min-h-[150px] border border-slate-200 bg-white rounded-lg p-6 pt-8 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none resize-none font-medium leading-relaxed shadow-sm transition-all"
-                placeholder="Type social reads, role claims, or night info here..."
-                value={currentPlayer?.inf || ''}
-                onChange={(e) => updatePlayerInfo(playerNo, e.target.value)}
-              />
             </div>
 
             <div className="flex justify-center">
@@ -192,70 +252,6 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
                 Keywords
               </button>
             </div>
-          </div>
-
-          <div className="bg-slate-50 rounded-lg border p-4 space-y-3 shadow-sm flex flex-col items-center">
-            <div className="w-full flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Vote size={14} className="text-blue-600" />
-                <span className="text-[10px] font-black text-slate-700 uppercase tracking-wider">
-                  {isVoting ? 'Voting Recording' : 'Voting Patterns'}
-                </span>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                {!isVoting && !pendingNom && (
-                  <div className="flex items-center gap-1 bg-white border rounded-full px-2 h-7 shadow-sm">
-                    <Calendar size={12} className="text-slate-400" />
-                    <div className="w-10">
-                      <TextRotaryPicker 
-                        value={currentFilterText} 
-                        options={dayOptions} 
-                        onChange={(val) => setFilterDay(val === 'ALL' ? 'all' : parseInt(val.replace('D', '')))}
-                        color="text-slate-800"
-                      />
-                    </div>
-                  </div>
-                )}
-                
-                <button 
-                  onClick={() => {
-                    if (voteHistoryMode === 'vote') setVoteHistoryMode('beVoted');
-                    else if (voteHistoryMode === 'beVoted') setVoteHistoryMode('allReceive');
-                    else setVoteHistoryMode('vote');
-                  }}
-                  className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1 rounded-full text-[9px] font-black uppercase transition-colors shadow-sm min-w-[80px]"
-                  disabled={isVoting}
-                >
-                  {modeLabels[voteHistoryMode]}
-                </button>
-              </div>
-            </div>
-            
-            <VoteHistoryClock 
-              playerNo={playerNo} 
-              nominations={nominations} 
-              playerCount={playerCount} 
-              deadPlayers={deadPlayers} 
-              mode={voteHistoryMode} 
-              players={players}
-              deaths={deaths}
-              filterDay={filterDay}
-              onPlayerClick={(num) => setPlayerNo(num)}
-              pendingNom={pendingNom}
-              isVoting={isVoting}
-              onNominationSlideEnd={handleNominationSlideEnd}
-              onVoterToggle={handleVoterToggle}
-              onToggleVotingPhase={handleToggleVotingPhase}
-              currentDay={currentDay}
-            />
-
-            {pendingNom && !isVoting && (
-              <div className="bg-blue-600 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase flex items-center gap-2 animate-bounce shadow-lg">
-                <span className="w-2 h-2 bg-white rounded-full" />
-                Nomination Ready: {pendingNom.f} ➔ {pendingNom.t}
-              </div>
-            )}
           </div>
         </div>
       </div>
