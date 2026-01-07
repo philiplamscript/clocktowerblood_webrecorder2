@@ -111,33 +111,8 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
-      <div className="flex-none bg-slate-900 px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white font-black text-sm">
-            {playerNo}
-          </div>
-          <span className="text-white font-black text-xs uppercase tracking-wider">Player Focus</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <button 
-            onClick={() => {
-              const allRoles = [
-                ...chars.Townsfolk.map((c: any) => ({ role: c.name, category: 'Townsfolk' })).filter((item: any) => item.role),
-                ...chars.Outsider.map((c: any) => ({ role: c.name, category: 'Outsider' })).filter((item: any) => item.role),
-                ...chars.Minion.map((c: any) => ({ role: c.name, category: 'Minion' })).filter((item: any) => item.role),
-                ...chars.Demon.map((c: any) => ({ role: c.name, category: 'Demon' })).filter((item: any) => item.role)
-              ];
-              setShowRoleSelector({ playerNo: playerNo, roles: allRoles });
-            }}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-[9px] font-black uppercase transition-colors"
-          >
-            Keywords
-          </button>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className="h-full bg-white overflow-hidden">
+      <div className="h-full overflow-y-auto p-4 space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-4">
             <div className="bg-slate-50 rounded-lg border p-3 space-y-3 shadow-sm">
@@ -199,6 +174,23 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
                 value={currentPlayer?.inf || ''}
                 onChange={(e) => updatePlayerInfo(playerNo, e.target.value)}
               />
+            </div>
+
+            <div className="flex justify-center">
+              <button 
+                onClick={() => {
+                  const allRoles = [
+                    ...chars.Townsfolk.map((c: any) => ({ role: c.name, category: 'Townsfolk' })).filter((item: any) => item.role),
+                    ...chars.Outsider.map((c: any) => ({ role: c.name, category: 'Outsider' })).filter((item: any) => item.role),
+                    ...chars.Minion.map((c: any) => ({ role: c.name, category: 'Minion' })).filter((item: any) => item.role),
+                    ...chars.Demon.map((c: any) => ({ role: c.name, category: 'Demon' })).filter((item: any) => item.role)
+                  ];
+                  setShowRoleSelector({ playerNo: playerNo, roles: allRoles });
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-[10px] font-black uppercase transition-colors"
+              >
+                Keywords
+              </button>
             </div>
           </div>
 

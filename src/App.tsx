@@ -293,56 +293,57 @@ export default function App() {
               </div>
             </div>
 
-            {Array.from({ length: playerCount }, (_, i) => i + 1).map(num => {
-              const isDead = deadPlayers.includes(num);
-              const hasInfo = players.find(p => p.no === num)?.inf !== '';
-              const hasProperty = players.find(p => p.no === num)?.property !== '';
-              const death = deaths.find(d => parseInt(d.playerNo) === num);
-              const deathReason = death?.reason || '';
-              return (
-                <button 
-                  key={num} 
-                  onClick={() => handlePlayerClick(num)}
-                  className={`flex-none w-7 h-7 rounded-full flex flex-col items-center justify-center text-[10px] font-black transition-all border-2 shadow-sm ${
-                    assignmentMode ? 'bg-slate-700 text-slate-300 border-slate-600 hover:bg-slate-600' :
-                    num === focusPlayerNo ? 'bg-white text-slate-900 border-red-500 scale-110 z-10' :
-                    isDead ? 'bg-slate-900 text-white border-red-900/50' : 
-                    hasInfo ? 'bg-blue-600 text-white border-blue-400' : 
-                    hasProperty ? 'bg-green-600 text-white border-green-400' : 
-                    'bg-slate-700 text-slate-300 border-slate-600'
-                  } active:scale-90`}
-                >
-                  <span>{num}</span>
-                  {isDead && <span className="text-[5px] leading-none opacity-75">{deathReason}</span>}
-                </button>
-              );
-            })}
+            {/* Player Tabs */}
+            <div className="flex flex-wrap gap-1">
+              {Array.from({ length: playerCount }, (_, i) => i + 1).map(num => {
+                const isDead = deadPlayers.includes(num);
+                const hasInfo = players.find(p => p.no === num)?.inf !== '';
+                const hasProperty = players.find(p => p.no === num)?.property !== '';
+                const death = deaths.find(d => parseInt(d.playerNo) === num);
+                const deathReason = death?.reason || '';
+                return (
+                  <button 
+                    key={num} 
+                    onClick={() => handlePlayerClick(num)}
+                    className={`flex-none px-3 py-1 rounded-full text-[10px] font-black transition-all border-2 shadow-sm ${
+                      assignmentMode ? 'bg-slate-700 text-slate-300 border-slate-600 hover:bg-slate-600' :
+                      num === focusPlayerNo ? 'bg-white text-slate-900 border-red-500 scale-105 z-10' :
+                      isDead ? 'bg-slate-900 text-white border-red-900/50' : 
+                      hasInfo ? 'bg-blue-600 text-white border-blue-400' : 
+                      hasProperty ? 'bg-green-600 text-white border-green-400' : 
+                      'bg-slate-700 text-slate-300 border-slate-600'
+                    } active:scale-90`}
+                  >
+                    <span>{num}</span>
+                    {isDead && <span className="ml-1 text-[8px] leading-none opacity-75">{deathReason}</span>}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
 
-      <main className="flex-1 overflow-hidden p-3 relative">
-        <div className="max-w-4xl mx-auto h-full pb-20">
-          <PlayerDetailView 
-            playerNo={focusPlayerNo}
-            setPlayerNo={setFocusPlayerNo}
-            playerCount={playerCount}
-            players={players}
-            deadPlayers={deadPlayers}
-            updatePlayerInfo={updatePlayerInfo}
-            updatePlayerProperty={updatePlayerProperty}
-            togglePlayerAlive={togglePlayerAlive}
-            chars={chars}
-            nominations={nominations}
-            setNominations={setNominations}
-            voteHistoryMode={voteHistoryMode}
-            setVoteHistoryMode={setVoteHistoryMode}
-            setShowRoleSelector={setShowRoleSelector}
-            deaths={deaths}
-            setDeaths={setDeaths}
-            currentDay={currentDay}
-          />
-        </div>
+      <main className="flex-1 overflow-hidden relative">
+        <PlayerDetailView 
+          playerNo={focusPlayerNo}
+          setPlayerNo={setFocusPlayerNo}
+          playerCount={playerCount}
+          players={players}
+          deadPlayers={deadPlayers}
+          updatePlayerInfo={updatePlayerInfo}
+          updatePlayerProperty={updatePlayerProperty}
+          togglePlayerAlive={togglePlayerAlive}
+          chars={chars}
+          nominations={nominations}
+          setNominations={setNominations}
+          voteHistoryMode={voteHistoryMode}
+          setVoteHistoryMode={setVoteHistoryMode}
+          setShowRoleSelector={setShowRoleSelector}
+          deaths={deaths}
+          setDeaths={setDeaths}
+          currentDay={currentDay}
+        />
       </main>
 
       <LedgerTabsPopup 
