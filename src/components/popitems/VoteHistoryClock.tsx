@@ -44,6 +44,8 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const ringCount = Math.max(maxDay, 1);
   const ringWidth = (outerRadius - innerRadius) / ringCount;
 
+  const playerStr = playerNo.toString();
+
   // Data maps
   const votedAtDay: Record<string, Record<number, number>> = {}; 
   const arrowData: { from: number, to: number, day: number, type: 'to' | 'from' | 'self' }[] = [];
@@ -253,7 +255,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   };
 
   const playerNumbers = Array.from({ length: playerCount }, (_, i) => i + 1);
-  const playerStr = playerNo.toString();
 
   return (
     <div className="w-full flex flex-col items-center">
