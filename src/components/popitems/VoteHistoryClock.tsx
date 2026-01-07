@@ -252,7 +252,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     }
   };
 
-  const players = Array.from({ length: playerCount }, (_, i) => i + 1);
+  const playerNumbers = Array.from({ length: playerCount }, (_, i) => i + 1);
   const playerStr = playerNo.toString();
 
   return (
@@ -285,7 +285,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           </radialGradient>
         </defs>
 
-        {players.map((num, i) => {
+        {playerNumbers.map((num, i) => {
           const numStr = num.toString();
           const isCurrentViewPlayer = num === playerNo;
           const playerDeath = deaths.find(d => d.playerNo === numStr);
