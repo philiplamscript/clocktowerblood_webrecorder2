@@ -17,11 +17,13 @@ interface VoteHistoryClockProps {
   onNominationSlideEnd: (from: string, to: string) => void;
   onVoterToggle: (playerNo: string, forceAction?: 'add' | 'remove') => void;
   onToggleVotingPhase: () => void;
+  currentDay: number;
 }
 
 const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({ 
   playerNo, nominations, playerCount, deadPlayers, mode, players, deaths, filterDay,
-  onPlayerClick, pendingNom, isVoting, onNominationSlideEnd, onVoterToggle, onToggleVotingPhase
+  onPlayerClick, pendingNom, isVoting, onNominationSlideEnd, onVoterToggle, onToggleVotingPhase,
+  currentDay
 }) => {
   const playerStr = playerNo.toString();
   const [gestureStart, setGestureStart] = useState<number | null>(null);
@@ -33,13 +35,12 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
 
   // Constants for geometry
   const cx = 144, cy = 144, outerRadius = 142, innerRadius = 55;
-  const maxDay = Math.max(...nominations.map(n => n.day), 1);
+  const maxDay = Math.max(...nominations.map(n => n.day), 1, currentDay);
   const ringCount = Math.max(maxDay, 1);
   const ringWidth = (outerRadius - innerRadius) / ringCount;
 
   // Data maps
   const votedAtDay: Record<string, Set<number>> = {}; // playerNum -> Set of days
-  const nominatedAtDay: Record<string, Set<number>> = {}; // playerNum -> Set of days
   const arrowData: { from: number, to: number, day: number, type: 'to' | 'from' }[] = [];
 
   nominations.forEach(n => {
@@ -49,12 +50,10 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
 
     if (mode === 'vote') {
       // VOTE VIEW
-      // Did current player (i) vote for player (k) on day (n)?
       if (n.voters.split(',').includes(playerStr) && n.t && n.t !== '-') {
         if (!votedAtDay[n.t]) votedAtDay[n.t] = new Set();
         votedAtDay[n.t].add(day);
       }
-      // Did current player (i) NOMINATE anyone on day (n)?
       if (n.f === playerStr) {
         if (!votedAtDay[playerStr]) votedAtDay[playerStr] = new Set();
         votedAtDay[playerStr].add(day);
@@ -62,11 +61,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
       }
     } else {
       // BE VOTED VIEW
-      // Did player (k) vote for current player (i) on day (n)?
-      if (n.t === playerStr && n.voters.split(',').includes(n.voters)) {
-         // This needs checking per voter
-      }
-      // Actually we iterate voters for beVoted
       if (n.t === playerStr) {
         n.voters.split(',').forEach((v: string) => {
           if (v) {
@@ -74,10 +68,8 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
             votedAtDay[v].add(day);
           }
         });
-        // Did current player (i) GET NOMINATED on day (n)?
         if (!votedAtDay[playerStr]) votedAtDay[playerStr] = new Set();
         votedAtDay[playerStr].add(day);
-        
         if (n.f && n.f !== '-') arrowData.push({ from: parseInt(n.f), to: playerNo, day, type: 'from' });
       }
     }
@@ -128,7 +120,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     const rightY = headY - headLength * Math.sin(angle + Math.PI / 6);
 
     return (
-      <g key={`${from}-${to}-${day}-${color}`}>
+      <g key={`${from}-${to}-${day}-${color}-${Math.random()}`}>
         <line x1={fromPos.x} y1={fromPos.y} x2={headX} y2={headY} stroke={color} strokeWidth={width} strokeLinecap="round" opacity="0.6" />
         <polygon points={`${headX},${headY} ${leftX},${leftY} ${rightX},${rightY}`} fill={color} opacity="0.6" />
       </g>
@@ -249,7 +241,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
               onTouchStart={() => handleMouseDown(num)}
               className="cursor-pointer"
             >
-              {/* Background slice */}
               <path 
                 d={getSlicePath(i, playerCount, innerRadius, outerRadius)} 
                 fill={isCurrentViewPlayer ? 'url(#playerSpotlight)' : isDead ? '#f8fafc' : '#ffffff'} 
@@ -258,7 +249,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
                 className="transition-colors duration-150" 
               />
 
-              {/* Ladder Rings */}
               {Array.from({ length: ringCount }).map((_, rIdx) => {
                 const dayNum = rIdx + 1;
                 const isVotedDay = activeDays.has(dayNum);
@@ -277,7 +267,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
                 );
               })}
 
-              {/* Player Number and Death Reason */}
               <text 
                 x={getPosition(num, (innerRadius + outerRadius) / 2).x} 
                 y={getPosition(num, (innerRadius + outerRadius) / 2).y} 
@@ -291,19 +280,15 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           );
         })}
 
-        {!isVoting && (
-          <>
-            {arrowData.map(arrow => 
-              drawArrow(arrow.from, arrow.to, arrow.day, arrow.type === 'to' ? '#ef4444' : '#22c55e', 2.5)
-            )}
-          </>
+        {!isVoting && arrowData.map(arrow => 
+          drawArrow(arrow.from, arrow.to, arrow.day, arrow.type === 'to' ? '#ef4444' : '#22c55e', 2.5)
         )}
 
         {isSliding && gestureStart && gestureCurrent && gestureStart !== gestureCurrent && (
           drawArrow(gestureStart, gestureCurrent, maxDay, '#a855f7', 3)
         )}
 
-        {pendingNom && drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), currentDay || maxDay, '#a855f7', 4)}
+        {pendingNom && drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), currentDay, '#a855f7', 4)}
 
         <g 
           className="cursor-pointer group" 

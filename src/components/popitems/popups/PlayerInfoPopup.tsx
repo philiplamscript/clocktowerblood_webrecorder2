@@ -279,6 +279,7 @@ const PlayerInfoPopup: React.FC<PlayerInfoPopupProps> = ({
               onNominationSlideEnd={handleNominationSlideEnd}
               onVoterToggle={handleVoterToggle}
               onToggleVotingPhase={handleToggleVotingPhase}
+              currentDay={currentDay}
             />
           </div>
         </div>
