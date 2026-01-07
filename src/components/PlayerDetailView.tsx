@@ -110,6 +110,16 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
     allReceive: 'All Global'
   };
 
+  const death = deaths.find(d => d.playerNo === playerNo.toString());
+
+  const updateDeathDay = (playerNo: number, newDay: number) => {
+    setDeaths(deaths.map(d => d.playerNo === playerNo.toString() ? { ...d, day: newDay } : d));
+  };
+
+  const updateDeathReason = (playerNo: number, newReason: string) => {
+    setDeaths(deaths.map(d => d.playerNo === playerNo.toString() ? { ...d, reason: newReason } : d));
+  };
+
   return (
     <div className="h-full bg-white overflow-hidden">
       <div className="h-full overflow-y-auto p-4 space-y-4">
@@ -190,13 +200,38 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
 
             {/* Death Status and Prop in one row, always visible */}
             <div className="flex items-center gap-2">
-              <button 
-                onClick={() => togglePlayerAlive(playerNo)}
-                className={`flex-[8] h-10 rounded-lg text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 shadow-sm ${isDead ? 'bg-red-600 text-white' : 'bg-emerald-600 text-white'}`}
-              >
-                {isDead ? <Skull size={14} /> : null}
-                {isDead ? 'DEAD' : 'ALIVE'}
-              </button>
+              {isDead ? (
+                <div className="flex-[8] flex items-center gap-1 h-10">
+                  <button 
+                    onClick={() => togglePlayerAlive(playerNo)} 
+                    className="flex-1 h-full bg-red-600 text-white rounded-lg flex items-center justify-center shadow-sm transition-all"
+                  >
+                    <Skull size={14} />
+                  </button>
+                  <input 
+                    type="number" 
+                    value={death?.day || currentDay} 
+                    onChange={(e) => updateDeathDay(playerNo, parseInt(e.target.value) || currentDay)} 
+                    className="flex-1 h-full bg-white border rounded-lg text-center text-[10px] font-black focus:ring-0" 
+                  />
+                  <select 
+                    value={death?.reason || '⚔️'} 
+                    onChange={(e) => updateDeathReason(playerNo, e.target.value)} 
+                    className="flex-[2] h-full bg-white border rounded-lg text-center text-[10px] font-black focus:ring-0"
+                  >
+                    {REASON_CYCLE.map(reason => (
+                      <option key={reason} value={reason}>{reason}</option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <button 
+                  onClick={() => togglePlayerAlive(playerNo)}
+                  className="flex-[8] h-10 rounded-lg text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 shadow-sm bg-emerald-600 text-white"
+                >
+                  ALIVE
+                </button>
+              )}
               <div className="flex-[2] flex items-center bg-white border rounded-lg px-3 h-10 shadow-sm">
                 <Tag size={12} className="text-slate-400 mr-2" />
                 <input 
