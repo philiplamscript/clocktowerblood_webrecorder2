@@ -31,7 +31,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   onPlayerClick, pendingNom, isVoting, onNominationSlideEnd, onVoterToggle, onToggleVotingPhase,
   currentDay, setCurrentDay, showDeathIcons, assignmentMode, selectedReason, selectedProperty
 }) => {
-  const playerStr = playerNo.toString();
   const [gestureStart, setGestureStart] = useState<number | null>(null);
   const [gestureCurrent, setGestureCurrent] = useState<number | null>(null);
   const [isSliding, setIsSliding] = useState(false);
@@ -253,6 +252,9 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     }
   };
 
+  const players = Array.from({ length: playerCount }, (_, i) => i + 1);
+  const playerStr = playerNo.toString();
+
   return (
     <div className="w-full flex flex-col items-center">
       <svg 
@@ -283,7 +285,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           </radialGradient>
         </defs>
 
-        {Array.from({ length: playerCount }, (_, i) => i + 1).map((num, i) => {
+        {players.map((num, i) => {
           const numStr = num.toString();
           const isCurrentViewPlayer = num === playerNo;
           const playerDeath = deaths.find(d => d.playerNo === numStr);
@@ -384,7 +386,11 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         <g className="pointer-events-auto">
           <circle 
             cx={cx} cy={cy} r="25" 
-            fill={assignmentMode === 'death' ? '#dc2626' : assignmentMode === 'property' ? '#2563eb' : '#1f2937'} 
+            fill={
+              isVoting ? '#dc2626' : // Red for voting status
+              pendingNom ? '#a855f7' : // Purple for nomination status
+              '#eab308' // Yellow for default (day switch display)
+            }
             className="transition-colors duration-200"
             onClick={(e) => { e.stopPropagation(); onToggleVotingPhase(); }}
           />
