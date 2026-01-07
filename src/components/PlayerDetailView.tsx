@@ -57,6 +57,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
   const [isVoting, setIsVoting] = useState(false);
   const [filterDay, setFilterDay] = useState<number | 'all'>('all');
   const [showKeywords, setShowKeywords] = useState(false);
+  const [showDeathIcons, setShowDeathIcons] = useState(true);
 
   const handleToggleVotingPhase = () => {
     if (!pendingNom) return;
@@ -175,6 +176,13 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
                   )}
                   
                   <button 
+                    onClick={() => setShowDeathIcons(!showDeathIcons)}
+                    className={`p-1 rounded transition-colors ${showDeathIcons ? 'text-red-500 hover:bg-red-50' : 'text-slate-400 hover:bg-slate-100'}`}
+                  >
+                    <Skull size={14} />
+                  </button>
+                  
+                  <button 
                     onClick={() => {
                       if (voteHistoryMode === 'vote') setVoteHistoryMode('beVoted');
                       else if (voteHistoryMode === 'beVoted') setVoteHistoryMode('allReceive');
@@ -204,6 +212,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
                 onVoterToggle={handleVoterToggle}
                 onToggleVotingPhase={handleToggleVotingPhase}
                 currentDay={currentDay}
+                showDeathIcons={showDeathIcons}
               />
 
               {pendingNom && !isVoting && (

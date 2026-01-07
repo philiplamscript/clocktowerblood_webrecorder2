@@ -18,12 +18,13 @@ interface VoteHistoryClockProps {
   onVoterToggle: (playerNo: string, forceAction?: 'add' | 'remove') => void;
   onToggleVotingPhase: () => void;
   currentDay: number;
+  showDeathIcons: boolean;
 }
 
 const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({ 
   playerNo, nominations, playerCount, deadPlayers, mode, players, deaths, filterDay,
   onPlayerClick, pendingNom, isVoting, onNominationSlideEnd, onVoterToggle, onToggleVotingPhase,
-  currentDay
+  currentDay, showDeathIcons
 }) => {
   const playerStr = playerNo.toString();
   const [gestureStart, setGestureStart] = useState<number | null>(null);
@@ -308,7 +309,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
                 const rStart = innerRadius + rIdx * ringWidth;
                 const rEnd = rStart + ringWidth;
                 const pos = getPosition(num, (rStart + rEnd) / 2);
-                const countPos = getPosition(num, rStart + ringWidth * 0.75);
 
                 return (
                   <g key={`${num}-${dayNum}`} className="pointer-events-none">
@@ -320,7 +320,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
                         'transparent'
                       }
                     />
-                    {diedThisDay && (
+                    {showDeathIcons && diedThisDay && (
                       <text 
                         x={pos.x} y={pos.y} 
                         textAnchor="middle" alignmentBaseline="middle" 
@@ -331,7 +331,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
                     )}
                     {voteCount !== undefined && mode === 'allReceive' && !diedThisDay && (
                       <text 
-                        x={countPos.x} y={countPos.y} 
+                        x={pos.x} y={pos.y} 
                         textAnchor="middle" alignmentBaseline="middle" 
                         className="font-black fill-white drop-shadow-sm"
                         style={{ fontSize: `${Math.max(8, ringWidth * 0.15)}px` }}
