@@ -169,12 +169,6 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
           <div className="bg-slate-50 rounded-lg border p-4 space-y-3 shadow-sm flex flex-col items-center">
             <div className="w-full flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <button 
-                  onClick={() => togglePlayerAlive(playerNo)} 
-                  className={`p-1 rounded transition-colors ${isDead ? 'text-red-500 hover:bg-red-50' : 'text-slate-400 hover:bg-slate-100'}`}
-                >
-                  <Skull size={14} />
-                </button>
                 <Vote size={14} className="text-blue-600" />
                 <span className="text-[10px] font-black text-slate-700 uppercase tracking-wider">
                   {isVoting ? 'Voting Recording' : 'Voting Patterns'}
@@ -366,14 +360,14 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
 
           {/* Death Status and Prop in one row, always visible */}
           <div className="flex items-center gap-2">
-            <button 
-              onClick={() => togglePlayerAlive(playerNo)} 
-              className={`w-10 h-10 rounded-lg flex items-center justify-center shadow-sm transition-all ${isDead ? 'bg-red-600 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'}`}
-            >
-              <Skull size={16} />
-            </button>
-            {isDead && (
+            {isDead ? (
               <div className="flex-[8] flex items-center gap-1 h-10">
+                <button 
+                  onClick={() => togglePlayerAlive(playerNo)} 
+                  className="flex-1 h-full bg-red-600 text-white rounded-lg flex items-center justify-center shadow-sm transition-all"
+                >
+                  <Skull size={14} />
+                </button>
                 <input 
                   type="number" 
                   value={death?.day || currentDay} 
@@ -387,11 +381,13 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
                   {death?.reason || '⚔️'}
                 </button>
               </div>
-            )}
-            {!isDead && (
-              <div className="flex-[8] h-10 rounded-lg text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 shadow-sm bg-emerald-600 text-white">
+            ) : (
+              <button 
+                onClick={() => togglePlayerAlive(playerNo)}
+                className="flex-[8] h-10 rounded-lg text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 shadow-sm bg-emerald-600 text-white"
+              >
                 ALIVE
-              </div>
+              </button>
             )}
             <div className="flex-[2] flex items-center bg-white border rounded-lg px-3 h-10 shadow-sm">
               <Tag size={12} className="text-slate-400 mr-2" />
