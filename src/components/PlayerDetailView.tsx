@@ -169,6 +169,12 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
           <div className="bg-slate-50 rounded-lg border p-4 space-y-3 shadow-sm flex flex-col items-center">
             <div className="w-full flex items-center justify-between">
               <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => togglePlayerAlive(playerNo)} 
+                  className={`p-1 rounded transition-colors ${isDead ? 'text-red-500 hover:bg-red-50' : 'text-slate-400 hover:bg-slate-100'}`}
+                >
+                  <Skull size={14} />
+                </button>
                 <Vote size={14} className="text-blue-600" />
                 <span className="text-[10px] font-black text-slate-700 uppercase tracking-wider">
                   {isVoting ? 'Voting Recording' : 'Voting Patterns'}
