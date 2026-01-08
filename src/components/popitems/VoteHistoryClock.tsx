@@ -23,13 +23,12 @@ interface VoteHistoryClockProps {
   assignmentMode?: 'death' | 'property' | null;
   selectedReason?: string;
   selectedProperty?: string;
-  setSelectedReason?: (reason: string) => void;
 }
 
 const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({ 
   playerNo, nominations, playerCount, deadPlayers, mode, players, deaths, filterDay,
   onPlayerClick, pendingNom, isVoting, onNominationSlideEnd, onVoterToggle, onToggleVotingPhase,
-  currentDay, setCurrentDay, showDeathIcons, assignmentMode, selectedReason, selectedProperty, setSelectedReason
+  currentDay, setCurrentDay, showDeathIcons, assignmentMode, selectedReason, selectedProperty
 }) => {
   const [gestureStart, setGestureStart] = useState<number | null>(null);
   const [gestureCurrent, setGestureCurrent] = useState<number | null>(null);
@@ -278,7 +277,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
               <text x={getPosition(num, (innerRadius + outerRadius) / 2).x} y={getPosition(num, (innerRadius + outerRadius) / 2).y} textAnchor="middle" alignmentBaseline="middle" className={`text-[11px] font-black pointer-events-none ${isVoter ? 'fill-white' : isCurrent ? 'fill-slate-900' : pd ? 'fill-slate-300' : 'fill-slate-400 opacity-40'}`}>{num}</text>
             </g>
           );
-        })};
+        })}
 
         {!isVoting && arrowData.map(a => drawArrow(a.from, a.to, a.day, a.type, mode === 'allReceive' ? 1.5 : 2.5))}
         {isSliding && gestureStart && gestureCurrent && drawArrow(gestureStart, gestureCurrent, maxDay, gestureStart === gestureCurrent ? 'self' : 'to', 3)}
@@ -287,7 +286,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         <g className="pointer-events-auto">
           <circle cx={cx} cy={cy} r="25" fill={isVoting ? '#dc2626' : pendingNom ? '#a855f7' : '#eab308'} className="transition-colors" onClick={(e) => { e.stopPropagation(); onToggleVotingPhase(); }} />
           {pendingNom ? <text x={cx} y={cy} textAnchor="middle" alignmentBaseline="middle" className="text-white text-[14px] font-black pointer-events-none">{isVoting ? 'SAVE' : 'V'}</text>
-          : assignmentMode ? <text x={cx} y={cy} textAnchor="middle" alignmentBaseline="middle" className="text-white text-[8px] font-black uppercase pointer-events-none">{selectedForDeath ? selectedForDeath : (assignmentMode === 'death' ? selectedReason : 'PROP')}</text>
+          : assignmentMode ? <text x={cx} y={cy} textAnchor="middle" alignmentBaseline="middle" className="text-white text-[8px] font-black uppercase pointer-events-none">{assignmentMode === 'death' ? selectedReason : 'PROP'}</text>
           : <g>
               <text x={cx} y={cy - 8} textAnchor="middle" className="text-white text-[10px] font-black pointer-events-none">{playerNo}</text>
               <g className="cursor-pointer" onClick={(e) => { e.stopPropagation(); setCurrentDay?.(Math.max(1, currentDay - 1)); }}><path d="M 125 144 L 132 140 L 132 148 Z" fill="white" opacity="0.5" /></g>
@@ -297,34 +296,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
             </g>
           }
         </g>
-
-        {assignmentMode === 'death' && selectedForDeath !== null && (
-          <g>
-            {['⚔️', '☀️', '🌑'].map((reason, i) => {
-              const angle = (i * 120) * Math.PI / 180; // 0, 120, 240 degrees
-              const x = cx + 35 * Math.cos(angle);
-              const y = cy + 35 * Math.sin(angle);
-              return (
-                <text
-                  key={reason}
-                  x={x}
-                  y={y}
-                  textAnchor="middle"
-                  alignmentBaseline="middle"
-                  className="text-[16px] cursor-pointer hover:opacity-75 pointer-events-auto"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedReason?.(reason);
-                    onPlayerClick(selectedForDeath);
-                    setSelectedForDeath(null);
-                  }}
-                >
-                  {reason}
-                </text>
-              );
-            })}
-          </g>
-        )}
       </svg>
     </div>
   );
