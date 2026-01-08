@@ -39,6 +39,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const lastEventTime = useRef<number>(0);
   const touchStartX = useRef<number>(0);
   const touchStartY = useRef<number>(0);
+  const isCenterSwipe = useRef<boolean>(false);
 
   const cx = 144, cy = 144, outerRadius = 142, innerRadius = 55;
   const maxDay = Math.max(...nominations.map(n => n.day), 1, currentDay);
@@ -101,7 +102,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const getSlicePath = (index: number, total: number, rInner: number, rOuter: number) => {
     const angleStep = 360 / total;
     const startAngle = (index * angleStep) - 90, endAngle = ((index + 1) * angleStep) - 90;
-    const p1 = { x: cx + (rOuter * Math.cos(startAngle * Math.PI / 180)), y: cy + (rOuter * Math.sin(startAngle * Math.PI / 180)) };
+    const p1 = { x: cx + (rOuter * Math.cos(startAngle * Math.PI / 180)), y: cy + (rOuter * Math.sin(endAngle * Math.PI / 180)) };
     const p2 = { x: cx + (rOuter * Math.cos(endAngle * Math.PI / 180)), y: cy + (rOuter * Math.sin(endAngle * Math.PI / 180)) };
     const p3 = { x: cx + (rInner * Math.cos(endAngle * Math.PI / 180)), y: cy + (rInner * Math.sin(endAngle * Math.PI / 180)) };
     const p4 = { x: cx + (rInner * Math.cos(startAngle * Math.PI / 180)), y: cy + (rInner * Math.sin(startAngle * Math.PI / 180)) };
@@ -215,11 +216,27 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
 
   const handleTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
-    touchStartX.current = touch.clientX;
-    touchStartY.current = touch.clientY;
+    if (!svgRef.current) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const dx = touch.clientX - centerX;
+    const dy = touch.clientY - centerY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const scale = rect.width / 288; // viewBox width
+    const centerRadius = 25 * scale;
+    isCenterSwipe.current = distance <= centerRadius;
+    if (isCenterSwipe.current) {
+      touchStartX.current = touch.clientX;
+      touchStartY.current = touch.clientY;
+    } else {
+      touchStartX.current = 0;
+      touchStartY.current = 0;
+    }
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!isCenterSwipe.current || touchStartX.current === 0) return;
     const touch = e.changedTouches[0];
     const deltaX = touch.clientX - touchStartX.current;
     const deltaY = touch.clientY - touchStartY.current;
@@ -235,6 +252,9 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         setCurrentDay?.(currentDay + 1);
       }
     }
+    touchStartX.current = 0;
+    touchStartY.current = 0;
+    isCenterSwipe.current = false;
   };
 
   return (
