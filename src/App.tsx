@@ -6,10 +6,11 @@ import {
   Plus, 
   Minus,
   Eye,
-  EyeOff,
   BookOpen,
-  Split
+  Split,
+  Menu
 } from 'lucide-react';
+import { Toaster, toast } from 'react-hot-toast';
 
 
 import {
@@ -30,7 +31,9 @@ import LedgerTabsPopup from './components/popitems/popups/LedgerTabsPopup';
 import RoleSelectorPopup from './components/popitems/popups/RoleSelectorPopup';
 import RoleUpdatePopup from './components/popitems/popups/RoleUpdatePopup';
 import ResetConfirmation from './components/popitems/popups/ResetConfirmation';
+import GreetingPopup from './components/popitems/popups/GreetingPopup';
 import FAB from './components/popitems/FAB';
+import Sidebar from './components/Sidebar';
 
 export default function App() {
   const getStorage = (key: string, fallback: any) => {
@@ -54,6 +57,8 @@ export default function App() {
   const [showHub, setShowHub] = useState(() => getStorage('showHub', true));
   const [splitView, setSplitView] = useState(() => getStorage('splitView', false));
   
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showGreeting, setShowGreeting] = useState(() => !localStorage.getItem('clocktower_greeted'));
   const [showReset, setShowReset] = useState(false);
   const [fabOpen, setFabOpen] = useState(false);
   const [focusPlayerNo, setFocusPlayerNo] = useState<number>(1);
@@ -136,6 +141,7 @@ export default function App() {
     setNote('');
     localStorage.clear();
     setShowReset(false);
+    toast.success('Session reset successfully');
   };
 
   const addNomination = () => {
@@ -194,6 +200,7 @@ export default function App() {
     setChars(newChars);
     setShowRoleUpdate(false);
     setRoleUpdateText('');
+    toast.success('Roles script updated');
   };
 
   const handlePlayerClick = (num: number) => {
@@ -233,13 +240,43 @@ export default function App() {
     Demon: 'bg-red-100 hover:bg-red-200'
   };
 
+  const closeGreeting = () => {
+    setShowGreeting(false);
+    localStorage.setItem('clocktower_greeted', 'true');
+  };
+
   return (
     <div className={`fixed inset-0 bg-slate-100 flex flex-col font-sans select-none ${fontSizeClass}`} onMouseUp={() => setIsDragging(false)}>
+      <Toaster position="top-center" reverseOrder={false} />
       
+      <GreetingPopup isOpen={showGreeting} onClose={closeGreeting} />
+
+      <Sidebar 
+        isOpen={sidebarOpen} 
+        setIsOpen={setSidebarOpen} 
+        onReset={() => { setShowReset(true); setSidebarOpen(false); }}
+        onLoadRole={() => { setShowRoleUpdate(true); setSidebarOpen(false); }}
+        onShowUpdateLog={() => { toast.info('Log: Added sidebar and greeting'); setSidebarOpen(false); }}
+        onFocusPlayerDetail={() => { setSidebarOpen(false); }}
+        onOpenSettings={() => { setFabOpen(true); setSidebarOpen(false); }}
+        onShowHowToUse={() => { toast('Tip: Slide to nominate!', { icon: '💡' }); setSidebarOpen(false); }}
+        onShowAbout={() => { toast('Ledger Pro v3.8 - Clocktower Companion', { icon: '🎭' }); setSidebarOpen(false); }}
+        onShowFAQ={() => { toast('Check our GitHub for full FAQ', { icon: '❓' }); setSidebarOpen(false); }}
+        onShowDonation={() => { toast('Support development with coffee!', { icon: '☕' }); setSidebarOpen(false); }}
+      />
+
       <header className="flex-none bg-slate-900 text-white px-3 py-2 flex justify-between items-center shadow-md z-50">
-        <div className="flex items-center gap-1.5">
-          <ShieldAlert className="text-red-500" size={14} />
-          <h1 className="font-black text-xs uppercase italic tracking-tighter">LEDGER PRO v3.8</h1>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => setSidebarOpen(true)}
+            className="p-1 hover:bg-slate-800 rounded transition-colors text-slate-400"
+          >
+            <Menu size={18} />
+          </button>
+          <div className="flex items-center gap-1.5 ml-1">
+            <ShieldAlert className="text-red-500" size={14} />
+            <h1 className="font-black text-xs uppercase italic tracking-tighter">LEDGER PRO v3.8</h1>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <button 
@@ -265,7 +302,7 @@ export default function App() {
       </header>
 
       {showHub && (
-        <div className="flex-none bg-slate-800 border-b border-slate-700 p-2 shadow-inner animate-in slide-in-from-top-4 duration-200">
+        <div className="flex-none bg-slate-800 border-b border-slate-700 p-2 shadow-inner animate-in slide-in-from-top-4 duration-200 ml-0 md:ml-16 transition-all duration-300">
           <div className="flex flex-wrap items-center gap-1.5 max-w-5xl mx-auto">
             <div className="flex items-center bg-slate-900 rounded-lg h-7 overflow-hidden border border-slate-700 shadow-lg mr-1 w-[58px]">
               <button onClick={() => setCurrentDay(Math.max(1, currentDay - 1))} className="flex-1 hover:bg-slate-800 text-slate-500 transition-colors flex items-center justify-center"><Minus size={10} /></button>
@@ -337,7 +374,7 @@ export default function App() {
         </div>
       )}
 
-      <main className="flex-1 overflow-hidden relative">
+      <main className={`flex-1 overflow-hidden relative transition-all duration-300 ml-0 md:ml-16`}>
         <div className={`h-full ${splitView ? 'grid grid-cols-2 divide-x divide-slate-300' : ''}`}>
           <div className={`${splitView ? 'overflow-hidden' : 'h-full'}`}>
             <PlayerDetailView 
@@ -448,7 +485,7 @@ export default function App() {
         setFontSize={setFontSize}
       />
 
-      <div className="bg-white border-t px-3 py-1 text-[9px] font-bold text-slate-400 flex justify-between items-center z-50">
+      <div className={`bg-white border-t px-3 py-1 text-[9px] font-bold text-slate-400 flex justify-between items-center z-50 transition-all duration-300 ml-0 md:ml-16`}>
         <span>PLAYERS REGISTERED: {players.filter(p => p.inf).length} / {playerCount}</span>
         <div className="w-32 h-1 bg-slate-100 rounded-full overflow-hidden">
           <div className="h-full bg-red-500" style={{ width: `${(players.filter(p => p.inf).length / playerCount) * 100}%` }} />
