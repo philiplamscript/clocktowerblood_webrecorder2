@@ -21,6 +21,7 @@ interface GlobalVotingViewProps {
   onPlayerClick: (num: number) => void;
   assignmentMode?: 'death' | 'property' | null;
   selectedReason?: string;
+  setSelectedReason?: (reason: string) => void;
   selectedProperty?: string;
 }
 
@@ -35,6 +36,7 @@ const GlobalVotingView: React.FC<GlobalVotingViewProps> = ({
   onPlayerClick,
   assignmentMode,
   selectedReason,
+  setSelectedReason,
   selectedProperty
 }) => {
   const [filterDay, setFilterDay] = useState<number | 'all'>('all');
@@ -66,7 +68,7 @@ const GlobalVotingView: React.FC<GlobalVotingViewProps> = ({
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className="bg-slate-50 rounded-lg border p-4 shadow-sm flex flex-col items-center">
           <VoteHistoryClock 
-            playerNo={-1} // Global mode, no specific player
+            playerNo={-1} 
             nominations={nominations} 
             playerCount={playerCount} 
             deadPlayers={deadPlayers} 
@@ -85,6 +87,7 @@ const GlobalVotingView: React.FC<GlobalVotingViewProps> = ({
             showDeathIcons={true}
             assignmentMode={assignmentMode}
             selectedReason={selectedReason}
+            setSelectedReason={setSelectedReason}
             selectedProperty={selectedProperty}
           />
         </div>

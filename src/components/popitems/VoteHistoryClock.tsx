@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
+import { REASON_CYCLE } from '../../type';
 
 interface VoteHistoryClockProps {
   playerNo: number;
@@ -22,13 +23,14 @@ interface VoteHistoryClockProps {
   showDeathIcons: boolean;
   assignmentMode?: 'death' | 'property' | null;
   selectedReason?: string;
+  setSelectedReason?: (reason: string) => void;
   selectedProperty?: string;
 }
 
 const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({ 
   playerNo, nominations, playerCount, deadPlayers, mode, players, deaths, filterDay,
   onPlayerClick, pendingNom, isVoting, onNominationSlideEnd, onVoterToggle, onToggleVotingPhase,
-  currentDay, setCurrentDay, showDeathIcons, assignmentMode, selectedReason, selectedProperty
+  currentDay, setCurrentDay, showDeathIcons, assignmentMode, selectedReason, setSelectedReason, selectedProperty
 }) => {
   const [gestureStart, setGestureStart] = useState<number | null>(null);
   const [gestureCurrent, setGestureCurrent] = useState<number | null>(null);
@@ -142,7 +144,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   };
 
   const handleStart = (num: number, e: React.MouseEvent | React.TouchEvent) => {
-    // Prevent double-firing (touch + mouse) within 100ms
     const now = Date.now();
     if (now - lastEventTime.current < 100) return;
     lastEventTime.current = now;
@@ -150,23 +151,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     if (e.cancelable) e.preventDefault();
 
     if (assignmentMode === 'death') {
-      if (selectedForDeath === num) {
-        // Re-click: confirm death
-        const existingDeath = deaths.find(d => parseInt(d.playerNo) === num);
-        if (existingDeath) {
-          // Update existing death
-        } else {
-          // Add new death
-          const newDeath = { id: Math.random().toString(36).substr(2, 9), day: currentDay, playerNo: num.toString(), reason: selectedReason || '⚔️', note: '', isConfirmed: true };
-          // Assuming deaths is passed as prop, but since it's not, we need to handle via callback
-          // For now, just call onPlayerClick which handles assignment
-          onPlayerClick(num);
-        }
-        setSelectedForDeath(null);
-      } else {
-        // First click: select
-        setSelectedForDeath(num);
-      }
+      setSelectedForDeath(selectedForDeath === num ? null : num);
       return;
     }
 
@@ -223,17 +208,9 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     const touch = e.changedTouches[0];
     const deltaX = touch.clientX - touchStartX.current;
     const deltaY = touch.clientY - touchStartY.current;
-    const absDeltaX = Math.abs(deltaX);
-    const absDeltaY = Math.abs(deltaY);
-
-    if (absDeltaX > absDeltaY && absDeltaX > 50) { // Horizontal swipe
-      if (deltaX > 0) {
-        // Swipe right: previous day
-        setCurrentDay?.(Math.max(1, currentDay - 1));
-      } else {
-        // Swipe left: next day
-        setCurrentDay?.(currentDay + 1);
-      }
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+      if (deltaX > 0) setCurrentDay?.(Math.max(1, currentDay - 1));
+      else setCurrentDay?.(currentDay + 1);
     }
   };
 
@@ -257,11 +234,11 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         {Array.from({ length: playerCount }, (_, i) => i + 1).map((num, i) => {
           const numStr = num.toString(), isCurrent = num === playerNo, isVoter = isVoting && pendingNom?.voters.includes(numStr);
           const pd = deaths.find(d => d.playerNo === numStr), fill = isVoter ? '#ef4444' : isCurrent ? 'url(#playerSpotlight)' : selectedForDeath === num ? '#fbbf24' : pd ? '#f8fafc' : '#ffffff';
-          const stroke = isCurrent ? '#eab308' : assignmentMode === 'death' ? '#ef4444' : assignmentMode === 'property' ? '#3b82f6' : '#f1f5f9';
+          const stroke = isCurrent ? '#eab308' : (assignmentMode === 'death' && selectedForDeath === num) ? '#ef4444' : assignmentMode === 'property' ? '#3b82f6' : '#f1f5f9';
 
           return (
             <g key={num} onMouseDown={(e) => handleStart(num, e)} onTouchStart={(e) => handleStart(num, e)} className="cursor-pointer">
-              <path d={getSlicePath(i, playerCount, innerRadius, outerRadius)} fill={fill} stroke={stroke} strokeWidth={isCurrent ? "2" : "0.5"} />
+              <path d={getSlicePath(i, playerCount, innerRadius, outerRadius)} fill={fill} stroke={stroke} strokeWidth={(isCurrent || (assignmentMode === 'death' && selectedForDeath === num)) ? "2" : "0.5"} />
               {Array.from({ length: ringCount }).map((_, rIdx) => {
                 const dayNum = rIdx + 1, vCount = (votedAtDay[numStr] || {})[dayNum];
                 const diedNow = pd && dayNum === pd.day, diedLater = pd && dayNum > pd.day;
@@ -286,7 +263,26 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         <g className="pointer-events-auto">
           <circle cx={cx} cy={cy} r="25" fill={isVoting ? '#dc2626' : pendingNom ? '#a855f7' : '#eab308'} className="transition-colors" onClick={(e) => { e.stopPropagation(); onToggleVotingPhase(); }} />
           {pendingNom ? <text x={cx} y={cy} textAnchor="middle" alignmentBaseline="middle" className="text-white text-[14px] font-black pointer-events-none">{isVoting ? 'SAVE' : 'V'}</text>
-          : assignmentMode ? <text x={cx} y={cy} textAnchor="middle" alignmentBaseline="middle" className="text-white text-[8px] font-black uppercase pointer-events-none">{assignmentMode === 'death' ? selectedReason : 'PROP'}</text>
+          : assignmentMode === 'death' ? (
+              <g>
+                {REASON_CYCLE.map((reason, idx) => (
+                  <g key={reason} className="cursor-pointer" 
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      if (selectedForDeath) {
+                        setSelectedReason?.(reason);
+                        onPlayerClick(selectedForDeath);
+                        setSelectedForDeath(null);
+                      }
+                    }}
+                  >
+                    <circle cx={cx - 18 + (idx * 18)} cy={cy} r="8" fill={selectedReason === reason ? '#ef4444' : '#334155'} />
+                    <text x={cx - 18 + (idx * 18)} y={cy + 3} textAnchor="middle" alignmentBaseline="middle" className="text-[10px] pointer-events-none">{reason}</text>
+                  </g>
+                ))}
+              </g>
+            )
+          : assignmentMode === 'property' ? <text x={cx} y={cy} textAnchor="middle" alignmentBaseline="middle" className="text-white text-[8px] font-black uppercase pointer-events-none">PROP</text>
           : <g>
               <text x={cx} y={cy - 8} textAnchor="middle" className="text-white text-[10px] font-black pointer-events-none">{playerNo}</text>
               <g className="cursor-pointer" onClick={(e) => { e.stopPropagation(); setCurrentDay?.(Math.max(1, currentDay - 1)); }}><path d="M 125 144 L 132 140 L 132 148 Z" fill="white" opacity="0.5" /></g>

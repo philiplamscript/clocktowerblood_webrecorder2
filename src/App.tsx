@@ -6,9 +6,8 @@ import {
   Plus, 
   Minus,
   Eye,
-  EyeOff,
-  BookOpen,
-  Split
+  Split,
+  BookOpen
 } from 'lucide-react';
 
 
@@ -202,7 +201,7 @@ export default function App() {
       if (existingDeath) {
         setDeaths(deaths.map(d => d.id === existingDeath.id ? { ...d, reason: selectedReason, day: currentDay } : d));
       } else {
-        setDeaths([...deaths, { id: Math.random().toString(), day: currentDay, playerNo: num.toString(), reason: selectedReason, note: '', isConfirmed: true }]);
+        setDeaths([...deaths, { id: Math.random().toString(36).substr(2, 9), day: currentDay, playerNo: num.toString(), reason: selectedReason, note: '', isConfirmed: true }]);
       }
     } else if (assignmentMode === 'property') {
       setPlayers(prev => prev.map(p => {
@@ -306,7 +305,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Player Tabs */}
             <div className="flex flex-wrap gap-1">
               {Array.from({ length: playerCount }, (_, i) => i + 1).map(num => {
                 const isDead = deadPlayers.includes(num);
@@ -361,10 +359,10 @@ export default function App() {
               setCurrentDay={setCurrentDay}
               assignmentMode={assignmentMode}
               selectedReason={selectedReason}
+              setSelectedReason={setSelectedReason}
               selectedProperty={selectedProperty}
               onPlayerClick={handlePlayerClick}
               setAssignmentMode={setAssignmentMode}
-              setSelectedReason={setSelectedReason}
               setSelectedProperty={setSelectedProperty}
             />
           </div>
@@ -381,6 +379,7 @@ export default function App() {
                 onPlayerClick={handlePlayerClick}
                 assignmentMode={assignmentMode}
                 selectedReason={selectedReason}
+                setSelectedReason={setSelectedReason}
                 selectedProperty={selectedProperty}
               />
             </div>

@@ -35,10 +35,10 @@ interface PlayerDetailViewProps {
   setCurrentDay: (day: number) => void;
   assignmentMode?: 'death' | 'property' | null;
   selectedReason?: string;
+  setSelectedReason?: (reason: string) => void;
   selectedProperty?: string;
   onPlayerClick?: (num: number) => void;
   setAssignmentMode?: (mode: 'death' | 'property' | null) => void;
-  setSelectedReason?: (reason: string) => void;
   setSelectedProperty?: (property: string) => void;
 }
 
@@ -63,10 +63,10 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
   setCurrentDay,
   assignmentMode,
   selectedReason,
+  setSelectedReason,
   selectedProperty,
   onPlayerClick,
   setAssignmentMode,
-  setSelectedReason,
   setSelectedProperty
 }) => {
   const [pendingNom, setPendingNom] = useState<{ f: string; t: string; voters: string[] } | null>(null);
@@ -165,7 +165,6 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
     <div className="h-full bg-white overflow-hidden">
       <div className="h-full overflow-y-auto p-4 space-y-4">
         <div className="space-y-4">
-          {/* Voting Patterns Section */}
           <div className="bg-slate-50 rounded-lg border p-4 space-y-3 shadow-sm flex flex-col items-center">
             <div className="w-full flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -211,7 +210,6 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
               </div>
             </div>
 
-            {/* Assignment Row */}
             <div className="w-full flex items-center gap-2">
               <div className="flex items-center bg-slate-900 rounded-lg h-8 overflow-hidden border border-slate-700 shadow-lg">
                 <button 
@@ -271,6 +269,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
               showDeathIcons={showDeathIcons}
               assignmentMode={assignmentMode}
               selectedReason={selectedReason}
+              setSelectedReason={setSelectedReason}
               selectedProperty={selectedProperty}
             />
 
@@ -288,7 +287,6 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
             )}
           </div>
 
-          {/* Expandable Keywords Section */}
           {showKeywords && (
             <div className="bg-white border rounded-lg p-3 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
               {allRoles.length > 0 ? (
@@ -342,7 +340,6 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
             </div>
           )}
 
-          {/* Player Note Section with Keyword button on the right */}
           <div className="flex gap-2 items-start">
             <textarea 
               className="flex-1 min-h-[100px] border border-slate-200 bg-white rounded-lg p-4 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none resize-none font-medium leading-relaxed shadow-sm"
@@ -358,7 +355,6 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
             </button>
           </div>
 
-          {/* Death Status and Prop in one row, always visible */}
           <div className="flex items-center gap-2">
             {isDead ? (
               <div className="flex-[8] flex items-center gap-1 h-10">
