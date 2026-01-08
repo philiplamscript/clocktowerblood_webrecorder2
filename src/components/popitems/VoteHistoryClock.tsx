@@ -34,8 +34,11 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const [gestureCurrent, setGestureCurrent] = useState<number | null>(null);
   const [isSliding, setIsSliding] = useState(false);
   const [dragAction, setDragAction] = useState<'add' | 'remove' | null>(null);
+  const [selectedForDeath, setSelectedForDeath] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const lastEventTime = useRef<number>(0);
+  const touchStartX = useRef<number>(0);
+  const touchStartY = useRef<number>(0);
 
   const cx = 144, cy = 144, outerRadius = 142, innerRadius = 55;
   const maxDay = Math.max(...nominations.map(n => n.day), 1, currentDay);
@@ -114,7 +117,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
       return (
         <g key={`self-${from}-${day}`} opacity="0.6">
           <line x1={pos.x} y1={pos.y} x2={ix} y2={iy} stroke={color} strokeWidth={width} strokeLinecap="round" />
-          <path d={`M ${pos.x + 10 * Math.cos(rad - 0.5)} ${pos.y + 10 * Math.sin(rad - 0.5)} A 10 10 0 1 1 ${pos.x + 10 * Math.cos(rad + 1.5)} ${pos.y + 10 * Math.sin(rad + 1.5)}`} fill="none" stroke={color} strokeWidth={width} />
           <polygon points={`${ix},${iy} ${ix+3},${iy+3} ${ix-3},${iy+3}`} fill={color} transform={`rotate(${rad * 180 / Math.PI + 90}, ${ix}, ${iy})`} />
         </g>
       );
@@ -146,6 +148,27 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     lastEventTime.current = now;
 
     if (e.cancelable) e.preventDefault();
+
+    if (assignmentMode === 'death') {
+      if (selectedForDeath === num) {
+        // Re-click: confirm death
+        const existingDeath = deaths.find(d => parseInt(d.playerNo) === num);
+        if (existingDeath) {
+          // Update existing death
+        } else {
+          // Add new death
+          const newDeath = { id: Math.random().toString(36).substr(2, 9), day: currentDay, playerNo: num.toString(), reason: selectedReason || '⚔️', note: '', isConfirmed: true };
+          // Assuming deaths is passed as prop, but since it's not, we need to handle via callback
+          // For now, just call onPlayerClick which handles assignment
+          onPlayerClick(num);
+        }
+        setSelectedForDeath(null);
+      } else {
+        // First click: select
+        setSelectedForDeath(num);
+      }
+      return;
+    }
 
     if (isVoting) {
       const isAlreadyVoter = pendingNom?.voters.includes(num.toString());
@@ -190,13 +213,38 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     setDragAction(null);
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartX.current = touch.clientX;
+    touchStartY.current = touch.clientY;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - touchStartX.current;
+    const deltaY = touch.clientY - touchStartY.current;
+    const absDeltaX = Math.abs(deltaX);
+    const absDeltaY = Math.abs(deltaY);
+
+    if (absDeltaX > absDeltaY && absDeltaX > 50) { // Horizontal swipe
+      if (deltaX > 0) {
+        // Swipe right: previous day
+        setCurrentDay?.(Math.max(1, currentDay - 1));
+      } else {
+        // Swipe left: next day
+        setCurrentDay?.(currentDay + 1);
+      }
+    }
+  };
+
   return (
     <div className="w-full flex flex-col items-center">
       <svg ref={svgRef} viewBox="0 0 288 288" className="w-80 h-80 touch-none select-none"
         onMouseMove={(e) => handleMove(e.clientX, e.clientY)}
         onMouseUp={handleEnd} onMouseLeave={handleEnd}
+        onTouchStart={handleTouchStart}
         onTouchMove={(e) => { handleMove(e.touches[0].clientX, e.touches[0].clientY); }}
-        onTouchEnd={handleEnd}
+        onTouchEnd={(e) => { handleTouchEnd(e); handleEnd(); }}
       >
         <defs>
           <radialGradient id="playerSpotlight" cx="50%" cy="50%" r="50%">
@@ -208,7 +256,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
 
         {Array.from({ length: playerCount }, (_, i) => i + 1).map((num, i) => {
           const numStr = num.toString(), isCurrent = num === playerNo, isVoter = isVoting && pendingNom?.voters.includes(numStr);
-          const pd = deaths.find(d => d.playerNo === numStr), fill = isVoter ? '#ef4444' : isCurrent ? 'url(#playerSpotlight)' : pd ? '#f8fafc' : '#ffffff';
+          const pd = deaths.find(d => d.playerNo === numStr), fill = isVoter ? '#ef4444' : isCurrent ? 'url(#playerSpotlight)' : selectedForDeath === num ? '#fbbf24' : pd ? '#f8fafc' : '#ffffff';
           const stroke = isCurrent ? '#eab308' : assignmentMode === 'death' ? '#ef4444' : assignmentMode === 'property' ? '#3b82f6' : '#f1f5f9';
 
           return (
