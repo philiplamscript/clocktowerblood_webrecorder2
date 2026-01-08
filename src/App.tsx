@@ -302,7 +302,7 @@ export default function App() {
       </header>
 
       {showHub && (
-        <div className="flex-none bg-slate-800 border-b border-slate-700 p-2 shadow-inner animate-in slide-in-from-top-4 duration-200 ml-0 md:ml-16 transition-all duration-300">
+        <div className="flex-none bg-slate-800 border-b border-slate-700 p-2 shadow-inner animate-in slide-in-from-top-4 duration-200 transition-all">
           <div className="flex flex-wrap items-center gap-1.5 max-w-5xl mx-auto">
             <div className="flex items-center bg-slate-900 rounded-lg h-7 overflow-hidden border border-slate-700 shadow-lg mr-1 w-[58px]">
               <button onClick={() => setCurrentDay(Math.max(1, currentDay - 1))} className="flex-1 hover:bg-slate-800 text-slate-500 transition-colors flex items-center justify-center"><Minus size={10} /></button>
@@ -374,7 +374,7 @@ export default function App() {
         </div>
       )}
 
-      <main className={`flex-1 overflow-hidden relative transition-all duration-300 ml-0 md:ml-16`}>
+      <main className="flex-1 overflow-hidden relative transition-all">
         <div className={`h-full ${splitView ? 'grid grid-cols-2 divide-x divide-slate-300' : ''}`}>
           <div className={`${splitView ? 'overflow-hidden' : 'h-full'}`}>
             <PlayerDetailView 
@@ -485,7 +485,7 @@ export default function App() {
         setFontSize={setFontSize}
       />
 
-      <div className={`bg-white border-t px-3 py-1 text-[9px] font-bold text-slate-400 flex justify-between items-center z-50 transition-all duration-300 ml-0 md:ml-16`}>
+      <div className="bg-white border-t px-3 py-1 text-[9px] font-bold text-slate-400 flex justify-between items-center z-50 transition-all">
         <span>PLAYERS REGISTERED: {players.filter(p => p.inf).length} / {playerCount}</span>
         <div className="w-32 h-1 bg-slate-100 rounded-full overflow-hidden">
           <div className="h-full bg-red-500" style={{ width: `${(players.filter(p => p.inf).length / playerCount) * 100}%` }} />

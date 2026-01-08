@@ -12,7 +12,6 @@ import {
   Info, 
   MessageSquare, 
   Heart,
-  ChevronLeft,
   X
 } from 'lucide-react';
 
@@ -47,26 +46,29 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
-      {/* Mobile Backdrop */}
+      {/* Overlay Backdrop */}
       {isOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[10006] md:hidden" onClick={() => setIsOpen(false)} />
+        <div 
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[10006] animate-in fade-in duration-300" 
+          onClick={() => setIsOpen(false)} 
+        />
       )}
 
-      <aside className={`fixed top-0 left-0 h-full bg-slate-900 z-[10007] border-r border-slate-800 transition-all duration-300 flex flex-col ${isOpen ? 'w-64' : 'w-0 -translate-x-full md:translate-x-0 md:w-16'}`}>
+      <aside className={`fixed top-0 left-0 h-full bg-slate-900 z-[10007] border-r border-slate-800 transition-all duration-300 flex flex-col shadow-2xl ${isOpen ? 'w-64 translate-x-0' : 'w-64 -translate-x-full'}`}>
         {/* Header */}
-        <div className={`flex items-center h-14 px-4 border-b border-slate-800 overflow-hidden ${!isOpen && 'md:justify-center md:px-0'}`}>
-          <div className="flex items-center gap-3 min-w-[200px]">
+        <div className="flex items-center justify-between h-14 px-4 border-b border-slate-800">
+          <div className="flex items-center gap-3">
             <ShieldAlert className="text-red-500 shrink-0" size={24} />
             <h2 className="text-white font-black text-sm uppercase tracking-tighter truncate">Ledger Menu</h2>
           </div>
-          <button onClick={() => setIsOpen(false)} className={`md:hidden text-slate-400 hover:text-white transition-colors`}>
+          <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white transition-colors">
             <X size={20} />
           </button>
         </div>
 
         {/* Upper Section */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-1 custom-scrollbar">
-          <div className={`mb-2 px-3 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] ${!isOpen && 'md:hidden'}`}>Management</div>
+        <div className="flex-1 overflow-y-auto p-3 space-y-1 no-scrollbar">
+          <div className="mb-2 px-3 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Management</div>
           <NavItem icon={FileEdit} label="Load Role" onClick={onLoadRole} color="text-blue-400" />
           <NavItem icon={RotateCcw} label="Reset session" onClick={onReset} color="text-red-500" />
           <NavItem icon={History} label="Update Log" onClick={onShowUpdateLog} color="text-yellow-500" />
@@ -76,20 +78,12 @@ const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Lower Section */}
         <div className="p-3 border-t border-slate-800 space-y-1">
-          <div className={`mb-2 px-3 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] ${!isOpen && 'md:hidden'}`}>Information</div>
+          <div className="mb-2 px-3 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Information</div>
           <NavItem icon={HelpCircle} label="How to use?" onClick={onShowHowToUse} color="text-indigo-400" />
           <NavItem icon={Info} label="About" onClick={onShowAbout} color="text-slate-400" />
           <NavItem icon={MessageSquare} label="FAQ" onClick={onShowFAQ} color="text-slate-400" />
           <NavItem icon={Heart} label="Donation" onClick={onShowDonation} color="text-pink-500" />
         </div>
-
-        {/* Desktop Toggle Button */}
-        <button 
-          onClick={() => setIsOpen(!isOpen)}
-          className="hidden md:flex absolute top-1/2 -right-3 w-6 h-12 bg-slate-800 border border-slate-700 rounded-full items-center justify-center text-slate-400 hover:text-white transition-all hover:scale-110 active:scale-95"
-        >
-          <ChevronLeft size={14} className={`transition-transform duration-300 ${!isOpen ? 'rotate-180' : ''}`} />
-        </button>
       </aside>
     </>
   );
