@@ -346,7 +346,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
             {/* Player Note Section with Keyword button on the right */}
             <div className="flex gap-2 items-start">
               <textarea 
-                className="flex-1 min-h-[150px] border border-slate-200 bg-white rounded-lg p-4 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none resize-none font-medium leading-relaxed shadow-sm transition-all"
+                className="flex-1 min-h-[100px] border border-slate-200 bg-white rounded-lg p-4 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none resize-none font-medium leading-relaxed shadow-sm transition-all"
                 placeholder="Type social reads, role claims, or night info here..."
                 value={currentPlayer?.inf || ''}
                 onChange={(e) => updatePlayerInfo(playerNo, e.target.value)}

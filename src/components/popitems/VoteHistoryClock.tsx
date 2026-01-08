@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 
 interface VoteHistoryClockProps {
   playerNo: number;
@@ -34,6 +34,11 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   const [gestureCurrent, setGestureCurrent] = useState<number | null>(null);
   const [isSliding, setIsSliding] = useState(false);
   const [dragAction, setDragAction] = useState<'add' | 'remove' | null>(null);
+  
+  // Center swipe states
+  const [centerTouchX, setCenterTouchX] = useState<number | null>(null);
+  const [centerSwiped, setCenterSwiped] = useState(false);
+
   const svgRef = useRef<SVGSVGElement>(null);
   const lastEventTime = useRef<number>(0);
 
@@ -140,7 +145,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   };
 
   const handleStart = (num: number, e: React.MouseEvent | React.TouchEvent) => {
-    // Prevent double-firing (touch + mouse) within 100ms
     const now = Date.now();
     if (now - lastEventTime.current < 100) return;
     lastEventTime.current = now;
@@ -162,6 +166,18 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   };
 
   const handleMove = (clientX: number, clientY: number) => {
+    if (centerTouchX !== null) {
+      const deltaX = clientX - centerTouchX;
+      if (Math.abs(deltaX) > 40) {
+        if (!centerSwiped) {
+          if (deltaX > 0) setCurrentDay?.(Math.max(1, currentDay - 1));
+          else setCurrentDay?.(currentDay + 1);
+          setCenterSwiped(true);
+        }
+      }
+      return;
+    }
+
     if (gestureStart === null) return;
     const current = getPlayerAtPos(clientX, clientY);
     if (!current) return;
@@ -177,6 +193,15 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   };
 
   const handleEnd = () => {
+    if (centerTouchX !== null) {
+      if (!centerSwiped) {
+        onToggleVotingPhase();
+      }
+      setCenterTouchX(null);
+      setCenterSwiped(false);
+      return;
+    }
+
     if (gestureStart !== null) {
       if (!isVoting && !isSliding) {
         onPlayerClick(gestureStart);
@@ -188,6 +213,13 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     setGestureCurrent(null); 
     setIsSliding(false); 
     setDragAction(null);
+  };
+
+  const handleCenterStart = (e: React.MouseEvent | React.TouchEvent) => {
+    e.stopPropagation();
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    setCenterTouchX(clientX);
+    setCenterSwiped(false);
   };
 
   return (
@@ -235,16 +267,14 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         {isSliding && gestureStart && gestureCurrent && drawArrow(gestureStart, gestureCurrent, maxDay, gestureStart === gestureCurrent ? 'self' : 'to', 3)}
         {pendingNom && !isSliding && drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), currentDay, pendingNom.f === pendingNom.t ? 'self' : 'to', 4)}
 
-        <g className="pointer-events-auto">
-          <circle cx={cx} cy={cy} r="25" fill={isVoting ? '#dc2626' : pendingNom ? '#a855f7' : '#eab308'} className="transition-colors" onClick={(e) => { e.stopPropagation(); onToggleVotingPhase(); }} />
+        <g className="pointer-events-auto cursor-pointer" onMouseDown={handleCenterStart} onTouchStart={handleCenterStart}>
+          <circle cx={cx} cy={cy} r="25" fill={isVoting ? '#dc2626' : pendingNom ? '#a855f7' : '#eab308'} className="transition-colors shadow-lg" />
           {pendingNom ? <text x={cx} y={cy} textAnchor="middle" alignmentBaseline="middle" className="text-white text-[14px] font-black pointer-events-none">{isVoting ? 'SAVE' : 'V'}</text>
           : assignmentMode ? <text x={cx} y={cy} textAnchor="middle" alignmentBaseline="middle" className="text-white text-[8px] font-black uppercase pointer-events-none">{assignmentMode === 'death' ? selectedReason : 'PROP'}</text>
-          : <g>
-              <text x={cx} y={cy - 8} textAnchor="middle" className="text-white text-[10px] font-black pointer-events-none">{playerNo}</text>
-              <g className="cursor-pointer" onClick={(e) => { e.stopPropagation(); setCurrentDay?.(Math.max(1, currentDay - 1)); }}><path d="M 125 144 L 132 140 L 132 148 Z" fill="white" opacity="0.5" /></g>
-              <text x={cx} y={cy + 4} textAnchor="middle" className="text-white text-[8px] font-black pointer-events-none">D{currentDay}</text>
-              <g className="cursor-pointer" onClick={(e) => { e.stopPropagation(); setCurrentDay?.(currentDay + 1); }}><path d="M 163 144 L 156 140 L 156 148 Z" fill="white" opacity="0.5" /></g>
-              <text x={cx} y={cy + 14} textAnchor="middle" className="text-white text-[5px] font-black uppercase pointer-events-none">{mode === 'vote' ? 'VOTE' : mode === 'beVoted' ? 'RECV' : 'ALL'}</text>
+          : <g className="pointer-events-none">
+              <text x={cx} y={cy - 8} textAnchor="middle" className="text-white text-[10px] font-black">{playerNo}</text>
+              <text x={cx} y={cy + 4} textAnchor="middle" className="text-white text-[10px] font-black">D{currentDay}</text>
+              <text x={cx} y={cy + 14} textAnchor="middle" className="text-white text-[5px] font-black uppercase">{mode === 'vote' ? 'VOTE' : mode === 'beVoted' ? 'RECV' : 'ALL'}</text>
             </g>
           }
         </g>
