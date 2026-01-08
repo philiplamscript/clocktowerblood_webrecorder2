@@ -360,14 +360,14 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
 
           {/* Death Status and Prop in one row, always visible */}
           <div className="flex items-center gap-2">
-            {isDead ? (
+            <button 
+              onClick={() => togglePlayerAlive(playerNo)} 
+              className={`w-10 h-10 rounded-lg flex items-center justify-center shadow-sm transition-all ${isDead ? 'bg-red-600 text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'}`}
+            >
+              <Skull size={16} />
+            </button>
+            {isDead && (
               <div className="flex-[8] flex items-center gap-1 h-10">
-                <button 
-                  onClick={() => togglePlayerAlive(playerNo)} 
-                  className="flex-1 h-full bg-red-600 text-white rounded-lg flex items-center justify-center shadow-sm transition-all"
-                >
-                  <Skull size={14} />
-                </button>
                 <input 
                   type="number" 
                   value={death?.day || currentDay} 
@@ -381,13 +381,11 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
                   {death?.reason || '⚔️'}
                 </button>
               </div>
-            ) : (
-              <button 
-                onClick={() => togglePlayerAlive(playerNo)}
-                className="flex-[8] h-10 rounded-lg text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 shadow-sm bg-emerald-600 text-white"
-              >
+            )}
+            {!isDead && (
+              <div className="flex-[8] h-10 rounded-lg text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 shadow-sm bg-emerald-600 text-white">
                 ALIVE
-              </button>
+              </div>
             )}
             <div className="flex-[2] flex items-center bg-white border rounded-lg px-3 h-10 shadow-sm">
               <Tag size={12} className="text-slate-400 mr-2" />
