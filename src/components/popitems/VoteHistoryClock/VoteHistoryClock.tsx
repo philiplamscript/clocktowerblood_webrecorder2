@@ -140,15 +140,15 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
 
   return (
     <div className="w-full flex flex-col items-center">
-      <svg ref={svgRef} viewBox="0 0 288 288" className="w-80 h-80 touch-none select-none"
+      <svg ref={svgRef} viewBox="0 0 288 288" className="w-80 h-80 touch-none select-none drop-shadow-sm"
         onMouseMove={(e) => handleMove(e.clientX, e.clientY)} onMouseUp={handleEnd} onMouseLeave={handleEnd}
         onTouchMove={(e) => handleMove(e.touches[0].clientX, e.touches[0].clientY)} onTouchEnd={handleEnd}
       >
         <defs>
           <radialGradient id="playerSpotlight" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#facc15" stopOpacity="0.8" />
-            <stop offset="70%" stopColor="#fef08a" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#fef08a" stopOpacity="0.1" />
+            <stop offset="0%" stopColor="#fef3c7" stopOpacity="1" />
+            <stop offset="50%" stopColor="#fef3c7" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#fde68a" stopOpacity="0.4" />
           </radialGradient>
         </defs>
         <ClockFace ringCount={ringCount} ringWidth={ringWidth} showAxis={props.showAxis ?? true} />

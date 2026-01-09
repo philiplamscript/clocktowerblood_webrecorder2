@@ -24,26 +24,60 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
   return (
     <>
       {Array.from({ length: playerCount }, (_, i) => i + 1).map((num, i) => {
-        const numStr = num.toString(), isCurrent = num === playerNo, isVoter = isVoting && pendingNomVoters.includes(numStr);
-        const pd = deaths.find(d => d.playerNo === numStr), fill = isVoter ? '#ef4444' : isCurrent ? 'url(#playerSpotlight)' : pd ? '#f8fafc' : '#ffffff';
-        const stroke = isCurrent ? '#eab308' : assignmentMode === 'death' ? '#ef4444' : assignmentMode === 'property' ? '#3b82f6' : '#f1f5f9';
+        const numStr = num.toString();
+        const isCurrent = num === playerNo;
+        const isVoter = isVoting && pendingNomVoters.includes(numStr);
+        const pd = deaths.find(d => d.playerNo === numStr);
+        
+        // Sophisticated Color Logic
+        const fill = isVoter ? '#f43f5e' : isCurrent ? 'url(#playerSpotlight)' : pd ? '#f1f5f9' : '#ffffff';
+        const stroke = isCurrent ? '#f59e0b' : assignmentMode === 'death' ? '#ef4444' : assignmentMode === 'property' ? '#3b82f6' : '#e2e8f0';
 
         return (
-          <g key={num} onMouseDown={(e) => onStart(num, e)} onTouchStart={(e) => onStart(num, e)} className="cursor-pointer">
-            <path d={getSlicePath(i, playerCount, innerRadius, outerRadius)} fill={fill} stroke={stroke} strokeWidth={isCurrent ? "2" : "0.5"} />
+          <g key={num} onMouseDown={(e) => onStart(num, e)} onTouchStart={(e) => onStart(num, e)} className="cursor-pointer group">
+            <path 
+              d={getSlicePath(i, playerCount, innerRadius, outerRadius)} 
+              fill={fill} 
+              stroke={stroke} 
+              strokeWidth={isCurrent ? "2" : "0.75"} 
+              className="transition-colors duration-200"
+            />
+            
             {Array.from({ length: ringCount }).map((_, rIdx) => {
-              const dayNum = rIdx + 1, vCount = (votedAtDay[numStr] || {})[dayNum];
-              const diedNow = pd && dayNum === pd.day, diedLater = pd && dayNum > pd.day;
-              const rs = innerRadius + rIdx * ringWidth, re = rs + ringWidth, pos = getPosition(num, playerCount, (rs + re) / 2);
+              const dayNum = rIdx + 1;
+              const vCount = (votedAtDay[numStr] || {})[dayNum];
+              const diedNow = pd && dayNum === pd.day;
+              const diedLater = pd && dayNum > pd.day;
+              const rs = innerRadius + rIdx * ringWidth;
+              const re = rs + ringWidth;
+              const pos = getPosition(num, playerCount, (rs + re) / 2);
+              
               return (
                 <g key={`${num}-${dayNum}`} className="pointer-events-none">
-                  <path d={getSlicePath(i, playerCount, rs, re)} fill={vCount !== undefined ? (mode === 'vote' ? 'rgba(6, 182, 212, 0.7)' : mode === 'allReceive' ? 'rgba(168, 85, 247, 0.4)' : 'rgba(37, 99, 235, 0.7)') : diedLater ? 'rgba(148, 163, 184, 0.2)' : 'transparent'} />
-                  {showDeathIcons && diedNow && <text x={pos.x} y={pos.y} textAnchor="middle" alignmentBaseline="middle" className="text-[12px]">{pd.reason}</text>}
-                  {vCount !== undefined && mode === 'allReceive' && !diedNow && <text x={pos.x} y={pos.y} textAnchor="middle" alignmentBaseline="middle" className="font-black fill-white" style={{ fontSize: `${Math.max(8, ringWidth * 0.15)}px` }}>{vCount}</text>}
+                  <path 
+                    d={getSlicePath(i, playerCount, rs, re)} 
+                    fill={vCount !== undefined ? (mode === 'vote' ? 'rgba(6, 182, 212, 0.4)' : mode === 'allReceive' ? 'rgba(168, 85, 247, 0.3)' : 'rgba(59, 130, 246, 0.4)') : diedLater ? 'rgba(203, 213, 225, 0.3)' : 'transparent'} 
+                  />
+                  {showDeathIcons && diedNow && (
+                    <text x={pos.x} y={pos.y} textAnchor="middle" alignmentBaseline="middle" className="text-[10px] grayscale opacity-60">{pd.reason}</text>
+                  )}
+                  {vCount !== undefined && mode === 'allReceive' && !diedNow && (
+                    <text x={pos.x} y={pos.y} textAnchor="middle" alignmentBaseline="middle" className="font-bold fill-slate-700" style={{ fontSize: `${Math.max(7, ringWidth * 0.12)}px` }}>{vCount}</text>
+                  )}
                 </g>
               );
             })}
-            <text x={getPosition(num, playerCount, (innerRadius + outerRadius) / 2).x} y={getPosition(num, playerCount, (innerRadius + outerRadius) / 2).y} textAnchor="middle" alignmentBaseline="middle" className={`text-[11px] font-black pointer-events-none ${isVoter ? 'fill-white' : isCurrent ? 'fill-slate-900' : pd ? 'fill-slate-300' : 'fill-slate-400 opacity-40'}`}>{num}</text>
+            
+            {/* Player Number with refined typography */}
+            <text 
+              x={getPosition(num, playerCount, (innerRadius + outerRadius) / 2).x} 
+              y={getPosition(num, playerCount, (innerRadius + outerRadius) / 2).y} 
+              textAnchor="middle" 
+              alignmentBaseline="middle" 
+              className={`text-[10px] font-black tracking-tight pointer-events-none transition-all duration-200 ${isVoter ? 'fill-white' : isCurrent ? 'fill-slate-900' : pd ? 'fill-slate-400' : 'fill-slate-500 opacity-60'}`}
+            >
+              {num}
+            </text>
           </g>
         );
       })}
