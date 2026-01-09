@@ -151,7 +151,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
             <stop offset="100%" stopColor="#fde68a" stopOpacity="0.4" />
           </radialGradient>
         </defs>
-        <ClockFace ringCount={ringCount} ringWidth={ringWidth} showAxis={props.showAxis ?? true} />
+        <ClockFace playerCount = {props.playerCount} playerNo = {props.playerNo} ringCount={ringCount} ringWidth={ringWidth} showAxis={props.showAxis ?? true} />
         <PlayerSlices 
           playerCount={props.playerCount} playerNo={props.playerNo} isVoting={props.isVoting} pendingNomVoters={props.pendingNom?.voters ?? []}
           deaths={props.deaths} ringCount={ringCount} ringWidth={ringWidth} votedAtDay={data.votedAtDay} mode={props.mode} 
