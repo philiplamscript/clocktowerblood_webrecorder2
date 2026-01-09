@@ -51,7 +51,7 @@ export default function App() {
     { id: 'default-night', day: 1, playerNo: '', reason: '🌑', note: '', isConfirmed: true }
   ]));
   const [chars, setChars] = useState<CharDict>(() => getStorage('chars', createInitialChars()));
-  const [roleDist, setRoleDist] = useState<RoleDist>(() => getStorage('dist', { townsfolk: 0, outsiders: 0, minions: 0, demons: 1 }));
+  const [roleDist, setRoleDist] = useState<RoleDist>(() => getStorage('dist', { townsfolk: 9, outsiders: 1, minions: 2, demons: 1 }));
   const [note, setNote] = useState(() => getStorage('note', ''));
   const [fontSize, setFontSize] = useState<'small' | 'mid' | 'large'>(() => getStorage('font', 'mid'));
   const [showHub, setShowHub] = useState(() => getStorage('showHub', true));

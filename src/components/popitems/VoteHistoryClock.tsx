@@ -238,6 +238,37 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           </radialGradient>
         </defs>
 
+        {/* --- COORDINATION AXIS & DAY RINGS --- */}
+        <g className="pointer-events-none opacity-[0.15]">
+          {/* Day Rings */}
+          {Array.from({ length: ringCount + 1 }).map((_, i) => (
+            <circle 
+              key={`ring-${i}`} 
+              cx={cx} cy={cy} 
+              r={innerRadius + i * ringWidth} 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="0.5" 
+              strokeDasharray="2,1" 
+            />
+          ))}
+          {/* Crosshair Axis */}
+          <line x1={cx} y1={cy - outerRadius} x2={cx} y2={cy + outerRadius} stroke="currentColor" strokeWidth="0.5" strokeDasharray="4,2" />
+          <line x1={cx - outerRadius} y1={cy} x2={cx + outerRadius} y2={cy} stroke="currentColor" strokeWidth="0.5" strokeDasharray="4,2" />
+          
+          {/* Day Labels along vertical axis */}
+          {Array.from({ length: ringCount }).map((_, i) => (
+            <text 
+              key={`day-label-${i}`} 
+              x={cx + 3} 
+              y={cy - (innerRadius + (i + 0.5) * ringWidth)} 
+              className="text-[4px] font-black fill-slate-500 uppercase"
+            >
+              D{i + 1}
+            </text>
+          ))}
+        </g>
+
         {Array.from({ length: playerCount }, (_, i) => i + 1).map((num, i) => {
           const numStr = num.toString(), isCurrent = num === playerNo, isVoter = isVoting && pendingNom?.voters.includes(numStr);
           const pd = deaths.find(d => d.playerNo === numStr), fill = isVoter ? '#ef4444' : isCurrent ? 'url(#playerSpotlight)' : pd ? '#f8fafc' : '#ffffff';
