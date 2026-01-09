@@ -10,11 +10,7 @@ import {
   type RoleDist,
   type NotepadTemplate,
   type PropTemplate,
-  type ThemeType,
-  type ThemeColors,
-  type Theme,
   createInitialChars,
-  THEMES
 } from '../type';
 
 export const useGameState = () => {
@@ -39,11 +35,6 @@ export const useGameState = () => {
   const [showHub, setShowHub] = useState(() => getStorage('showHub', true));
   const [splitView, setSplitView] = useState(() => getStorage('splitView', false));
   
-  // Theme State
-  const [activeTheme, setActiveTheme] = useState<ThemeType>(() => getStorage('active_theme', 'standard'));
-  const [customThemeColors, setCustomThemeColors] = useState<ThemeColors | null>(() => getStorage('custom_theme_colors', null));
-  const [savedCustomThemes, setSavedCustomThemes] = useState<Theme[]>(() => getStorage('saved_custom_themes', []));
-
   const [notepadTemplates, setNotepadTemplates] = useState<NotepadTemplate[]>(() => getStorage('notepad_templates', [
     { id: 't1', label: 'SOCIAL READ', content: 'Reads: \nTrust: \nSuspicion: ' },
     { id: 't2', label: 'WORLD INFO', content: 'Day 1: \nDay 2: \nDay 3: ' }
@@ -57,12 +48,10 @@ export const useGameState = () => {
   useEffect(() => {
     const state = {
       day: currentDay, count: playerCount, players, nominations, deaths, chars, dist: roleDist,
-      note, font: fontSize, lang: language, showHub, splitView, notepad_templates: notepadTemplates, 
-      prop_templates: propTemplates, active_theme: activeTheme, custom_theme_colors: customThemeColors,
-      saved_custom_themes: savedCustomThemes
+      note, font: fontSize, lang: language, showHub, splitView, notepad_templates: notepadTemplates, prop_templates: propTemplates
     };
     Object.entries(state).forEach(([key, val]) => localStorage.setItem(`clocktower_${key}`, JSON.stringify(val)));
-  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, language, showHub, splitView, notepadTemplates, propTemplates, activeTheme, customThemeColors, savedCustomThemes]);
+  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, language, showHub, splitView, notepadTemplates, propTemplates]);
 
   useEffect(() => {
     setPlayers(prev => {
@@ -96,6 +85,7 @@ export const useGameState = () => {
     setCurrentDay(1);
     setChars(createInitialChars());
     setNote('');
+    localStorage.clear();
     toast.success('Session reset successfully');
   };
 
@@ -110,49 +100,11 @@ export const useGameState = () => {
     }
   };
 
-  const currentTheme = useMemo(() => {
-    if (activeTheme === 'custom' && customThemeColors) {
-      return { id: 'custom' as ThemeType, name: 'AI Custom Theme', colors: customThemeColors };
-    }
-    const savedTheme = savedCustomThemes.find(t => t.id === activeTheme);
-    if (savedTheme) return savedTheme;
-    return THEMES[activeTheme as keyof typeof THEMES] || THEMES.standard;
-  }, [activeTheme, customThemeColors, savedCustomThemes]);
-
-  const saveCustomTheme = (name: string) => {
-    if (!customThemeColors) return;
-    const id = `custom-${Date.now()}`;
-    const newTheme: Theme = { id, name, colors: customThemeColors };
-    setSavedCustomThemes(prev => [...prev, newTheme]);
-    setActiveTheme(id);
-    toast.success(`Theme "${name}" saved!`);
-  };
-
-  const reorderNotepadTemplates = (fromIndex: number, toIndex: number) => {
-    setNotepadTemplates(prev => {
-      const newArr = [...prev];
-      const [moved] = newArr.splice(fromIndex, 1);
-      newArr.splice(toIndex, 0, moved);
-      return newArr;
-    });
-  };
-
-  const reorderPropTemplates = (fromIndex: number, toIndex: number) => {
-    setPropTemplates(prev => {
-      const newArr = [...prev];
-      const [moved] = newArr.splice(fromIndex, 1);
-      newArr.splice(toIndex, 0, moved);
-      return newArr;
-    });
-  };
-
   return {
     currentDay, setCurrentDay, playerCount, setPlayerCount, players, setPlayers,
     nominations, setNominations, deaths, setDeaths, chars, setChars, roleDist, setRoleDist,
     note, setNote, fontSize, setFontSize, language, setLanguage, showHub, setShowHub,
     splitView, setSplitView, notepadTemplates, setNotepadTemplates, propTemplates, setPropTemplates,
-    deadPlayers, reset, updatePlayerInfo, updatePlayerProperty, togglePlayerAlive,
-    activeTheme, setActiveTheme, customThemeColors, setCustomThemeColors, currentTheme,
-    savedCustomThemes, saveCustomTheme, reorderNotepadTemplates, reorderPropTemplates
+    deadPlayers, reset, updatePlayerInfo, updatePlayerProperty, togglePlayerAlive
   };
 };
