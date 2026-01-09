@@ -98,7 +98,7 @@ export const createInitialChars = (): CharDict => ({
 export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
   standard: {
     id: 'standard',
-    name: 'Ledger Standard',
+    name: 'Tracker Standard',
     colors: {
       bg: '#f1f5f9',
       panel: '#ffffff',

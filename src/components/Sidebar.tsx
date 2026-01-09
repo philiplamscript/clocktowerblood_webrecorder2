@@ -57,8 +57,8 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between h-14 px-4 border-b border-slate-800">
           <div className="flex items-center gap-3">
-            <img src="/The_Minimalist_Wheel.png" alt="Logo" className="w-6 h-6 shrink-0" />
-            <h2 className="text-white font-black text-sm uppercase tracking-tighter truncate">Ledger Menu</h2>
+            <img src="/The_Minimalist_Wheel.svg" alt="Logo" className="w-6 h-6 shrink-0" />
+            <h2 className="text-white font-black text-sm uppercase tracking-tighter truncate">Menu</h2>
           </div>
           <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white transition-colors">
             <X size={20} />

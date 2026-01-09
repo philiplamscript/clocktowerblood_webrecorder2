@@ -16,8 +16,8 @@ const AboutPopup: React.FC<AboutPopupProps> = ({ isOpen, onClose }) => {
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
         <header className="flex-none bg-slate-900 text-white px-4 py-3 flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <img src="/The_Minimalist_Wheel.png" alt="Logo" className="w-4 h-4" />
-            <span className="text-xs font-black uppercase tracking-widest text-slate-400">About Ledger Pro</span>
+            <img src="/The_Minimalist_Wheel.svg" alt="Logo" className="w-4 h-4" />
+            <span className="text-xs font-black uppercase tracking-widest text-slate-400">About BOTCT-ClockTracker</span>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-800 rounded-full transition-colors">
             <X size={20} />
@@ -29,18 +29,26 @@ const AboutPopup: React.FC<AboutPopupProps> = ({ isOpen, onClose }) => {
           <section className="space-y-2">
             <h2 className="text-lg font-black text-slate-900 leading-tight uppercase tracking-tighter italic">Precision Tracking for the Ultimate Game.</h2>
             <p className="text-[11px] text-slate-600 leading-relaxed">
-              Ledger Pro was born from a passion for **Blood on the Clocktower**. It is designed to empower Storytellers and players alike with high-density information tracking, ensuring no interaction or vote is ever missed. This is a non-official companion app built by fans, for fans.
+              BOTCT-ClockTracker was born from a passion for Blood on the Clocktower. 
+              </p>
+            
+            <p className="text-[11px] text-slate-600 leading-relaxed">
+              As Aurthor lazy on game remind the whole game, so that trying to make note as most of you did, then gradual to create a companion app to make it easier to keep track of the game.
             </p>
+
+            <p className="text-[11px] text-slate-600 leading-relaxed">
+              This is a non-official companion app built by fan (me), for fans (with me as well).
+            </p>
+            
           </section>
 
           {/* Special Thanks */}
           <section className="space-y-2">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Special Thanks</h3>
             <ul className="space-y-1 text-[11px] text-slate-700 font-medium">
-              <li className="flex items-center gap-2">• <span className="text-red-500">The Pandemonium Institute</span> for creating BoTC</li>
-              <li className="flex items-center gap-2">• <span className="text-blue-600">BotC.app</span> for community resources</li>
-              <li className="flex items-center gap-2">• <span className="text-emerald-600">The Discord Community</span> for tireless testing</li>
-              <li className="flex items-center gap-2">• <span className="text-slate-400">Our amazing Patrons</span> for keeping servers running</li>
+              <li className="flex items-center gap-2">• <span className="text-emerald-500">Dyad</span> Make idea simple and come true</li>
+              <li className="flex items-center gap-2">• <span className="text-emerald-500">Blood of the ClockTower Community</span> for Great Passion Community</li>
+              <li className="flex items-center gap-2">• <span className="text-emerald-500">Amazing Patrons</span> for Supporting</li>
             </ul>
           </section>
 
@@ -83,7 +91,7 @@ const AboutPopup: React.FC<AboutPopupProps> = ({ isOpen, onClose }) => {
         
         <footer className="bg-slate-50 px-6 py-3 border-t border-slate-200">
           <p className="text-[9px] text-center text-slate-400 font-bold uppercase tracking-widest">
-            Ledger Pro v3.9 © 2024 • MIT License
+            BOTCT-ClockTracker © 2024 • MIT License
           </p>
         </footer>
       </div>

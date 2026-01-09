@@ -23,7 +23,7 @@ const Header: React.FC<HeaderProps> = ({
           <Menu size={18} />
         </button>
         <div className="flex items-center gap-1.5 ml-1">
-          <img src="/The_Minimalist_Wheel.png" alt="Logo" className="w-3.5 h-3.5" />
+          <img src="/The_Minimalist_Wheel.svg" alt="Logo" className="w-3.5 h-3.5" />
           <h1 className="font-black text-xs uppercase italic tracking-tighter">BOTCT-ClockTracker v0.3</h1>
         </div>
       </div>

@@ -16,7 +16,7 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose }) => {
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300">
         <div className="bg-slate-900 p-6 text-center space-y-4">
           <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-red-900/20">
-            <img src="/The_Minimalist_Wheel.png" alt="Logo" className="w-8 h-8" />
+            <img src="/The_Minimalist_Wheel.svg" alt="Logo" className="w-8 h-8" />
           </div>
           <div>
             <h1 className="text-white font-black text-xl uppercase tracking-tighter">Welcome to BOTCT-ClockTracker</h1>
