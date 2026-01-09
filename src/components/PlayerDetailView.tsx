@@ -7,7 +7,8 @@ import {
   Tag,
   Calendar,
   Key,
-  X
+  X,
+  Grid3X3
 } from 'lucide-react';
 
 import { REASON_CYCLE } from '../type';
@@ -74,6 +75,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
   const [filterDay, setFilterDay] = useState<number | 'all'>('all');
   const [showKeywords, setShowKeywords] = useState(false);
   const [showDeathIcons, setShowDeathIcons] = useState(true);
+  const [showAxis, setShowAxis] = useState(true);
 
   const handleToggleVotingPhase = () => {
     if (!pendingNom) return;
@@ -176,7 +178,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
                   </span>
                 </div>
                 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   {!isVoting && !pendingNom && (
                     <div className="flex items-center gap-1 bg-white border rounded-full px-2 h-7 shadow-sm">
                       <Calendar size={12} className="text-slate-400" />
@@ -191,12 +193,22 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
                     </div>
                   )}
                   
-                  <button 
-                    onClick={() => setShowDeathIcons(!showDeathIcons)}
-                    className={`p-1 rounded transition-colors ${showDeathIcons ? 'text-red-500 hover:bg-red-50' : 'text-slate-400 hover:bg-slate-100'}`}
-                  >
-                    <Skull size={14} />
-                  </button>
+                  <div className="flex bg-white border rounded-full p-0.5 shadow-sm">
+                    <button 
+                      onClick={() => setShowDeathIcons(!showDeathIcons)}
+                      title="Toggle Death Icons"
+                      className={`p-1 rounded-full transition-colors ${showDeathIcons ? 'bg-red-50 text-red-600' : 'text-slate-400 hover:bg-slate-50'}`}
+                    >
+                      <Skull size={12} />
+                    </button>
+                    <button 
+                      onClick={() => setShowAxis(!showAxis)}
+                      title="Toggle Grid Axis"
+                      className={`p-1 rounded-full transition-colors ${showAxis ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:bg-slate-50'}`}
+                    >
+                      <Grid3X3 size={12} />
+                    </button>
+                  </div>
                   
                   <button 
                     onClick={() => {
@@ -270,6 +282,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
                 currentDay={currentDay}
                 setCurrentDay={setCurrentDay}
                 showDeathIcons={showDeathIcons}
+                showAxis={showAxis}
                 assignmentMode={assignmentMode}
                 selectedReason={selectedReason}
                 selectedProperty={selectedProperty}

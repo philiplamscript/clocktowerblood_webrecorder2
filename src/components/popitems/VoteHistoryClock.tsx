@@ -20,6 +20,7 @@ interface VoteHistoryClockProps {
   currentDay: number;
   setCurrentDay?: (day: number) => void;
   showDeathIcons: boolean;
+  showAxis?: boolean;
   assignmentMode?: 'death' | 'property' | null;
   selectedReason?: string;
   selectedProperty?: string;
@@ -28,7 +29,7 @@ interface VoteHistoryClockProps {
 const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({ 
   playerNo, nominations, playerCount, deadPlayers, mode, players, deaths, filterDay,
   onPlayerClick, pendingNom, isVoting, onNominationSlideEnd, onVoterToggle, onToggleVotingPhase,
-  currentDay, setCurrentDay, showDeathIcons, assignmentMode, selectedReason, selectedProperty
+  currentDay, setCurrentDay, showDeathIcons, showAxis = true, assignmentMode, selectedReason, selectedProperty
 }) => {
   const [gestureStart, setGestureStart] = useState<number | null>(null);
   const [gestureCurrent, setGestureCurrent] = useState<number | null>(null);
@@ -239,35 +240,38 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         </defs>
 
         {/* --- COORDINATION AXIS & DAY RINGS --- */}
-        <g className="pointer-events-none opacity-[0.15]">
-          {/* Day Rings */}
-          {Array.from({ length: ringCount + 1 }).map((_, i) => (
-            <circle 
-              key={`ring-${i}`} 
-              cx={cx} cy={cy} 
-              r={innerRadius + i * ringWidth} 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="0.5" 
-              strokeDasharray="2,1" 
-            />
-          ))}
-          {/* Crosshair Axis */}
-          <line x1={cx} y1={cy - outerRadius} x2={cx} y2={cy + outerRadius} stroke="currentColor" strokeWidth="0.5" strokeDasharray="4,2" />
-          <line x1={cx - outerRadius} y1={cy} x2={cx + outerRadius} y2={cy} stroke="currentColor" strokeWidth="0.5" strokeDasharray="4,2" />
-          
-          {/* Day Labels along vertical axis */}
-          {Array.from({ length: ringCount }).map((_, i) => (
-            <text 
-              key={`day-label-${i}`} 
-              x={cx + 3} 
-              y={cy - (innerRadius + (i + 0.5) * ringWidth)} 
-              className="text-[4px] font-black fill-slate-500 uppercase"
-            >
-              D{i + 1}
-            </text>
-          ))}
-        </g>
+        {showAxis && (
+          <g className="pointer-events-none transition-opacity duration-300">
+            {/* Day Rings */}
+            {Array.from({ length: ringCount + 1 }).map((_, i) => (
+              <circle 
+                key={`ring-${i}`} 
+                cx={cx} cy={cy} 
+                r={innerRadius + i * ringWidth} 
+                fill="none" 
+                stroke="#cbd5e1" 
+                strokeWidth="0.75" 
+                strokeDasharray="2,2" 
+                className="opacity-40"
+              />
+            ))}
+            {/* Crosshair Axis */}
+            <line x1={cx} y1={cy - outerRadius} x2={cx} y2={cy + outerRadius} stroke="#94a3b8" strokeWidth="0.75" strokeDasharray="4,2" className="opacity-50" />
+            <line x1={cx - outerRadius} y1={cy} x2={cx + outerRadius} y2={cy} stroke="#94a3b8" strokeWidth="0.75" strokeDasharray="4,2" className="opacity-50" />
+            
+            {/* Day Labels along vertical axis */}
+            {Array.from({ length: ringCount }).map((_, i) => (
+              <text 
+                key={`day-label-${i}`} 
+                x={cx + 3} 
+                y={cy - (innerRadius + (i + 0.5) * ringWidth)} 
+                className="text-[4px] font-black fill-slate-400 uppercase tracking-tighter"
+              >
+                D{i + 1}
+              </text>
+            ))}
+          </g>
+        )}
 
         {Array.from({ length: playerCount }, (_, i) => i + 1).map((num, i) => {
           const numStr = num.toString(), isCurrent = num === playerNo, isVoter = isVoting && pendingNom?.voters.includes(numStr);
