@@ -5,7 +5,7 @@ import ClockFace from './ClockFace';
 import PlayerSlices from './PlayerSlices';
 import VoteArrows from './VoteArrows';
 import ClockCenter from './ClockCenter';
-import { cx, cy, innerRadius, ringWidth } from './utils';
+import { cx, cy, innerRadius, outerRadius } from './utils';
 
 interface VoteHistoryClockProps {
   playerNo: number;
@@ -44,6 +44,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
 
   const maxDay = useMemo(() => Math.max(...props.nominations.map(n => n.day), 1, props.currentDay), [props.nominations, props.currentDay]);
   const ringCount = Math.max(maxDay, 1);
+  const ringWidth = (outerRadius - innerRadius) / ringCount;
 
   const data = useMemo(() => {
     const votedAtDay: Record<string, Record<number, number>> = {}; 
@@ -159,7 +160,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
         <VoteArrows 
           arrowData={data.arrowData} playerCount={props.playerCount} playerNo={props.playerNo} isVoting={props.isVoting} 
           isSliding={isSliding} gestureStart={gestureStart} gestureCurrent={gestureCurrent} pendingNom={props.pendingNom} 
-          currentDay={props.currentDay} mode={props.mode}
+          currentDay={props.currentDay} mode={props.mode} ringWidth={ringWidth}
         />
         <ClockCenter 
           isVoting={props.isVoting} pendingNom={props.pendingNom} assignmentMode={props.assignmentMode ?? null} 
