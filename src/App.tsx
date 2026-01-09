@@ -131,6 +131,8 @@ export default function App() {
         activeTheme={state.activeTheme}
         setActiveTheme={state.setActiveTheme}
         setCustomThemeColors={state.setCustomThemeColors}
+        savedCustomThemes={state.savedCustomThemes}
+        saveCustomTheme={state.saveCustomTheme}
       />
       <AboutPopup isOpen={showAbout} onClose={() => setShowAbout(false)} />
       <FAB fabOpen={fabOpen} setFabOpen={setFabOpen} setShowReset={setShowReset} setShowRoleUpdate={setShowRoleUpdate} addNomination={() => state.setNominations([...state.nominations, { id: Math.random().toString(), day: state.currentDay, f: '-', t: '-', voters: '', note: '' }])} addDeath={() => state.setDeaths([...state.deaths, { id: Math.random().toString(), day: state.currentDay, playerNo: '', reason: '🌑', note: '', isConfirmed: true }])} fontSize={state.fontSize} setFontSize={state.setFontSize} />

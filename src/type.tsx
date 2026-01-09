@@ -1,6 +1,6 @@
 // --- TYPES & INTERFACES ---
 
-export type ThemeType = 'standard' | 'knights' | 'grimoire' | 'puppet' | 'custom';
+export type ThemeType = 'standard' | 'knights' | 'grimoire' | 'puppet' | 'custom' | string; // Allow string for custom theme IDs
 
 export interface ThemeColors {
   bg: string;
@@ -95,7 +95,7 @@ export const createInitialChars = (): CharDict => ({
   Demon: Array(8).fill(null).map(() => ({ name: '', status: '—', note: '' })),
 });
 
-export const THEMES: Record<Exclude<ThemeType, 'custom'>, Theme> = {
+export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
   standard: {
     id: 'standard',
     name: 'Ledger Standard',

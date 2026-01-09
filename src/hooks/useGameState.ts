@@ -12,6 +12,7 @@ import {
   type PropTemplate,
   type ThemeType,
   type ThemeColors,
+  type Theme,
   createInitialChars,
   THEMES
 } from '../type';
@@ -41,6 +42,7 @@ export const useGameState = () => {
   // Theme State
   const [activeTheme, setActiveTheme] = useState<ThemeType>(() => getStorage('active_theme', 'standard'));
   const [customThemeColors, setCustomThemeColors] = useState<ThemeColors | null>(() => getStorage('custom_theme_colors', null));
+  const [savedCustomThemes, setSavedCustomThemes] = useState<Theme[]>(() => getStorage('saved_custom_themes', []));
 
   const [notepadTemplates, setNotepadTemplates] = useState<NotepadTemplate[]>(() => getStorage('notepad_templates', [
     { id: 't1', label: 'SOCIAL READ', content: 'Reads: \nTrust: \nSuspicion: ' },
@@ -56,10 +58,11 @@ export const useGameState = () => {
     const state = {
       day: currentDay, count: playerCount, players, nominations, deaths, chars, dist: roleDist,
       note, font: fontSize, lang: language, showHub, splitView, notepad_templates: notepadTemplates, 
-      prop_templates: propTemplates, active_theme: activeTheme, custom_theme_colors: customThemeColors
+      prop_templates: propTemplates, active_theme: activeTheme, custom_theme_colors: customThemeColors,
+      saved_custom_themes: savedCustomThemes
     };
     Object.entries(state).forEach(([key, val]) => localStorage.setItem(`clocktower_${key}`, JSON.stringify(val)));
-  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, language, showHub, splitView, notepadTemplates, propTemplates, activeTheme, customThemeColors]);
+  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, language, showHub, splitView, notepadTemplates, propTemplates, activeTheme, customThemeColors, savedCustomThemes]);
 
   useEffect(() => {
     setPlayers(prev => {
@@ -111,8 +114,19 @@ export const useGameState = () => {
     if (activeTheme === 'custom' && customThemeColors) {
       return { id: 'custom' as ThemeType, name: 'AI Custom Theme', colors: customThemeColors };
     }
+    const savedTheme = savedCustomThemes.find(t => t.id === activeTheme);
+    if (savedTheme) return savedTheme;
     return THEMES[activeTheme as keyof typeof THEMES] || THEMES.standard;
-  }, [activeTheme, customThemeColors]);
+  }, [activeTheme, customThemeColors, savedCustomThemes]);
+
+  const saveCustomTheme = (name: string) => {
+    if (!customThemeColors) return;
+    const id = `custom-${Date.now()}`;
+    const newTheme: Theme = { id, name, colors: customThemeColors };
+    setSavedCustomThemes(prev => [...prev, newTheme]);
+    setActiveTheme(id);
+    toast.success(`Theme "${name}" saved!`);
+  };
 
   return {
     currentDay, setCurrentDay, playerCount, setPlayerCount, players, setPlayers,
@@ -120,6 +134,7 @@ export const useGameState = () => {
     note, setNote, fontSize, setFontSize, language, setLanguage, showHub, setShowHub,
     splitView, setSplitView, notepadTemplates, setNotepadTemplates, propTemplates, setPropTemplates,
     deadPlayers, reset, updatePlayerInfo, updatePlayerProperty, togglePlayerAlive,
-    activeTheme, setActiveTheme, customThemeColors, setCustomThemeColors, currentTheme
+    activeTheme, setActiveTheme, customThemeColors, setCustomThemeColors, currentTheme,
+    savedCustomThemes, saveCustomTheme
   };
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { X, Type, Globe, FileText, Tag, Plus, Trash2, Palette, Sparkles, Copy, Check } from 'lucide-react';
+import { X, Type, Globe, FileText, Tag, Plus, Trash2, Palette, Sparkles, Copy, Check, Save } from 'lucide-react';
 import { type NotepadTemplate, type PropTemplate, type ThemeType, type ThemeColors, THEMES } from '../../../type';
 import { toast } from 'react-hot-toast';
 
@@ -19,16 +19,21 @@ interface SettingsPopupProps {
   activeTheme: ThemeType;
   setActiveTheme: (theme: ThemeType) => void;
   setCustomThemeColors: (colors: ThemeColors) => void;
+  savedCustomThemes: any[];
+  saveCustomTheme: (name: string) => void;
 }
 
 const SettingsPopup: React.FC<SettingsPopupProps> = ({
   isOpen, onClose, fontSize, setFontSize, language, setLanguage,
   notepadTemplates, setNotepadTemplates, propTemplates, setPropTemplates,
-  activeTheme, setActiveTheme, setCustomThemeColors
+  activeTheme, setActiveTheme, setCustomThemeColors,
+  savedCustomThemes, saveCustomTheme
 }) => {
   const [activeSection, setActiveSection] = useState<'general' | 'notepad' | 'props' | 'theme'>('general');
   const [aiThemeInput, setAiThemeInput] = useState('');
   const [copied, setCopied] = useState(false);
+  const [showSaveTheme, setShowSaveTheme] = useState(false);
+  const [themeName, setThemeName] = useState('');
 
   if (!isOpen) return null;
 
@@ -55,9 +60,20 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({
       
       setCustomThemeColors(colors);
       setActiveTheme('custom');
+      setShowSaveTheme(true);
       toast.success('AI Theme Applied!');
     } catch (e) {
       toast.error('Invalid JSON format.');
+    }
+  };
+
+  const handleSaveTheme = () => {
+    if (themeName.trim()) {
+      saveCustomTheme(themeName.trim());
+      setThemeName('');
+      setShowSaveTheme(false);
+    } else {
+      toast.error('Please enter a theme name.');
     }
   };
 
@@ -183,6 +199,30 @@ Format: {
                   </div>
                 </section>
 
+                {savedCustomThemes.length > 0 && (
+                  <section className="space-y-3">
+                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                      <Save size={14} /> Saved Custom Themes
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      {savedCustomThemes.map((theme) => (
+                        <button 
+                          key={theme.id}
+                          onClick={() => setActiveTheme(theme.id)}
+                          className={`p-4 rounded-xl border-2 transition-all text-left flex flex-col gap-2 ${activeTheme === theme.id ? 'border-blue-600 ring-2 ring-blue-100' : 'border-slate-100 hover:border-slate-200'}`}
+                        >
+                          <span className="text-[10px] font-black uppercase">{theme.name}</span>
+                          <div className="flex gap-1">
+                            <div className="w-4 h-4 rounded-full border border-slate-200" style={{ backgroundColor: theme.colors.bg }} />
+                            <div className="w-4 h-4 rounded-full border border-slate-200" style={{ backgroundColor: theme.colors.header }} />
+                            <div className="w-4 h-4 rounded-full border border-slate-200" style={{ backgroundColor: theme.colors.accent }} />
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
                 <section className="space-y-3 pt-4 border-t border-slate-100">
                   <h3 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest flex items-center gap-2">
                     <Sparkles size={14} /> AI Custom Theme
@@ -212,12 +252,31 @@ Format: {
                       onChange={(e) => setAiThemeInput(e.target.value)}
                     />
                     
-                    <button 
-                      onClick={applyAiTheme}
-                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-[10px] font-black uppercase transition-all shadow-md active:scale-95"
-                    >
-                      Apply Custom AI Style
-                    </button>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={applyAiTheme}
+                        className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-[10px] font-black uppercase transition-all shadow-md active:scale-95"
+                      >
+                        Apply Custom AI Style
+                      </button>
+                      {showSaveTheme && (
+                        <div className="flex gap-2">
+                          <input 
+                            type="text" 
+                            placeholder="Theme Name" 
+                            value={themeName} 
+                            onChange={(e) => setThemeName(e.target.value)} 
+                            className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-[10px] focus:ring-0"
+                          />
+                          <button 
+                            onClick={handleSaveTheme}
+                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase transition-all shadow-md active:scale-95"
+                          >
+                            <Save size={14} />
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </section>
               </div>
