@@ -3,8 +3,8 @@ export const cy = 144;
 export const outerRadius = 140; // Slightly smaller for better padding
 export const innerRadius = 58;  // Slightly larger center for better interaction
 
-export const getPosition = (num: number, playerCount: number, radius: number, offset: number = 0) => {
-  const angle = ((num - 1) * (360 / playerCount)) - 90 + offset;
+export const getPosition = (num: number, playerCount: number, radius: number) => {
+  const angle = ((num - 1) * (360 / playerCount)) - 90 + (360 / (playerCount * 2));
   return {
     x: cx + radius * Math.cos(angle * Math.PI / 180),
     y: cy + radius * Math.sin(angle * Math.PI / 180)

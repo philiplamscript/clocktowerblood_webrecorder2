@@ -16,11 +16,10 @@ interface PlayerSlicesProps {
   showDeathIcons: boolean;
   assignmentMode: string | null;
   onStart: (num: number, e: React.MouseEvent | React.TouchEvent) => void;
-  offset: number;
 }
 
 const PlayerSlices: React.FC<PlayerSlicesProps> = ({
-  playerCount, playerNo, isVoting, pendingNomVoters, deaths, ringCount, ringWidth, votedAtDay, mode, showDeathIcons, assignmentMode, onStart, offset
+  playerCount, playerNo, isVoting, pendingNomVoters, deaths, ringCount, ringWidth, votedAtDay, mode, showDeathIcons, assignmentMode, onStart
 }) => {
   return (
     <>
@@ -51,7 +50,7 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
               const diedLater = pd && dayNum > pd.day;
               const rs = innerRadius + rIdx * ringWidth;
               const re = rs + ringWidth;
-              const pos = getPosition(num, playerCount, (rs + re) / 2, offset);
+              const pos = getPosition(num, playerCount, (rs + re) / 2);
               
               return (
                 <g key={`${num}-${dayNum}`} className="pointer-events-none">
@@ -71,8 +70,8 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
             
             {/* Player Number with refined typography */}
             <text 
-              x={getPosition(num, playerCount, (innerRadius + outerRadius) / 2, offset).x} 
-              y={getPosition(num, playerCount, (innerRadius + outerRadius) / 2, offset).y} 
+              x={getPosition(num, playerCount, (innerRadius + outerRadius) / 2).x} 
+              y={getPosition(num, playerCount, (innerRadius + outerRadius) / 2).y} 
               textAnchor="middle" 
               alignmentBaseline="middle" 
               className={`text-[10px] font-black tracking-tight pointer-events-none transition-all duration-200 ${isVoter ? 'fill-white' : isCurrent ? 'fill-slate-900' : pd ? 'fill-slate-400' : 'fill-slate-500 opacity-60'}`}

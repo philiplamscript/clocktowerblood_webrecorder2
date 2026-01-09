@@ -46,10 +46,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
   const ringCount = Math.max(maxDay, 1);
   const ringWidth = (outerRadius - innerRadius) / ringCount;
 
-  // Calculate offset to place reviewing player on the left (180 degrees)
-  const baseAngle = ((props.playerNo - 1) * (360 / props.playerCount)) - 90;
-  const offset = 180 - baseAngle;
-
   const data = useMemo(() => {
     const votedAtDay: Record<string, Record<number, number>> = {}; 
     const arrowData: any[] = [];
@@ -95,7 +91,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
     if (!svgRef.current) return null;
     const rect = svgRef.current.getBoundingClientRect();
     const x = clientX - (rect.left + rect.width / 2), y = clientY - (rect.top + rect.height / 2);
-    let angle = Math.atan2(y, x) * (180 / Math.PI) + 90 - offset; // Adjust for offset
+    let angle = Math.atan2(y, x) * (180 / Math.PI) + 90;
     if (angle < 0) angle += 360;
     return (Math.floor(angle / (360 / props.playerCount)) % props.playerCount) + 1;
   };
@@ -159,12 +155,12 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
         <PlayerSlices 
           playerCount={props.playerCount} playerNo={props.playerNo} isVoting={props.isVoting} pendingNomVoters={props.pendingNom?.voters ?? []}
           deaths={props.deaths} ringCount={ringCount} ringWidth={ringWidth} votedAtDay={data.votedAtDay} mode={props.mode} 
-          showDeathIcons={props.showDeathIcons} assignmentMode={props.assignmentMode ?? null} onStart={handleStart} offset={offset}
+          showDeathIcons={props.showDeathIcons} assignmentMode={props.assignmentMode ?? null} onStart={handleStart}
         />
         <VoteArrows 
           arrowData={data.arrowData} playerCount={props.playerCount} playerNo={props.playerNo} isVoting={props.isVoting} 
           isSliding={isSliding} gestureStart={gestureStart} gestureCurrent={gestureCurrent} pendingNom={props.pendingNom} 
-          currentDay={props.currentDay} mode={props.mode} ringWidth={ringWidth} offset={offset}
+          currentDay={props.currentDay} mode={props.mode} ringWidth={ringWidth}
         />
         <ClockCenter 
           isVoting={props.isVoting} pendingNom={props.pendingNom} assignmentMode={props.assignmentMode ?? null} 
