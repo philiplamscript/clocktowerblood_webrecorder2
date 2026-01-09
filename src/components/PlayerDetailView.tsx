@@ -323,13 +323,23 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
                     </div>
                     <div className="space-y-1">
                       <h4 className="text-[8px] font-black text-blue-200 uppercase">Outsider</h4>
+                      
+                      {/* Fixed Item Start */}
+                      <button 
+                        onClick={() => updatePlayerInfo(playerNo, (currentPlayer?.inf || '') + (currentPlayer?.inf ? '\n' : '') + "Fixed Role Name")}
+                        className={`${categoryBg['Outsider']} text-slate-900 px-2 py-1 rounded text-[9px] font-bold transition-colors text-left w-full`}
+                      >
+                        Outsider
+                      </button>
+                      {/* Fixed Item End */}
+
                       {allRoles.filter(r => r.category === 'Outsider').map((item, idx) => (
                         <button 
                           key={idx} 
                           onClick={() => {
                             updatePlayerInfo(playerNo, (currentPlayer?.inf || '') + (currentPlayer?.inf ? '\n' : '') + item.role);
                           }}
-                          className={`${categoryBg[item.category as keyof typeof categoryBg]} text-slate-900 px-2 py-1 rounded text-[9px] font-bold transition-colors text-left`}
+                          className={`${categoryBg[item.category as keyof typeof categoryBg]} text-slate-900 px-2 py-1 rounded text-[9px] font-bold transition-colors text-left w-full`}
                         >
                           {item.role}
                         </button>
