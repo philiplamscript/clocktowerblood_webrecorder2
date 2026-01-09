@@ -128,6 +128,24 @@ export const useGameState = () => {
     toast.success(`Theme "${name}" saved!`);
   };
 
+  const reorderNotepadTemplates = (fromIndex: number, toIndex: number) => {
+    setNotepadTemplates(prev => {
+      const newArr = [...prev];
+      const [moved] = newArr.splice(fromIndex, 1);
+      newArr.splice(toIndex, 0, moved);
+      return newArr;
+    });
+  };
+
+  const reorderPropTemplates = (fromIndex: number, toIndex: number) => {
+    setPropTemplates(prev => {
+      const newArr = [...prev];
+      const [moved] = newArr.splice(fromIndex, 1);
+      newArr.splice(toIndex, 0, moved);
+      return newArr;
+    });
+  };
+
   return {
     currentDay, setCurrentDay, playerCount, setPlayerCount, players, setPlayers,
     nominations, setNominations, deaths, setDeaths, chars, setChars, roleDist, setRoleDist,
@@ -135,6 +153,6 @@ export const useGameState = () => {
     splitView, setSplitView, notepadTemplates, setNotepadTemplates, propTemplates, setPropTemplates,
     deadPlayers, reset, updatePlayerInfo, updatePlayerProperty, togglePlayerAlive,
     activeTheme, setActiveTheme, customThemeColors, setCustomThemeColors, currentTheme,
-    savedCustomThemes, saveCustomTheme
+    savedCustomThemes, saveCustomTheme, reorderNotepadTemplates, reorderPropTemplates
   };
 };
