@@ -46,10 +46,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
   const ringCount = Math.max(maxDay, 1);
   const ringWidth = (outerRadius - innerRadius) / ringCount;
 
-  // Calculate rotation to place reviewing player on the left (180 degrees)
-  const playerAngle = ((props.playerNo - 1) * (360 / props.playerCount)) - 90;
-  const rotation = 180 - playerAngle;
-
   const data = useMemo(() => {
     const votedAtDay: Record<string, Record<number, number>> = {}; 
     const arrowData: any[] = [];
@@ -144,7 +140,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
 
   return (
     <div className="w-full flex flex-col items-center">
-      <svg ref={svgRef} viewBox="0 0 288 288" className="w-80 h-80 touch-none select-none drop-shadow-sm" transform={`rotate(${rotation} 144 144)`}
+      <svg ref={svgRef} viewBox="0 0 288 288" className="w-80 h-80 touch-none select-none drop-shadow-sm"
         onMouseMove={(e) => handleMove(e.clientX, e.clientY)} onMouseUp={handleEnd} onMouseLeave={handleEnd}
         onTouchMove={(e) => handleMove(e.touches[0].clientX, e.touches[0].clientY)} onTouchEnd={handleEnd}
       >

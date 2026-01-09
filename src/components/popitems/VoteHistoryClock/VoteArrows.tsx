@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { getPosition, innerRadius, cx, cy } from './utils';
-import { Loader } from 'lucide-react';
 
 interface VoteArrowsProps {
   arrowData: any[];
@@ -27,11 +26,14 @@ const VoteArrows: React.FC<VoteArrowsProps> = ({
     
     if (type === 'self' || from === to) {
       const pos = getPosition(from, playerCount, radius);
+      const rad = ((from - 1) * (360 / playerCount) - 90 + 180 / playerCount) * Math.PI / 180;
+      const ix = cx + (radius - 12) * Math.cos(rad);
+      const iy = cy + (radius - 12) * Math.sin(rad);
       return (
-        <g key={`self-${from}-${day}`} opacity="0.7">
-          <foreignObject x={pos.x - 8} y={pos.y - 8} width="16" height="16">
-            <Loader size={16} color={color} className="animate-spin" />
-          </foreignObject>
+        <g key={`self-${from}-${day}`} opacity="0.5">
+          <line x1={pos.x} y1={pos.y} x2={ix} y2={iy} stroke={color} strokeWidth={width} strokeLinecap="round" />
+          <path d={`M ${pos.x + 8 * Math.cos(rad - 0.5)} ${pos.y + 8 * Math.sin(rad - 0.5)} A 8 8 0 1 1 ${pos.x + 8 * Math.cos(rad + 1.5)} ${pos.y + 8 * Math.sin(rad + 1.5)}`} fill="none" stroke={color} strokeWidth={width} />
+          <polygon points={`${ix},${iy} ${ix+2.5},${iy+2.5} ${ix-2.5},${iy+2.5}`} fill={color} transform={`rotate(${rad * 180 / Math.PI + 90}, ${ix}, ${iy})`} />
         </g>
       );
     }
