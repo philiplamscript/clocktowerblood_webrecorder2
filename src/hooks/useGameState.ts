@@ -23,9 +23,16 @@ export const useGameState = () => {
     return saved ? JSON.parse(saved) : fallback;
   };
 
+  const [defaultNotepad, setDefaultNotepad] = useState(() => getStorage('default_notepad', ''));
+
   const [currentDay, setCurrentDay] = useState(() => getStorage('day', 1));
   const [playerCount, setPlayerCount] = useState(() => getStorage('count', 15));
-  const [players, setPlayers] = useState<Player[]>(() => getStorage('players', Array.from({ length: 15 }, (_, i) => ({ no: i + 1, inf: '', day: '', reason: '', red: '', property: '' }))));
+  const [players, setPlayers] = useState<Player[]>(() => {
+    const saved = getStorage('players', []);
+    if (saved.length > 0) return saved;
+    // Create new players with default notepad
+    return Array.from({ length: getStorage('count', 15) }, (_, i) => ({ no: i + 1, inf: defaultNotepad, day: '', reason: '', red: '', property: '' }));
+  });
   const [nominations, setNominations] = useState<Nomination[]>(() => getStorage('nominations', [{ id: '1', day: 1, f: '-', t: '-', voters: '', note: '' }]));
   const [deaths, setDeaths] = useState<Death[]>(() => getStorage('deaths', [
     { id: 'default-execution', day: 1, playerNo: '', reason: '⚔️', note: '', isConfirmed: true },
@@ -59,23 +66,10 @@ export const useGameState = () => {
       day: currentDay, count: playerCount, players, nominations, deaths, chars, dist: roleDist,
       note, font: fontSize, lang: language, showHub, splitView, notepad_templates: notepadTemplates, 
       prop_templates: propTemplates, active_theme: activeTheme, custom_theme_colors: customThemeColors,
-      saved_custom_themes: savedCustomThemes
+      saved_custom_themes: savedCustomThemes, default_notepad: defaultNotepad
     };
     Object.entries(state).forEach(([key, val]) => localStorage.setItem(`clocktower_${key}`, JSON.stringify(val)));
-  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, language, showHub, splitView, notepadTemplates, propTemplates, activeTheme, customThemeColors, savedCustomThemes]);
-
-  useEffect(() => {
-    setPlayers(prev => {
-      if (prev.length === playerCount) return prev;
-      if (prev.length < playerCount) {
-        const extra = Array.from({ length: playerCount - prev.length }, (_, i) => ({
-          no: prev.length + i + 1, inf: '', day: '', reason: '', red: '', property: ''
-        }));
-        return [...prev, ...extra];
-      }
-      return prev.slice(0, playerCount);
-    });
-  }, [playerCount]);
+  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, language, showHub, splitView, notepadTemplates, propTemplates, activeTheme, customThemeColors, savedCustomThemes, defaultNotepad]);
 
   useEffect(() => {
     setPlayers(prev => prev.map(p => {
@@ -87,7 +81,7 @@ export const useGameState = () => {
   const deadPlayers = useMemo(() => players.filter(p => p.day !== '' || p.red !== '').map(p => p.no), [players]);
 
   const reset = () => {
-    setPlayers(Array.from({ length: playerCount }, (_, i) => ({ no: i + 1, inf: '', day: '', reason: '', red: '', property: '' })));
+    setPlayers(Array.from({ length: playerCount }, (_, i) => ({ no: i + 1, inf: defaultNotepad, day: '', reason: '', red: '', property: '' })));
     setNominations([{ id: Math.random().toString(), day: 1, f: '-', t: '-', voters: '', note: '' }]);
     setDeaths([
       { id: 'default-execution', day: 1, playerNo: '', reason: '⚔️', note: '', isConfirmed: true },
@@ -153,6 +147,7 @@ export const useGameState = () => {
     splitView, setSplitView, notepadTemplates, setNotepadTemplates, propTemplates, setPropTemplates,
     deadPlayers, reset, updatePlayerInfo, updatePlayerProperty, togglePlayerAlive,
     activeTheme, setActiveTheme, customThemeColors, setCustomThemeColors, currentTheme,
-    savedCustomThemes, saveCustomTheme, reorderNotepadTemplates, reorderPropTemplates
+    savedCustomThemes, saveCustomTheme, reorderNotepadTemplates, reorderPropTemplates,
+    defaultNotepad, setDefaultNotepad
   };
 };

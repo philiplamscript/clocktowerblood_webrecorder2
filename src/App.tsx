@@ -135,6 +135,8 @@ export default function App() {
         saveCustomTheme={state.saveCustomTheme}
         reorderNotepadTemplates={state.reorderNotepadTemplates}
         reorderPropTemplates={state.reorderPropTemplates}
+        defaultNotepad={state.defaultNotepad}
+        setDefaultNotepad={state.setDefaultNotepad}
       />
       <AboutPopup isOpen={showAbout} onClose={() => setShowAbout(false)} />
       <FAB fabOpen={fabOpen} setFabOpen={setFabOpen} setShowReset={setShowReset} setShowRoleUpdate={setShowRoleUpdate} addNomination={() => state.setNominations([...state.nominations, { id: Math.random().toString(), day: state.currentDay, f: '-', t: '-', voters: '', note: '' }])} addDeath={() => state.setDeaths([...state.deaths, { id: Math.random().toString(), day: state.currentDay, playerNo: '', reason: '🌑', note: '', isConfirmed: true }])} fontSize={state.fontSize} setFontSize={state.setFontSize} />
