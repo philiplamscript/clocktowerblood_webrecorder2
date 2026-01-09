@@ -8,10 +8,11 @@ import {
   Calendar,
   Key,
   X,
-  Grid3X3
+  Grid3X3,
+  FilePlus2
 } from 'lucide-react';
 
-import { REASON_CYCLE } from '../type';
+import { REASON_CYCLE, NotepadTemplate } from '../type';
 import TextRotaryPicker from './pickers/RotaryPicker/TextRotaryPicker';
 import VoteHistoryClock from './popitems/VoteHistoryClock';
 
@@ -41,6 +42,7 @@ interface PlayerDetailViewProps {
   setAssignmentMode?: (mode: 'death' | 'property' | null) => void;
   setSelectedReason?: (reason: string) => void;
   setSelectedProperty?: (property: string) => void;
+  notepadTemplates?: NotepadTemplate[];
 }
 
 const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
@@ -68,12 +70,14 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
   onPlayerClick,
   setAssignmentMode,
   setSelectedReason,
-  setSelectedProperty
+  setSelectedProperty,
+  notepadTemplates = []
 }) => {
   const [pendingNom, setPendingNom] = useState<{ f: string; t: string; voters: string[] } | null>(null);
   const [isVoting, setIsVoting] = useState(false);
   const [filterDay, setFilterDay] = useState<number | 'all'>('all');
   const [showKeywords, setShowKeywords] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
   const [showDeathIcons, setShowDeathIcons] = useState(true);
   const [showAxis, setShowAxis] = useState(true);
 
@@ -161,6 +165,13 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
     Outsider: 'bg-blue-50 hover:bg-blue-100',
     Minion: 'bg-orange-50 hover:bg-orange-100',
     Demon: 'bg-red-100 hover:bg-red-200'
+  };
+
+  const insertTemplate = (content: string) => {
+    const currentInfo = currentPlayer?.inf || '';
+    const newInfo = currentInfo + (currentInfo ? '\n\n' : '') + content;
+    updatePlayerInfo(playerNo, newInfo);
+    setShowTemplates(false);
   };
 
   return (
@@ -302,87 +313,111 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = ({
               )}
             </div>
 
-            {/* Expandable Keywords Section */}
-            {showKeywords && (
-              <div className="bg-white border rounded-lg p-3 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
-                {allRoles.length > 0 ? (
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="space-y-1">
-                      <h4 className="text-[8px] font-black text-blue-400 uppercase">Townsfolk</h4>
-                      {allRoles.filter(r => r.category === 'Townsfolk').map((item, idx) => (
-                        <button 
-                          key={idx} 
-                          onClick={() => {
-                            updatePlayerInfo(playerNo, (currentPlayer?.inf || '') + (currentPlayer?.inf ? '\n' : '') + item.role);
-                          }}
-                          className={`${categoryBg[item.category as keyof typeof categoryBg]} text-slate-900 px-2 py-1 rounded text-[9px] font-bold transition-colors text-left`}
-                        >
-                          {item.role}
-                        </button>
-                      ))}
+            {/* Expandable Sections */}
+            <div className="flex flex-col gap-2">
+              {showKeywords && (
+                <div className="bg-white border rounded-lg p-3 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
+                  {allRoles.length > 0 ? (
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="space-y-1">
+                        <h4 className="text-[8px] font-black text-blue-400 uppercase">Townsfolk</h4>
+                        {allRoles.filter(r => r.category === 'Townsfolk').map((item, idx) => (
+                          <button 
+                            key={idx} 
+                            onClick={() => {
+                              updatePlayerInfo(playerNo, (currentPlayer?.inf || '') + (currentPlayer?.inf ? '\n' : '') + item.role);
+                            }}
+                            className={`${categoryBg[item.category as keyof typeof categoryBg]} text-slate-900 px-2 py-1 rounded text-[9px] font-bold transition-colors text-left`}
+                          >
+                            {item.role}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="text-[8px] font-black text-blue-200 uppercase">Outsider</h4>
+                        {allRoles.filter(r => r.category === 'Outsider').map((item, idx) => (
+                          <button 
+                            key={idx} 
+                            onClick={() => {
+                              updatePlayerInfo(playerNo, (currentPlayer?.inf || '') + (currentPlayer?.inf ? '\n' : '') + item.role);
+                            }}
+                            className={`${categoryBg[item.category as keyof typeof categoryBg]} text-slate-900 px-2 py-1 rounded text-[9px] font-bold transition-colors text-left w-full`}
+                          >
+                            {item.role}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="text-[8px] font-black text-red-400 uppercase">Minions & Demons</h4>
+                        {allRoles.filter(r => r.category === 'Minion' || r.category === 'Demon').map((item, idx) => (
+                          <button 
+                            key={idx} 
+                            onClick={() => {
+                              updatePlayerInfo(playerNo, (currentPlayer?.inf || '') + (currentPlayer?.inf ? '\n' : '') + item.role);
+                            }}
+                            className={`${categoryBg[item.category as keyof typeof categoryBg]} text-slate-900 px-2 py-1 rounded text-[9px] font-bold transition-colors text-left`}
+                          >
+                            {item.role}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      <h4 className="text-[8px] font-black text-blue-200 uppercase">Outsider</h4>
-                      
-                      {/* Fixed Item Start */}
-                      <button 
-                        onClick={() => updatePlayerInfo(playerNo, (currentPlayer?.inf || '') + (currentPlayer?.inf ? '\n' : '') + "Fixed Role Name")}
-                        className={`${categoryBg['Outsider']} text-slate-900 px-2 py-1 rounded text-[9px] font-bold transition-colors text-left w-full`}
-                      >
-                        Outsider
-                      </button>
-                      {/* Fixed Item End */}
+                  ) : (
+                    <p className="text-slate-500 text-xs text-center italic">No roles defined yet.</p>
+                  )}
+                </div>
+              )}
 
-                      {allRoles.filter(r => r.category === 'Outsider').map((item, idx) => (
+              {showTemplates && (
+                <div className="bg-white border rounded-lg p-3 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
+                  <h4 className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2">Notepad Templates</h4>
+                  {notepadTemplates.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-2">
+                      {notepadTemplates.map(template => (
                         <button 
-                          key={idx} 
-                          onClick={() => {
-                            updatePlayerInfo(playerNo, (currentPlayer?.inf || '') + (currentPlayer?.inf ? '\n' : '') + item.role);
-                          }}
-                          className={`${categoryBg[item.category as keyof typeof categoryBg]} text-slate-900 px-2 py-1 rounded text-[9px] font-bold transition-colors text-left w-full`}
+                          key={template.id} 
+                          onClick={() => insertTemplate(template.content)}
+                          className="bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-900 px-3 py-2 rounded-lg text-[9px] font-black uppercase transition-all text-left flex flex-col"
                         >
-                          {item.role}
+                          {template.label}
+                          <span className="text-[7px] font-normal text-slate-400 normal-case line-clamp-1">{template.content}</span>
                         </button>
                       ))}
                     </div>
-                    <div className="space-y-1">
-                      <h4 className="text-[8px] font-black text-red-400 uppercase">Minions & Demons</h4>
-                      {allRoles.filter(r => r.category === 'Minion' || r.category === 'Demon').map((item, idx) => (
-                        <button 
-                          key={idx} 
-                          onClick={() => {
-                            updatePlayerInfo(playerNo, (currentPlayer?.inf || '') + (currentPlayer?.inf ? '\n' : '') + item.role);
-                          }}
-                          className={`${categoryBg[item.category as keyof typeof categoryBg]} text-slate-900 px-2 py-1 rounded text-[9px] font-bold transition-colors text-left`}
-                        >
-                          {item.role}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-slate-500 text-xs">No roles defined yet.</p>
-                )}
-              </div>
-            )}
+                  ) : (
+                    <p className="text-slate-500 text-xs text-center italic py-2">No templates defined in settings.</p>
+                  )}
+                </div>
+              )}
+            </div>
 
-            {/* Player Note Section with Keyword button on the right */}
+            {/* Player Note Section */}
             <div className="flex gap-2 items-start">
               <textarea 
-                className="flex-1 min-h-[100px] border border-slate-200 bg-white rounded-lg p-4 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none resize-none font-medium leading-relaxed shadow-sm transition-all"
+                className="flex-1 min-h-[120px] border border-slate-200 bg-white rounded-lg p-4 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none resize-none font-medium leading-relaxed shadow-sm transition-all"
                 placeholder="Type social reads, role claims, or night info here..."
                 value={currentPlayer?.inf || ''}
                 onChange={(e) => updatePlayerInfo(playerNo, e.target.value)}
               />
-              <button 
-                onClick={() => setShowKeywords(!showKeywords)}
-                className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow-sm transition-all"
-              >
-                <Key size={14} />
-              </button>
+              <div className="flex flex-col gap-2">
+                <button 
+                  onClick={() => { setShowKeywords(!showKeywords); setShowTemplates(false); }}
+                  className={`p-2 rounded-full shadow-sm transition-all ${showKeywords ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}
+                  title="Insert Roles"
+                >
+                  <Key size={14} />
+                </button>
+                <button 
+                  onClick={() => { setShowTemplates(!showTemplates); setShowKeywords(false); }}
+                  className={`p-2 rounded-full shadow-sm transition-all ${showTemplates ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}
+                  title="Insert Template"
+                >
+                  <FilePlus2 size={14} />
+                </button>
+              </div>
             </div>
 
-            {/* Death Status and Prop in one row, always visible */}
+            {/* Death Status and Prop in one row */}
             <div className="flex items-center gap-2">
               {isDead ? (
                 <div className="flex-[8] flex items-center gap-1 h-10">
