@@ -78,7 +78,7 @@ const ClockSlice: React.FC<ClockSliceProps> = ({
             textAnchor="start" 
             alignmentBaseline="middle" 
             className="text-[6px] font-black fill-slate-900 pointer-events-none drop-shadow-sm"
-            style={{ transform: `rotate(${labelAngle + 90}deg)`, transformOrigin: `${lx}px ${ly}px` }}
+            // style={{ transform: `rotate(${labelAngle + 90}deg)`, transformOrigin: `${lx}px ${ly}px` }}
           >
             D{dayNum}
           </text>
