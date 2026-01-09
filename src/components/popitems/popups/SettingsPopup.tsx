@@ -23,16 +23,13 @@ interface SettingsPopupProps {
   saveCustomTheme: (name: string) => void;
   reorderNotepadTemplates: (fromIndex: number, toIndex: number) => void;
   reorderPropTemplates: (fromIndex: number, toIndex: number) => void;
-  defaultNotepadContent: string;
-  setDefaultNotepadContent: (content: string) => void;
 }
 
 const SettingsPopup: React.FC<SettingsPopupProps> = ({
   isOpen, onClose, fontSize, setFontSize, language, setLanguage,
   notepadTemplates, setNotepadTemplates, propTemplates, setPropTemplates,
   activeTheme, setActiveTheme, setCustomThemeColors,
-  savedCustomThemes, saveCustomTheme, reorderNotepadTemplates, reorderPropTemplates,
-  defaultNotepadContent, setDefaultNotepadContent
+  savedCustomThemes, saveCustomTheme, reorderNotepadTemplates, reorderPropTemplates
 }) => {
   const [activeSection, setActiveSection] = useState<'general' | 'theme' | 'customization'>('general');
   const [customizationSubTab, setCustomizationSubTab] = useState<'notepad' | 'props'>('notepad');
@@ -301,32 +298,6 @@ Format: {
 
                 {customizationSubTab === 'notepad' && (
                   <div className="space-y-4">
-                    <section className="space-y-3">
-                      <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                        <FileText size={14} /> Default Notepad Content
-                      </h3>
-                      <p className="text-[10px] text-slate-500 leading-relaxed">
-                        This content will appear in all new players' notepads when the player count increases or the session is reset.
-                      </p>
-                      <textarea 
-                        className="w-full h-24 bg-white border border-slate-200 rounded-lg p-3 text-[11px] focus:ring-2 focus:ring-blue-500/20 outline-none resize-none font-mono"
-                        placeholder="Leave blank for empty notepads..."
-                        value={defaultNotepadContent}
-                        onChange={(e) => setDefaultNotepadContent(e.target.value)}
-                      />
-                      <div className="flex gap-2">
-                        {notepadTemplates.map(template => (
-                          <button 
-                            key={template.id}
-                            onClick={() => setDefaultNotepadContent(template.content)}
-                            className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[9px] font-bold transition-colors"
-                          >
-                            Use "{template.label}"
-                          </button>
-                        ))}
-                      </div>
-                    </section>
-
                     <div className="flex justify-between items-center">
                       <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                         <FileText size={14} /> Notepad Templates

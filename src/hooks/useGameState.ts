@@ -54,30 +54,28 @@ export const useGameState = () => {
     { id: 'p3', label: 'DRUNK', value: '🥴' }
   ]));
 
-  const [defaultNotepadContent, setDefaultNotepadContent] = useState(() => getStorage('default_notepad_content', ''));
-
   useEffect(() => {
     const state = {
       day: currentDay, count: playerCount, players, nominations, deaths, chars, dist: roleDist,
       note, font: fontSize, lang: language, showHub, splitView, notepad_templates: notepadTemplates, 
       prop_templates: propTemplates, active_theme: activeTheme, custom_theme_colors: customThemeColors,
-      saved_custom_themes: savedCustomThemes, default_notepad_content: defaultNotepadContent
+      saved_custom_themes: savedCustomThemes
     };
     Object.entries(state).forEach(([key, val]) => localStorage.setItem(`clocktower_${key}`, JSON.stringify(val)));
-  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, language, showHub, splitView, notepadTemplates, propTemplates, activeTheme, customThemeColors, savedCustomThemes, defaultNotepadContent]);
+  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, language, showHub, splitView, notepadTemplates, propTemplates, activeTheme, customThemeColors, savedCustomThemes]);
 
   useEffect(() => {
     setPlayers(prev => {
       if (prev.length === playerCount) return prev;
       if (prev.length < playerCount) {
         const extra = Array.from({ length: playerCount - prev.length }, (_, i) => ({
-          no: prev.length + i + 1, inf: defaultNotepadContent, day: '', reason: '', red: '', property: ''
+          no: prev.length + i + 1, inf: '', day: '', reason: '', red: '', property: ''
         }));
         return [...prev, ...extra];
       }
       return prev.slice(0, playerCount);
     });
-  }, [playerCount, defaultNotepadContent]);
+  }, [playerCount]);
 
   useEffect(() => {
     setPlayers(prev => prev.map(p => {
@@ -89,7 +87,7 @@ export const useGameState = () => {
   const deadPlayers = useMemo(() => players.filter(p => p.day !== '' || p.red !== '').map(p => p.no), [players]);
 
   const reset = () => {
-    setPlayers(Array.from({ length: playerCount }, (_, i) => ({ no: i + 1, inf: defaultNotepadContent, day: '', reason: '', red: '', property: '' })));
+    setPlayers(Array.from({ length: playerCount }, (_, i) => ({ no: i + 1, inf: '', day: '', reason: '', red: '', property: '' })));
     setNominations([{ id: Math.random().toString(), day: 1, f: '-', t: '-', voters: '', note: '' }]);
     setDeaths([
       { id: 'default-execution', day: 1, playerNo: '', reason: '⚔️', note: '', isConfirmed: true },
@@ -155,7 +153,6 @@ export const useGameState = () => {
     splitView, setSplitView, notepadTemplates, setNotepadTemplates, propTemplates, setPropTemplates,
     deadPlayers, reset, updatePlayerInfo, updatePlayerProperty, togglePlayerAlive,
     activeTheme, setActiveTheme, customThemeColors, setCustomThemeColors, currentTheme,
-    savedCustomThemes, saveCustomTheme, reorderNotepadTemplates, reorderPropTemplates,
-    defaultNotepadContent, setDefaultNotepadContent
+    savedCustomThemes, saveCustomTheme, reorderNotepadTemplates, reorderPropTemplates
   };
 };
