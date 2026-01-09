@@ -53,19 +53,33 @@ const ClockSlice: React.FC<ClockSliceProps> = ({
         );
       })}
 
-      {/* Day labels on the left side of each slice for all players */}
-      {showAxis && Array.from({ length: ringCount }).map((_, rIdx) => {
+      {/* Day labels only for the reviewing (isCurrent) player slice */}
+      {showAxis && isCurrent && Array.from({ length: ringCount }).map((_, rIdx) => {
         const dayNum = rIdx + 1;
         const rs = innerRadius + rIdx * ringWidth;
         const re = rs + ringWidth;
         const radius = (rs + re) / 2;
-        const angle = (i * (360 / playerCount)) - 90;
-        const leftAngle = angle - (360 / (playerCount * 2)) * 0.8; // Position towards the left of the slice
-        const lx = 144 + radius * Math.cos(leftAngle * Math.PI / 180);
-        const ly = 144 + radius * Math.sin(leftAngle * Math.PI / 180);
+        
+        // Calculate the starting angle of this specific slice
+        const angleStep = 360 / playerCount;
+        const startAngle = (i * angleStep) - 90;
+        
+        // Offset slightly inwards from the edge for better visibility
+        const labelAngle = startAngle + (angleStep * 0.15); 
+        
+        const lx = 144 + radius * Math.cos(labelAngle * Math.PI / 180);
+        const ly = 144 + radius * Math.sin(labelAngle * Math.PI / 180);
 
         return (
-          <text key={`day-label-${num}-${dayNum}`} x={lx} y={ly} textAnchor="middle" alignmentBaseline="middle" className="text-[5px] font-black fill-slate-600 pointer-events-none">
+          <text 
+            key={`day-label-${num}-${dayNum}`} 
+            x={lx} 
+            y={ly} 
+            textAnchor="start" 
+            alignmentBaseline="middle" 
+            className="text-[6px] font-black fill-slate-900 pointer-events-none drop-shadow-sm"
+            style={{ transform: `rotate(${labelAngle + 90}deg)`, transformOrigin: `${lx}px ${ly}px` }}
+          >
             D{dayNum}
           </text>
         );
