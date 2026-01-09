@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { X, ShieldAlert, Heart, Apple, Play, Github, Coffee } from 'lucide-react';
+import { X, Heart, Apple, Play, Github, Coffee } from 'lucide-react';
 
 interface AboutPopupProps {
   isOpen: boolean;
@@ -16,7 +16,7 @@ const AboutPopup: React.FC<AboutPopupProps> = ({ isOpen, onClose }) => {
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
         <header className="flex-none bg-slate-900 text-white px-4 py-3 flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <ShieldAlert size={16} className="text-red-500" />
+            <img src="/The_Minimalist_Wheel.png" alt="Logo" className="w-4 h-4" />
             <span className="text-xs font-black uppercase tracking-widest text-slate-400">About Ledger Pro</span>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-800 rounded-full transition-colors">
@@ -48,14 +48,14 @@ const AboutPopup: React.FC<AboutPopupProps> = ({ isOpen, onClose }) => {
           <section className="space-y-3">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Get the Mobile App</h3>
             <div className="grid grid-cols-2 gap-3">
-              <button className="flex items-center justify-center gap-2 bg-slate-900 text-white py-3 rounded-xl hover:bg-slate-800 transition-all active:scale-95 shadow-md">
+              <button className="flex items-center justify-center gap-2 bg-slate-900 text-white py-3 rounded-xl hover:bg-slate-800 transition-all active:scale-90 shadow-md">
                 <Apple size={16} />
                 <div className="flex flex-col items-start leading-none">
                   <span className="text-[7px] uppercase font-bold text-slate-400">Download on</span>
                   <span className="text-[10px] font-black">App Store</span>
                 </div>
               </button>
-              <button className="flex items-center justify-center gap-2 bg-slate-900 text-white py-3 rounded-xl hover:bg-slate-800 transition-all active:scale-95 shadow-md">
+              <button className="flex items-center justify-center gap-2 bg-slate-900 text-white py-3 rounded-xl hover:bg-slate-800 transition-all active:scale-90 shadow-md">
                 <Play size={16} />
                 <div className="flex flex-col items-start leading-none">
                   <span className="text-[7px] uppercase font-bold text-slate-400">Get it on</span>

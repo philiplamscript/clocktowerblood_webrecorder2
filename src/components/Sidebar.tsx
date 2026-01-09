@@ -2,15 +2,14 @@
 
 import React from 'react';
 import { 
-  ShieldAlert, 
-  RotateCcw, 
-  FileEdit, 
-  History, 
-  UserCircle, 
-  Settings, 
-  HelpCircle, 
-  Info, 
-  MessageSquare, 
+  RotateCcw,
+  Edit,
+  History,
+  UserCircle,
+  Settings,
+  HelpCircle,
+  Info,
+  MessageSquare,
   Heart,
   X
 } from 'lucide-react';
@@ -58,7 +57,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between h-14 px-4 border-b border-slate-800">
           <div className="flex items-center gap-3">
-            <ShieldAlert className="text-red-500 shrink-0" size={24} />
+            <img src="/The_Minimalist_Wheel.png" alt="Logo" className="w-6 h-6 shrink-0" />
             <h2 className="text-white font-black text-sm uppercase tracking-tighter truncate">Ledger Menu</h2>
           </div>
           <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white transition-colors">
@@ -69,7 +68,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Upper Section */}
         <div className="flex-1 overflow-y-auto p-3 space-y-1 no-scrollbar">
           <div className="mb-2 px-3 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Management</div>
-          <NavItem icon={FileEdit} label="Load Role" onClick={onLoadRole} color="text-blue-400" />
+          <NavItem icon={Edit} label="Load Role" onClick={onLoadRole} color="text-blue-400" />
           <NavItem icon={RotateCcw} label="Reset session" onClick={onReset} color="text-red-500" />
           <NavItem icon={History} label="Update Log" onClick={onShowUpdateLog} color="text-yellow-500" />
           <NavItem icon={UserCircle} label="Player Detail" onClick={onFocusPlayerDetail} color="text-emerald-500" />
