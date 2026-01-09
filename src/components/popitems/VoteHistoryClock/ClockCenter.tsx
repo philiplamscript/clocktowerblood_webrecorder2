@@ -20,12 +20,16 @@ const ClockCenter: React.FC<ClockCenterProps> = ({
   const baseColor = isVoting ? '#e11d48' : pendingNom ? '#7c3aed' : '#cdd3e2ff';
   
   return (
-    <g className="pointer-events-auto cursor-pointer" onMouseDown={onStart} onTouchStart={onStart}>
+    <g 
+      className="pointer-events-auto cursor-pointer active:scale-95 transition-transform duration-75" 
+      onMouseDown={onStart} 
+      onTouchStart={onStart}
+    >
       {/* Outer Glow Ring */}
       <circle cx={cx} cy={cy} r="30" fill="none" stroke={baseColor} strokeWidth="1" className="opacity-10 animate-pulse" />
       
-      {/* Main Button Body */}
-      <circle cx={cx} cy={cy} r="26" fill={baseColor} className="transition-all duration-300 shadow-xl" />
+      {/* Main Button Body - added transition for color changes */}
+      <circle cx={cx} cy={cy} r="26" fill={baseColor} className="transition-colors duration-300 shadow-xl" />
       
       {/* Inner Decorative Ring */}
       <circle cx={cx} cy={cy} r="22" fill="none" stroke="white" strokeWidth="0.5" className="opacity-20" />
