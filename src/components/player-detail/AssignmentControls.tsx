@@ -16,11 +16,11 @@ const AssignmentControls: React.FC<AssignmentControlsProps> = ({
   assignmentMode, setAssignmentMode, selectedReason, setSelectedReason, selectedProperty, setSelectedProperty
 }) => {
   return (
-    <div className="w-full flex items-center gap-2">
-      <div className="flex items-center bg-slate-900 rounded-lg h-8 overflow-hidden border border-slate-700 shadow-lg">
+    <div className="w-full flex items-center gap-2 z-10">
+      <div className="flex items-center bg-[#1a1412] rounded-lg h-8 overflow-hidden border border-[#4a3a32] shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
         <button 
           onClick={() => setAssignmentMode(assignmentMode === 'death' ? null : 'death')} 
-          className={`px-2 h-full text-[8px] font-black uppercase tracking-widest transition-colors ${assignmentMode === 'death' ? 'bg-red-600 text-white' : 'text-slate-400 hover:text-white'}`}
+          className={`px-3 h-full text-[8px] font-black uppercase tracking-widest transition-all ${assignmentMode === 'death' ? 'bg-red-800 text-stone-100 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]' : 'text-stone-500 hover:text-stone-300'}`}
         >
           DEATH
         </button>
@@ -29,16 +29,16 @@ const AssignmentControls: React.FC<AssignmentControlsProps> = ({
             const nextIndex = (REASON_CYCLE.indexOf(selectedReason) + 1) % REASON_CYCLE.length;
             setSelectedReason(REASON_CYCLE[nextIndex]);
           }}
-          className="bg-slate-800 text-white text-[10px] border-none focus:ring-0 h-full px-2 hover:bg-slate-700 transition-colors"
+          className="bg-[#2d241f] text-amber-500 text-[10px] border-l border-[#4a3a32] focus:ring-0 h-full px-2 hover:bg-[#3d2f28] transition-colors font-bold"
         >
           {selectedReason}
         </button>
       </div>
 
-      <div className="flex items-center bg-slate-900 rounded-lg h-8 overflow-hidden border border-slate-700 shadow-lg">
+      <div className="flex-1 flex items-center bg-[#1a1412] rounded-lg h-8 overflow-hidden border border-[#4a3a32] shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
         <button 
           onClick={() => setAssignmentMode(assignmentMode === 'property' ? null : 'property')} 
-          className={`px-2 h-full text-[8px] font-black uppercase tracking-widest transition-colors ${assignmentMode === 'property' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
+          className={`px-3 h-full text-[8px] font-black uppercase tracking-widest transition-all ${assignmentMode === 'property' ? 'bg-amber-700 text-stone-100 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]' : 'text-stone-500 hover:text-stone-300'}`}
         >
           PROP
         </button>
@@ -46,8 +46,8 @@ const AssignmentControls: React.FC<AssignmentControlsProps> = ({
           type="text" 
           value={selectedProperty} 
           onChange={(e) => setSelectedProperty(e.target.value)} 
-          placeholder="Type property..." 
-          className="bg-slate-800 text-white text-[10px] border-none focus:ring-0 h-full px-1 w-20"
+          placeholder="Assign property..." 
+          className="bg-transparent text-amber-400 placeholder:text-stone-700 text-[10px] border-none focus:ring-0 h-full px-2 w-full font-bold"
         />
       </div>
     </div>

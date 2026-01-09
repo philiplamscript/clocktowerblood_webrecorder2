@@ -26,39 +26,39 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
   const modeLabels = { vote: 'Votes', beVoted: 'Received', allReceive: 'All Global' };
 
   return (
-    <div className="w-full flex items-center justify-between">
+    <div className="w-full flex items-center justify-between z-10">
       <div className="flex items-center gap-2">
-        <Vote size={14} className="text-blue-600" />
-        <span className="text-[10px] font-black text-slate-700 uppercase tracking-wider">
+        <Vote size={14} className="text-amber-500" />
+        <span className="text-[10px] font-black text-stone-300 uppercase tracking-[0.2em] drop-shadow-sm">
           {isVoting ? 'Voting Recording' : 'Voting Patterns'}
         </span>
       </div>
       
       <div className="flex items-center gap-1.5">
         {!isVoting && (
-          <div className="flex items-center gap-1 bg-white border rounded-full px-2 h-7 shadow-sm">
-            <Calendar size={12} className="text-slate-400" />
+          <div className="flex items-center gap-1 bg-[#1a1412] border border-[#4a3a32] rounded-full px-2 h-7 shadow-inner">
+            <Calendar size={12} className="text-stone-500" />
             <div className="w-10">
               <TextRotaryPicker 
                 value={currentFilterText} 
                 options={dayOptions} 
                 onChange={(val) => setFilterDay(val === 'ALL' ? 'all' : parseInt(val.replace('D', '')))}
-                color="text-slate-800"
+                color="text-amber-400"
               />
             </div>
           </div>
         )}
         
-        <div className="flex bg-white border rounded-full p-0.5 shadow-sm">
+        <div className="flex bg-[#1a1412] border border-[#4a3a32] rounded-full p-0.5 shadow-inner">
           <button 
             onClick={() => setShowDeathIcons(!showDeathIcons)}
-            className={`p-1 rounded-full transition-colors ${showDeathIcons ? 'bg-red-50 text-red-600' : 'text-slate-400 hover:bg-slate-50'}`}
+            className={`p-1 rounded-full transition-all ${showDeathIcons ? 'bg-red-900/50 text-red-400 shadow-sm' : 'text-stone-600 hover:text-stone-400'}`}
           >
             <Skull size={12} />
           </button>
           <button 
             onClick={() => setShowAxis(!showAxis)}
-            className={`p-1 rounded-full transition-colors ${showAxis ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:bg-slate-50'}`}
+            className={`p-1 rounded-full transition-all ${showAxis ? 'bg-amber-900/50 text-amber-500 shadow-sm' : 'text-stone-600 hover:text-stone-400'}`}
           >
             <Grid3X3 size={12} />
           </button>
@@ -70,7 +70,7 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
             else if (voteHistoryMode === 'beVoted') setVoteHistoryMode('allReceive');
             else setVoteHistoryMode('vote');
           }}
-          className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1 rounded-full text-[9px] font-black uppercase transition-colors shadow-sm min-w-[80px]"
+          className="bg-[#3d2f28] hover:bg-[#4a3a32] border border-[#5a4a40] text-amber-500 px-3 py-1 rounded-full text-[9px] font-black uppercase transition-all shadow-md active:shadow-inner min-w-[80px]"
           disabled={isVoting}
         >
           {modeLabels[voteHistoryMode]}
