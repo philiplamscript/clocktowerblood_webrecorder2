@@ -6,11 +6,10 @@ import {
   Plus, 
   Minus,
   Eye,
+  EyeOff,
   BookOpen,
-  Split,
-  Menu
+  Split
 } from 'lucide-react';
-import { Toaster, toast } from 'react-hot-toast';
 
 
 import {
@@ -19,8 +18,6 @@ import {
   type Death,
   type CharDict,
   type RoleDist,
-  type NotepadTemplate,
-  type PropTemplate,
   
   REASON_CYCLE,
   createInitialChars,
@@ -33,11 +30,7 @@ import LedgerTabsPopup from './components/popitems/popups/LedgerTabsPopup';
 import RoleSelectorPopup from './components/popitems/popups/RoleSelectorPopup';
 import RoleUpdatePopup from './components/popitems/popups/RoleUpdatePopup';
 import ResetConfirmation from './components/popitems/popups/ResetConfirmation';
-import GreetingPopup from './components/popitems/popups/GreetingPopup';
-import SettingsPopup from './components/popitems/popups/SettingsPopup';
-import AboutPopup from './components/popitems/popups/AboutPopup';
 import FAB from './components/popitems/FAB';
-import Sidebar from './components/Sidebar';
 
 export default function App() {
   const getStorage = (key: string, fallback: any) => {
@@ -55,35 +48,20 @@ export default function App() {
     { id: 'default-night', day: 1, playerNo: '', reason: '🌑', note: '', isConfirmed: true }
   ]));
   const [chars, setChars] = useState<CharDict>(() => getStorage('chars', createInitialChars()));
-  const [roleDist, setRoleDist] = useState<RoleDist>(() => getStorage('dist', { townsfolk: 9, outsiders: 1, minions: 2, demons: 1 }));
+  const [roleDist, setRoleDist] = useState<RoleDist>(() => getStorage('dist', { townsfolk: 0, outsiders: 0, minions: 0, demons: 1 }));
   const [note, setNote] = useState(() => getStorage('note', ''));
   const [fontSize, setFontSize] = useState<'small' | 'mid' | 'large'>(() => getStorage('font', 'mid'));
-  const [language, setLanguage] = useState(() => getStorage('lang', 'Eng'));
   const [showHub, setShowHub] = useState(() => getStorage('showHub', true));
   const [splitView, setSplitView] = useState(() => getStorage('splitView', false));
   
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showGreeting, setShowGreeting] = useState(() => !localStorage.getItem('clocktower_greeted'));
   const [showReset, setShowReset] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [showAbout, setShowAbout] = useState(false);
   const [fabOpen, setFabOpen] = useState(false);
   const [focusPlayerNo, setFocusPlayerNo] = useState<number>(1);
   const [showRoleSelector, setShowRoleSelector] = useState<{ playerNo: number; roles: { role: string; category: string }[] } | null>(null);
   const [showRoleUpdate, setShowRoleUpdate] = useState(false);
   const [showLedger, setShowLedger] = useState(false);
   const [roleUpdateText, setRoleUpdateText] = useState('');
-   const [voteHistoryMode, setVoteHistoryMode] = useState<'vote' | 'beVoted' | 'allReceive'>('allReceive');
-  
-  const [notepadTemplates, setNotepadTemplates] = useState<NotepadTemplate[]>(() => getStorage('notepad_templates', [
-    { id: 't1', label: 'SOCIAL READ', content: 'Reads: \nTrust: \nSuspicion: ' },
-    { id: 't2', label: 'WORLD INFO', content: 'Day 1: \nDay 2: \nDay 3: ' }
-  ]));
-  const [propTemplates, setPropTemplates] = useState<PropTemplate[]>(() => getStorage('prop_templates', [
-    { id: 'p1', label: 'POISON', value: '🧪' },
-    { id: 'p2', label: 'PROTECT', value: '🛡️' },
-    { id: 'p3', label: 'DRUNK', value: '🥴' }
-  ]));
+  const [voteHistoryMode, setVoteHistoryMode] = useState<'vote' | 'beVoted' | 'allReceive'>('allReceive');
 
   const [assignmentMode, setAssignmentMode] = useState<'death' | 'property' | null>(null);
   const [selectedReason, setSelectedReason] = useState<string>('🌑');
@@ -99,12 +77,9 @@ export default function App() {
     localStorage.setItem('clocktower_dist', JSON.stringify(roleDist));
     localStorage.setItem('clocktower_note', JSON.stringify(note));
     localStorage.setItem('clocktower_font', JSON.stringify(fontSize));
-    localStorage.setItem('clocktower_lang', JSON.stringify(language));
     localStorage.setItem('clocktower_showHub', JSON.stringify(showHub));
     localStorage.setItem('clocktower_splitView', JSON.stringify(splitView));
-    localStorage.setItem('clocktower_notepad_templates', JSON.stringify(notepadTemplates));
-    localStorage.setItem('clocktower_prop_templates', JSON.stringify(propTemplates));
-  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, language, showHub, splitView, notepadTemplates, propTemplates]);
+  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, showHub, splitView]);
 
   const fontSizeClass = {
     small: 'text-[10px]',
@@ -161,7 +136,6 @@ export default function App() {
     setNote('');
     localStorage.clear();
     setShowReset(false);
-    toast.success('Session reset successfully');
   };
 
   const addNomination = () => {
@@ -220,7 +194,6 @@ export default function App() {
     setChars(newChars);
     setShowRoleUpdate(false);
     setRoleUpdateText('');
-    toast.success('Roles script updated');
   };
 
   const handlePlayerClick = (num: number) => {
@@ -260,43 +233,13 @@ export default function App() {
     Demon: 'bg-red-100 hover:bg-red-200'
   };
 
-  const closeGreeting = () => {
-    setShowGreeting(false);
-    localStorage.setItem('clocktower_greeted', 'true');
-  };
-
   return (
     <div className={`fixed inset-0 bg-slate-100 flex flex-col font-sans select-none ${fontSizeClass}`} onMouseUp={() => setIsDragging(false)}>
-      <Toaster position="top-center" reverseOrder={false} />
       
-      <GreetingPopup isOpen={showGreeting} onClose={closeGreeting} />
-
-      <Sidebar 
-        isOpen={sidebarOpen} 
-        setIsOpen={setSidebarOpen} 
-        onReset={() => { setShowReset(true); setSidebarOpen(false); }}
-        onLoadRole={() => { setShowRoleUpdate(true); setSidebarOpen(false); }}
-        onShowUpdateLog={() => { toast.info('Log: Added Settings system'); setSidebarOpen(false); }}
-        onFocusPlayerDetail={() => { setSidebarOpen(false); }}
-        onOpenSettings={() => { setShowSettings(true); setSidebarOpen(false); }}
-        onShowHowToUse={() => { toast('Tip: Use prop templates for quick notes!', { icon: '💡' }); setSidebarOpen(false); }}
-        onShowAbout={() => { setShowAbout(true); setSidebarOpen(false); }}
-        onShowFAQ={() => { toast('Check Settings for templates', { icon: '❓' }); setSidebarOpen(false); }}
-        onShowDonation={() => { setShowAbout(true); setSidebarOpen(false); }}
-      />
-
       <header className="flex-none bg-slate-900 text-white px-3 py-2 flex justify-between items-center shadow-md z-50">
-        <div className="flex items-center gap-2">
-          <button 
-            onClick={() => setSidebarOpen(true)}
-            className="p-1 hover:bg-slate-800 rounded transition-colors text-slate-400"
-          >
-            <Menu size={18} />
-          </button>
-          <div className="flex items-center gap-1.5 ml-1">
-            <ShieldAlert className="text-red-500" size={14} />
-            <h1 className="font-black text-xs uppercase italic tracking-tighter">LEDGER PRO v3.9</h1>
-          </div>
+        <div className="flex items-center gap-1.5">
+          <ShieldAlert className="text-red-500" size={14} />
+          <h1 className="font-black text-xs uppercase italic tracking-tighter">LEDGER PRO v3.8</h1>
         </div>
         <div className="flex items-center gap-2">
           <button 
@@ -322,7 +265,7 @@ export default function App() {
       </header>
 
       {showHub && (
-        <div className="flex-none bg-slate-800 border-b border-slate-700 p-2 shadow-inner animate-in slide-in-from-top-4 duration-200 transition-all">
+        <div className="flex-none bg-slate-800 border-b border-slate-700 p-2 shadow-inner animate-in slide-in-from-top-4 duration-200">
           <div className="flex flex-wrap items-center gap-1.5 max-w-5xl mx-auto">
             <div className="flex items-center bg-slate-900 rounded-lg h-7 overflow-hidden border border-slate-700 shadow-lg mr-1 w-[58px]">
               <button onClick={() => setCurrentDay(Math.max(1, currentDay - 1))} className="flex-1 hover:bg-slate-800 text-slate-500 transition-colors flex items-center justify-center"><Minus size={10} /></button>
@@ -353,29 +296,13 @@ export default function App() {
                 >
                   PROP
                 </button>
-                <div className="flex bg-slate-800 h-full overflow-hidden">
-                  <input 
-                    type="text" 
-                    value={selectedProperty} 
-                    onChange={(e) => setSelectedProperty(e.target.value)} 
-                    placeholder="Type property..." 
-                    className="bg-transparent text-white text-[10px] border-none focus:ring-0 h-full px-2 w-20"
-                  />
-                  {propTemplates.length > 0 && (
-                    <div className="flex border-l border-slate-700">
-                      {propTemplates.slice(0, 3).map(pt => (
-                        <button 
-                          key={pt.id}
-                          onClick={() => setSelectedProperty(pt.value)}
-                          className={`px-1.5 h-full text-[10px] hover:bg-slate-700 transition-colors ${selectedProperty === pt.value ? 'bg-blue-600' : ''}`}
-                          title={pt.label}
-                        >
-                          {pt.value}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <input 
+                  type="text" 
+                  value={selectedProperty} 
+                  onChange={(e) => setSelectedProperty(e.target.value)} 
+                  placeholder="Type property..." 
+                  className="bg-slate-800 text-white text-[10px] border-none focus:ring-0 h-full px-1 w-20"
+                />
               </div>
             </div>
 
@@ -410,7 +337,7 @@ export default function App() {
         </div>
       )}
 
-      <main className="flex-1 overflow-hidden relative transition-all">
+      <main className="flex-1 overflow-hidden relative">
         <div className={`h-full ${splitView ? 'grid grid-cols-2 divide-x divide-slate-300' : ''}`}>
           <div className={`${splitView ? 'overflow-hidden' : 'h-full'}`}>
             <PlayerDetailView 
@@ -439,7 +366,6 @@ export default function App() {
               setAssignmentMode={setAssignmentMode}
               setSelectedReason={setSelectedReason}
               setSelectedProperty={setSelectedProperty}
-              notepadTemplates={notepadTemplates}
             />
           </div>
           {splitView && (
@@ -511,24 +437,6 @@ export default function App() {
         reset={reset}
       />
 
-      <SettingsPopup 
-        isOpen={showSettings}
-        onClose={() => setShowSettings(false)}
-        fontSize={fontSize}
-        setFontSize={setFontSize}
-        language={language}
-        setLanguage={setLanguage}
-        notepadTemplates={notepadTemplates}
-        setNotepadTemplates={setNotepadTemplates}
-        propTemplates={propTemplates}
-        setPropTemplates={setPropTemplates}
-      />
-
-      <AboutPopup 
-        isOpen={showAbout}
-        onClose={() => setShowAbout(false)}
-      />
-
       <FAB
         fabOpen={fabOpen}
         setFabOpen={setFabOpen}
@@ -540,7 +448,7 @@ export default function App() {
         setFontSize={setFontSize}
       />
 
-      <div className="bg-white border-t px-3 py-1 text-[9px] font-bold text-slate-400 flex justify-between items-center z-50 transition-all">
+      <div className="bg-white border-t px-3 py-1 text-[9px] font-bold text-slate-400 flex justify-between items-center z-50">
         <span>PLAYERS REGISTERED: {players.filter(p => p.inf).length} / {playerCount}</span>
         <div className="w-32 h-1 bg-slate-100 rounded-full overflow-hidden">
           <div className="h-full bg-red-500" style={{ width: `${(players.filter(p => p.inf).length / playerCount) * 100}%` }} />

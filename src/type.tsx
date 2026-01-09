@@ -52,18 +52,6 @@ interface SortConfig {
   direction: 'asc' | 'desc';
 }
 
-interface NotepadTemplate {
-  id: string;
-  label: string;
-  content: string;
-}
-
-interface PropTemplate {
-  id: string;
-  label: string;
-  value: string;
-}
-
 // --- CONSTANTS ---
 
 const INITIAL_PLAYERS = 15;
@@ -92,8 +80,6 @@ export {
   type CharDict,
   type RoleDist,
   type SortConfig,
-  type NotepadTemplate,
-  type PropTemplate,
   
   INITIAL_PLAYERS,
   REASON_CYCLE,

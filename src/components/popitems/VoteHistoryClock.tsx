@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 
 interface VoteHistoryClockProps {
   playerNo: number;
@@ -20,7 +20,6 @@ interface VoteHistoryClockProps {
   currentDay: number;
   setCurrentDay?: (day: number) => void;
   showDeathIcons: boolean;
-  showAxis?: boolean;
   assignmentMode?: 'death' | 'property' | null;
   selectedReason?: string;
   selectedProperty?: string;
@@ -29,19 +28,17 @@ interface VoteHistoryClockProps {
 const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({ 
   playerNo, nominations, playerCount, deadPlayers, mode, players, deaths, filterDay,
   onPlayerClick, pendingNom, isVoting, onNominationSlideEnd, onVoterToggle, onToggleVotingPhase,
-  currentDay, setCurrentDay, showDeathIcons, showAxis = true, assignmentMode, selectedReason, selectedProperty
+  currentDay, setCurrentDay, showDeathIcons, assignmentMode, selectedReason, selectedProperty
 }) => {
   const [gestureStart, setGestureStart] = useState<number | null>(null);
   const [gestureCurrent, setGestureCurrent] = useState<number | null>(null);
   const [isSliding, setIsSliding] = useState(false);
   const [dragAction, setDragAction] = useState<'add' | 'remove' | null>(null);
-  
-  // Center swipe states
-  const [centerTouchX, setCenterTouchX] = useState<number | null>(null);
-  const [centerSwiped, setCenterSwiped] = useState(false);
-
+  const [selectedForDeath, setSelectedForDeath] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const lastEventTime = useRef<number>(0);
+  const touchStartX = useRef<number>(0);
+  const touchStartY = useRef<number>(0);
 
   const cx = 144, cy = 144, outerRadius = 142, innerRadius = 55;
   const maxDay = Math.max(...nominations.map(n => n.day), 1, currentDay);
@@ -120,7 +117,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
       return (
         <g key={`self-${from}-${day}`} opacity="0.6">
           <line x1={pos.x} y1={pos.y} x2={ix} y2={iy} stroke={color} strokeWidth={width} strokeLinecap="round" />
-          <path d={`M ${pos.x + 10 * Math.cos(rad - 0.5)} ${pos.y + 10 * Math.sin(rad - 0.5)} A 10 10 0 1 1 ${pos.x + 10 * Math.cos(rad + 1.5)} ${pos.y + 10 * Math.sin(rad + 1.5)}`} fill="none" stroke={color} strokeWidth={width} />
           <polygon points={`${ix},${iy} ${ix+3},${iy+3} ${ix-3},${iy+3}`} fill={color} transform={`rotate(${rad * 180 / Math.PI + 90}, ${ix}, ${iy})`} />
         </g>
       );
@@ -146,11 +142,33 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   };
 
   const handleStart = (num: number, e: React.MouseEvent | React.TouchEvent) => {
+    // Prevent double-firing (touch + mouse) within 100ms
     const now = Date.now();
     if (now - lastEventTime.current < 100) return;
     lastEventTime.current = now;
 
     if (e.cancelable) e.preventDefault();
+
+    if (assignmentMode === 'death') {
+      if (selectedForDeath === num) {
+        // Re-click: confirm death
+        const existingDeath = deaths.find(d => parseInt(d.playerNo) === num);
+        if (existingDeath) {
+          // Update existing death
+        } else {
+          // Add new death
+          const newDeath = { id: Math.random().toString(36).substr(2, 9), day: currentDay, playerNo: num.toString(), reason: selectedReason || '⚔️', note: '', isConfirmed: true };
+          // Assuming deaths is passed as prop, but since it's not, we need to handle via callback
+          // For now, just call onPlayerClick which handles assignment
+          onPlayerClick(num);
+        }
+        setSelectedForDeath(null);
+      } else {
+        // First click: select
+        setSelectedForDeath(num);
+      }
+      return;
+    }
 
     if (isVoting) {
       const isAlreadyVoter = pendingNom?.voters.includes(num.toString());
@@ -167,18 +185,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   };
 
   const handleMove = (clientX: number, clientY: number) => {
-    if (centerTouchX !== null) {
-      const deltaX = clientX - centerTouchX;
-      if (Math.abs(deltaX) > 40) {
-        if (!centerSwiped) {
-          if (deltaX > 0) setCurrentDay?.(Math.max(1, currentDay - 1));
-          else setCurrentDay?.(currentDay + 1);
-          setCenterSwiped(true);
-        }
-      }
-      return;
-    }
-
     if (gestureStart === null) return;
     const current = getPlayerAtPos(clientX, clientY);
     if (!current) return;
@@ -194,15 +200,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   };
 
   const handleEnd = () => {
-    if (centerTouchX !== null) {
-      if (!centerSwiped) {
-        onToggleVotingPhase();
-      }
-      setCenterTouchX(null);
-      setCenterSwiped(false);
-      return;
-    }
-
     if (gestureStart !== null) {
       if (!isVoting && !isSliding) {
         onPlayerClick(gestureStart);
@@ -216,11 +213,28 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
     setDragAction(null);
   };
 
-  const handleCenterStart = (e: React.MouseEvent | React.TouchEvent) => {
-    e.stopPropagation();
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    setCenterTouchX(clientX);
-    setCenterSwiped(false);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartX.current = touch.clientX;
+    touchStartY.current = touch.clientY;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - touchStartX.current;
+    const deltaY = touch.clientY - touchStartY.current;
+    const absDeltaX = Math.abs(deltaX);
+    const absDeltaY = Math.abs(deltaY);
+
+    if (absDeltaX > absDeltaY && absDeltaX > 50) { // Horizontal swipe
+      if (deltaX > 0) {
+        // Swipe right: previous day
+        setCurrentDay?.(Math.max(1, currentDay - 1));
+      } else {
+        // Swipe left: next day
+        setCurrentDay?.(currentDay + 1);
+      }
+    }
   };
 
   return (
@@ -228,8 +242,9 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
       <svg ref={svgRef} viewBox="0 0 288 288" className="w-80 h-80 touch-none select-none"
         onMouseMove={(e) => handleMove(e.clientX, e.clientY)}
         onMouseUp={handleEnd} onMouseLeave={handleEnd}
+        onTouchStart={handleTouchStart}
         onTouchMove={(e) => { handleMove(e.touches[0].clientX, e.touches[0].clientY); }}
-        onTouchEnd={handleEnd}
+        onTouchEnd={(e) => { handleTouchEnd(e); handleEnd(); }}
       >
         <defs>
           <radialGradient id="playerSpotlight" cx="50%" cy="50%" r="50%">
@@ -239,59 +254,9 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
           </radialGradient>
         </defs>
 
-        {/* --- COORDINATION AXIS & DAY RINGS --- */}
-        {showAxis && (
-          <g className="pointer-events-none transition-opacity duration-300">
-            {/* Day Rings */}
-            {Array.from({ length: ringCount + 1 }).map((_, i) => (
-              <circle 
-                key={`ring-${i}`} 
-                cx={cx} cy={cy} 
-                r={innerRadius + i * ringWidth} 
-                fill="none" 
-                stroke="#cbd5e1" 
-                strokeWidth="0.75" 
-                strokeDasharray="2,2" 
-                className="opacity-40"
-              />
-            ))}
-            {/* Crosshair Axis */}
-            <line x1={cx} y1={cy - outerRadius} x2={cx} y2={cy + outerRadius} stroke="#94a3b8" strokeWidth="0.75" strokeDasharray="4,2" className="opacity-50" />
-            <line x1={cx - outerRadius} y1={cy} x2={cx + outerRadius} y2={cy} stroke="#94a3b8" strokeWidth="0.75" strokeDasharray="4,2" className="opacity-50" />
-            
-            {/* Directional Labels */}
-            <text x={cx} y={cy - outerRadius - 8} textAnchor="middle" className="text-[8px] font-black fill-slate-500 uppercase">N</text>
-            <text x={cx} y={cy + outerRadius + 12} textAnchor="middle" className="text-[8px] font-black fill-slate-500 uppercase">S</text>
-            <text x={cx + outerRadius + 8} y={cy + 3} textAnchor="middle" className="text-[8px] font-black fill-slate-500 uppercase">E</text>
-            <text x={cx - outerRadius - 8} y={cy + 3} textAnchor="middle" className="text-[8px] font-black fill-slate-500 uppercase">W</text>
-            
-            {/* Day Labels in all four directions */}
-            {Array.from({ length: ringCount }).map((_, i) => {
-              const radius = innerRadius + (i + 0.5) * ringWidth;
-              const positions = [
-                { dir: 'east', x: cx + 5, y: cy - radius, textAnchor: 'start' },
-                { dir: 'west', x: cx - 5, y: cy - radius, textAnchor: 'end' },
-                { dir: 'north', x: cx, y: cy - radius - 5, textAnchor: 'middle' },
-                { dir: 'south', x: cx, y: cy + radius + 5, textAnchor: 'middle' }
-              ];
-              return positions.map(pos => (
-                <text 
-                  key={`day-label-${i}-${pos.dir}`} 
-                  x={pos.x} 
-                  y={pos.y} 
-                  textAnchor={pos.textAnchor} 
-                  className="text-[6px] font-black fill-slate-400 uppercase tracking-tighter"
-                >
-                  D{i + 1}
-                </text>
-              ));
-            })}
-          </g>
-        )}
-
         {Array.from({ length: playerCount }, (_, i) => i + 1).map((num, i) => {
           const numStr = num.toString(), isCurrent = num === playerNo, isVoter = isVoting && pendingNom?.voters.includes(numStr);
-          const pd = deaths.find(d => d.playerNo === numStr), fill = isVoter ? '#ef4444' : isCurrent ? 'url(#playerSpotlight)' : pd ? '#f8fafc' : '#ffffff';
+          const pd = deaths.find(d => d.playerNo === numStr), fill = isVoter ? '#ef4444' : isCurrent ? 'url(#playerSpotlight)' : selectedForDeath === num ? '#fbbf24' : pd ? '#f8fafc' : '#ffffff';
           const stroke = isCurrent ? '#eab308' : assignmentMode === 'death' ? '#ef4444' : assignmentMode === 'property' ? '#3b82f6' : '#f1f5f9';
 
           return (
@@ -318,14 +283,16 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
         {isSliding && gestureStart && gestureCurrent && drawArrow(gestureStart, gestureCurrent, maxDay, gestureStart === gestureCurrent ? 'self' : 'to', 3)}
         {pendingNom && !isSliding && drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), currentDay, pendingNom.f === pendingNom.t ? 'self' : 'to', 4)}
 
-        <g className="pointer-events-auto cursor-pointer" onMouseDown={handleCenterStart} onTouchStart={handleCenterStart}>
-          <circle cx={cx} cy={cy} r="25" fill={isVoting ? '#dc2626' : pendingNom ? '#a855f7' : '#eab308'} className="transition-colors shadow-lg" />
+        <g className="pointer-events-auto">
+          <circle cx={cx} cy={cy} r="25" fill={isVoting ? '#dc2626' : pendingNom ? '#a855f7' : '#eab308'} className="transition-colors" onClick={(e) => { e.stopPropagation(); onToggleVotingPhase(); }} />
           {pendingNom ? <text x={cx} y={cy} textAnchor="middle" alignmentBaseline="middle" className="text-white text-[14px] font-black pointer-events-none">{isVoting ? 'SAVE' : 'V'}</text>
           : assignmentMode ? <text x={cx} y={cy} textAnchor="middle" alignmentBaseline="middle" className="text-white text-[8px] font-black uppercase pointer-events-none">{assignmentMode === 'death' ? selectedReason : 'PROP'}</text>
-          : <g className="pointer-events-none">
-              <text x={cx} y={cy - 8} textAnchor="middle" className="text-white text-[10px] font-black">{playerNo}</text>
-              <text x={cx} y={cy + 4} textAnchor="middle" className="text-white text-[10px] font-black">D{currentDay}</text>
-              <text x={cx} y={cy + 14} textAnchor="middle" className="text-white text-[5px] font-black uppercase">{mode === 'vote' ? 'VOTE' : mode === 'beVoted' ? 'RECV' : 'ALL'}</text>
+          : <g>
+              <text x={cx} y={cy - 8} textAnchor="middle" className="text-white text-[10px] font-black pointer-events-none">{playerNo}</text>
+              <g className="cursor-pointer" onClick={(e) => { e.stopPropagation(); setCurrentDay?.(Math.max(1, currentDay - 1)); }}><path d="M 125 144 L 132 140 L 132 148 Z" fill="white" opacity="0.5" /></g>
+              <text x={cx} y={cy + 4} textAnchor="middle" className="text-white text-[8px] font-black pointer-events-none">D{currentDay}</text>
+              <g className="cursor-pointer" onClick={(e) => { e.stopPropagation(); setCurrentDay?.(currentDay + 1); }}><path d="M 163 144 L 156 140 L 156 148 Z" fill="white" opacity="0.5" /></g>
+              <text x={cx} y={cy + 14} textAnchor="middle" className="text-white text-[5px] font-black uppercase pointer-events-none">{mode === 'vote' ? 'VOTE' : mode === 'beVoted' ? 'RECV' : 'ALL'}</text>
             </g>
           }
         </g>
