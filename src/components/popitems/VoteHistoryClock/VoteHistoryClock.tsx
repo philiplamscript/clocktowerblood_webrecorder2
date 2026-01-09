@@ -140,7 +140,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
 
   return (
     <div className="w-full flex flex-col items-center">
-      <svg ref={svgRef} viewBox="0 0 288 288" className="w-80 h-80 touch-none select-none drop-shadow-sm"
+      <svg ref={svgRef} viewBox="0 0 288 288" className="w-80 h-80 select-none drop-shadow-sm"
         onMouseMove={(e) => handleMove(e.clientX, e.clientY)} onMouseUp={handleEnd} onMouseLeave={handleEnd}
         onTouchMove={(e) => handleMove(e.touches[0].clientX, e.touches[0].clientY)} onTouchEnd={handleEnd}
       >
@@ -165,7 +165,12 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
         <ClockCenter 
           isVoting={props.isVoting} pendingNom={props.pendingNom} assignmentMode={props.assignmentMode ?? null} 
           selectedReason={props.selectedReason} playerNo={props.playerNo} currentDay={props.currentDay} mode={props.mode}
-          onStart={(e) => { e.stopPropagation(); setCenterTouchX('touches' in e ? e.touches[0].clientX : e.clientX); setCenterSwiped(false); }}
+          onStart={(e) => { 
+            e.stopPropagation(); 
+            if (e.cancelable) e.preventDefault();
+            setCenterTouchX('touches' in e ? e.touches[0].clientX : e.clientX); 
+            setCenterSwiped(false); 
+          }}
         />
       </svg>
     </div>
