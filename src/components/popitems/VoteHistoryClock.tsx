@@ -217,6 +217,14 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = ({
   };
 
   const handleCenterStart = (e: React.MouseEvent | React.TouchEvent) => {
+    // 1. Prevent double-firing within 100ms
+    const now = Date.now();
+    if (now - lastEventTime.current < 100) return;
+    lastEventTime.current = now;
+
+    // 2. Prevent "Ghost Clicks" (prevents MouseDown after TouchStart)
+    if (e.cancelable) e.preventDefault(); 
+    
     e.stopPropagation();
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     setCenterTouchX(clientX);
