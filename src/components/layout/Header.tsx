@@ -24,7 +24,7 @@ const Header: React.FC<HeaderProps> = ({
         </button>
         <div className="flex items-center gap-1.5 ml-1">
           <ShieldAlert className="text-red-500" size={14} />
-          <h1 className="font-black text-xs uppercase italic tracking-tighter">LEDGER PRO v3.9</h1>
+          <h1 className="font-black text-xs uppercase italic tracking-tighter">BOTCT-ClockTracker v0.3</h1>
         </div>
       </div>
       <div className="flex items-center gap-2">

@@ -303,7 +303,7 @@ Format: {
                   <div className="space-y-4">
                     <section className="space-y-3">
                       <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                        <FileText size={14} /> Default Notepad
+                        <FileText size={14} /> Default Notepad (apply once reset)
                       </h3>
                       <textarea 
                         className="w-full bg-white border border-slate-200 rounded-lg p-3 text-[11px] focus:ring-0 h-24 resize-none font-mono"
