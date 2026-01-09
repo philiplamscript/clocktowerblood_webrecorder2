@@ -130,7 +130,24 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
   };
 
   const handleEnd = () => {
-    if (centerTouchX !== null) { if (!centerSwiped) props.onToggleVotingPhase(); setCenterTouchX(null); setCenterSwiped(false); return; }
+    const now = Date.now();
+    const isCenter = centerTouchX !== null;
+    
+    // Prevent double-processing (e.g. touch then mouse event)
+    if (now - lastEventTime.current < 100) {
+      setCenterTouchX(null);
+      setCenterSwiped(false);
+      setGestureStart(null);
+      return;
+    }
+    lastEventTime.current = now;
+
+    if (isCenter) {
+      if (!centerSwiped) props.onToggleVotingPhase();
+      setCenterTouchX(null);
+      setCenterSwiped(false);
+      return;
+    }
     if (gestureStart !== null) {
       if (!props.isVoting && !isSliding) props.onPlayerClick(gestureStart);
       else if (!props.isVoting && isSliding && gestureCurrent !== null) props.onNominationSlideEnd(gestureStart.toString(), gestureCurrent.toString());
@@ -168,6 +185,9 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
           onStart={(e) => { 
             e.stopPropagation(); 
             if (e.cancelable) e.preventDefault();
+            const now = Date.now();
+            if (now - lastEventTime.current < 100) return;
+            lastEventTime.current = now;
             setCenterTouchX('touches' in e ? e.touches[0].clientX : e.clientX); 
             setCenterSwiped(false); 
           }}
