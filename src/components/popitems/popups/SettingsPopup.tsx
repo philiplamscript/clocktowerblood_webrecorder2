@@ -23,13 +23,16 @@ interface SettingsPopupProps {
   saveCustomTheme: (name: string) => void;
   reorderNotepadTemplates: (fromIndex: number, toIndex: number) => void;
   reorderPropTemplates: (fromIndex: number, toIndex: number) => void;
+  defaultNotepadContent: string;
+  setDefaultNotepadContent: (content: string) => void;
 }
 
 const SettingsPopup: React.FC<SettingsPopupProps> = ({
   isOpen, onClose, fontSize, setFontSize, language, setLanguage,
   notepadTemplates, setNotepadTemplates, propTemplates, setPropTemplates,
   activeTheme, setActiveTheme, setCustomThemeColors,
-  savedCustomThemes, saveCustomTheme, reorderNotepadTemplates, reorderPropTemplates
+  savedCustomThemes, saveCustomTheme, reorderNotepadTemplates, reorderPropTemplates,
+  defaultNotepadContent, setDefaultNotepadContent
 }) => {
   const [activeSection, setActiveSection] = useState<'general' | 'theme' | 'customization'>('general');
   const [customizationSubTab, setCustomizationSubTab] = useState<'notepad' | 'props'>('notepad');
@@ -298,6 +301,19 @@ Format: {
 
                 {customizationSubTab === 'notepad' && (
                   <div className="space-y-4">
+                    <div className="space-y-3">
+                      <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <FileText size={14} /> Default Notepad Content
+                      </h3>
+                      <textarea 
+                        className="w-full bg-white border border-slate-200 rounded-lg p-3 text-[11px] focus:ring-0 h-24 resize-none font-mono"
+                        placeholder="This content will appear in all new players' notepads..."
+                        value={defaultNotepadContent}
+                        onChange={(e) => setDefaultNotepadContent(e.target.value)}
+                      />
+                      <p className="text-[9px] text-slate-500 italic">This will be used for all new players and when resetting the session.</p>
+                    </div>
+
                     <div className="flex justify-between items-center">
                       <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                         <FileText size={14} /> Notepad Templates
