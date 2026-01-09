@@ -31,6 +31,8 @@ interface VoteHistoryClockProps {
   selectedProperty?: string;
 }
 
+
+
 const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
   const [gestureStart, setGestureStart] = useState<number | null>(null);
   const [gestureCurrent, setGestureCurrent] = useState<number | null>(null);
@@ -45,6 +47,23 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
   const maxDay = useMemo(() => Math.max(...props.nominations.map(n => n.day), 1, props.currentDay), [props.nominations, props.currentDay]);
   const ringCount = Math.max(maxDay, 1);
   const ringWidth = (outerRadius - innerRadius) / ringCount;
+
+  const handleCenterStart = (e: React.MouseEvent | React.TouchEvent) => {
+  // 1. Prevent double-firing within 100ms
+  const now = Date.now();
+  if (now - lastEventTime.current < 100) return;
+  lastEventTime.current = now;
+
+  // 2. Stop the browser from sending a fake 'MouseDown' after a touch
+  if (e.cancelable) e.preventDefault(); 
+  
+  e.stopPropagation();
+
+  // 3. Set your sliding states
+  const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
+  setCenterTouchX(clientX);
+  setCenterSwiped(false);
+};
 
   const data = useMemo(() => {
     const votedAtDay: Record<string, Record<number, number>> = {}; 
@@ -163,9 +182,14 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
           currentDay={props.currentDay} mode={props.mode} ringWidth={ringWidth}
         />
         <ClockCenter 
-          isVoting={props.isVoting} pendingNom={props.pendingNom} assignmentMode={props.assignmentMode ?? null} 
-          selectedReason={props.selectedReason} playerNo={props.playerNo} currentDay={props.currentDay} mode={props.mode}
-          onStart={(e) => { e.stopPropagation(); setCenterTouchX('touches' in e ? e.touches[0].clientX : e.clientX); setCenterSwiped(false); }}
+          isVoting={props.isVoting} 
+          pendingNom={props.pendingNom} 
+          assignmentMode={props.assignmentMode ?? null} 
+          selectedReason={props.selectedReason} 
+          playerNo={props.playerNo} 
+          currentDay={props.currentDay} 
+          mode={props.mode}
+          onStart={handleCenterStart} // Use the guarded handler here
         />
       </svg>
     </div>

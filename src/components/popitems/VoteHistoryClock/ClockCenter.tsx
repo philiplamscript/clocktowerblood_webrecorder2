@@ -21,7 +21,7 @@ const ClockCenter: React.FC<ClockCenterProps> = ({
   
   return (
     <g 
-      className="pointer-events-auto cursor-pointer active:scale-95 transition-transform duration-75" 
+      className="pointer-events-auto cursor-pointer active: transition-transform duration-75" 
       onMouseDown={onStart} 
       onTouchStart={onStart}
     >
