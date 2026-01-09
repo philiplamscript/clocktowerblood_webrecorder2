@@ -17,32 +17,22 @@ interface ClockCenterProps {
 const ClockCenter: React.FC<ClockCenterProps> = ({
   isVoting, pendingNom, assignmentMode, selectedReason, playerNo, currentDay, mode, onStart
 }) => {
-  const baseColor = isVoting ? '#e11d48' : pendingNom ? '#7c3aed' : '#cdd3e2ff';
-  
   return (
     <g className="pointer-events-auto cursor-pointer" onMouseDown={onStart} onTouchStart={onStart}>
-      {/* Outer Glow Ring */}
-      <circle cx={cx} cy={cy} r="30" fill="none" stroke={baseColor} strokeWidth="1" className="opacity-10 animate-pulse" />
-      
-      {/* Main Button Body */}
-      <circle cx={cx} cy={cy} r="26" fill={baseColor} className="transition-all duration-300 shadow-xl" />
-      
-      {/* Inner Decorative Ring */}
-      <circle cx={cx} cy={cy} r="22" fill="none" stroke="white" strokeWidth="0.5" className="opacity-20" />
-
+      <circle cx={cx} cy={cy} r="25" fill={isVoting ? '#dc2626' : pendingNom ? '#a855f7' : '#eab308'} className="transition-colors shadow-lg" />
       {pendingNom ? (
-        <text x={cx} y={cy} textAnchor="middle" alignmentBaseline="middle" className="text-white text-[12px] font-black tracking-wider pointer-events-none uppercase">
-          {isVoting ? 'SAVE' : 'VOTE'}
+        <text x={cx} y={cy} textAnchor="middle" alignmentBaseline="middle" className="text-white text-[14px] font-black pointer-events-none">
+          {isVoting ? 'SAVE' : 'V'}
         </text>
       ) : assignmentMode ? (
-        <text x={cx} y={cy} textAnchor="middle" alignmentBaseline="middle" className="text-white text-[8px] font-black uppercase tracking-tighter pointer-events-none">
+        <text x={cx} y={cy} textAnchor="middle" alignmentBaseline="middle" className="text-white text-[8px] font-black uppercase pointer-events-none">
           {assignmentMode === 'death' ? selectedReason : 'PROP'}
         </text>
       ) : (
         <g className="pointer-events-none">
-          {/* <text x={cx} y={cy - 7} textAnchor="middle" className="text-white text-[11px] font-black tracking-tighter">{playerNo === -1 ? 'G' : `P${playerNo}`}</text> */}
-          <text x={cx} y={cy-7} textAnchor="middle" className="text-slate-400 text-[8px] font-bold uppercase tracking-[0.2em]">D{currentDay}</text>
-          <text x={cx} y={cy +7} textAnchor="middle" className="text-white/40 text-[8px] font-black uppercase tracking-[0.3em]">{mode === 'vote' ? 'VOTE' : mode === 'beVoted' ? 'RECV' : 'ALL'}</text>
+          <text x={cx} y={cy - 8} textAnchor="middle" className="text-white text-[10px] font-black">{playerNo === -1 ? 'G' : playerNo}</text>
+          <text x={cx} y={cy + 4} textAnchor="middle" className="text-white text-[10px] font-black">D{currentDay}</text>
+          <text x={cx} y={cy + 14} textAnchor="middle" className="text-white text-[5px] font-black uppercase">{mode === 'vote' ? 'VOTE' : mode === 'beVoted' ? 'RECV' : 'ALL'}</text>
         </g>
       )}
     </g>
