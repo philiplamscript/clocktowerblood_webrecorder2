@@ -62,7 +62,7 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
                     <text x={pos.x} y={pos.y} textAnchor="middle" alignmentBaseline="middle" className="text-[10px] grayscale opacity-60">{pd.reason}</text>
                   )}
                   {vCount !== undefined && mode === 'allReceive' && !diedNow && (
-                    <text x={pos.x} y={pos.y} textAnchor="middle" alignmentBaseline="middle" className="font-bold fill-slate-700" style={{ fontSize: `${Math.max(7, ringWidth * 0.12)}px` }}>{vCount}</text>
+                    <text x={getPosition(num, playerCount, rs + ringWidth * 0.3).x} y={getPosition(num, playerCount, rs + ringWidth * 0.3).y} textAnchor="middle" alignmentBaseline="middle" className="font-bold fill-slate-700" style={{ fontSize: `${Math.max(7, ringWidth * 0.12)}px` }}>{vCount}</text>
                   )}
                 </g>
               );
