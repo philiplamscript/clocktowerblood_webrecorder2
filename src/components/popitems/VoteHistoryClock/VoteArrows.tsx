@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { getPosition, innerRadius, cx, cy } from './utils';
+import { getPosition, innerRadius, ringWidth, cx, cy } from './utils';
 
 interface VoteArrowsProps {
   arrowData: any[];
@@ -14,11 +14,10 @@ interface VoteArrowsProps {
   pendingNom: any;
   currentDay: number;
   mode: string;
-  ringWidth: number;
 }
 
 const VoteArrows: React.FC<VoteArrowsProps> = ({
-  arrowData, playerCount, playerNo, isVoting, isSliding, gestureStart, gestureCurrent, pendingNom, currentDay, mode, ringWidth
+  arrowData, playerCount, playerNo, isVoting, isSliding, gestureStart, gestureCurrent, pendingNom, currentDay, mode
 }) => {
   const drawArrow = (from: number, to: number, day: number, type: 'to' | 'from' | 'self', width = 2) => {
     const color = type === 'to' ? '#ef4444' : type === 'from' ? '#22c55e' : '#a855f7';
