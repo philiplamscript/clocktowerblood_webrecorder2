@@ -14,10 +14,11 @@ interface VoteArrowsProps {
   pendingNom: any;
   currentDay: number;
   mode: string;
+  ringWidth: number;
 }
 
 const VoteArrows: React.FC<VoteArrowsProps> = ({
-  arrowData, playerCount, playerNo, isVoting, isSliding, gestureStart, gestureCurrent, pendingNom, currentDay, mode
+  arrowData, playerCount, playerNo, isVoting, isSliding, gestureStart, gestureCurrent, pendingNom, currentDay, mode, ringWidth
 }) => {
   const drawArrow = (from: number, to: number, day: number, type: 'to' | 'from' | 'self', width = 2) => {
     const color = type === 'to' ? '#ef4444' : type === 'from' ? '#22c55e' : '#a855f7';
