@@ -43,8 +43,8 @@ const ClockFace: React.FC<ClockFaceProps> = ({ ringCount, ringWidth, showAxis })
       {Array.from({ length: ringCount }).map((_, i) => {
         const radius = innerRadius + (i + 0.5) * ringWidth;
         return (
-          <text key={`day-label-${i}`} x={cx + 4} y={cy - radius} className="text-[5px] font-medium fill-slate-300 uppercase tracking-widest">
-            Day {i + 1}
+          <text key={`day-label-${i}`} x={cx + 4} y={cy - radius} className="text-[5px] font-black uppercase tracking-widest">
+            D{i + 1}
           </text>
         );
       })}

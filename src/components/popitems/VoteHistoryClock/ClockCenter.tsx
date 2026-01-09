@@ -17,7 +17,7 @@ interface ClockCenterProps {
 const ClockCenter: React.FC<ClockCenterProps> = ({
   isVoting, pendingNom, assignmentMode, selectedReason, playerNo, currentDay, mode, onStart
 }) => {
-  const baseColor = isVoting ? '#e11d48' : pendingNom ? '#7c3aed' : '#0f172a';
+  const baseColor = isVoting ? '#e11d48' : pendingNom ? '#7c3aed' : '#cdd3e2ff';
   
   return (
     <g className="pointer-events-auto cursor-pointer" onMouseDown={onStart} onTouchStart={onStart}>
@@ -40,9 +40,9 @@ const ClockCenter: React.FC<ClockCenterProps> = ({
         </text>
       ) : (
         <g className="pointer-events-none">
-          <text x={cx} y={cy - 7} textAnchor="middle" className="text-white text-[11px] font-black tracking-tighter">{playerNo === -1 ? 'G' : `P${playerNo}`}</text>
-          <text x={cx} y={cy + 6} textAnchor="middle" className="text-slate-400 text-[8px] font-bold uppercase tracking-[0.2em]">D{currentDay}</text>
-          <text x={cx} y={cy + 16} textAnchor="middle" className="text-white/40 text-[5px] font-black uppercase tracking-[0.3em]">{mode === 'vote' ? 'VOTE' : mode === 'beVoted' ? 'RECV' : 'ALL'}</text>
+          {/* <text x={cx} y={cy - 7} textAnchor="middle" className="text-white text-[11px] font-black tracking-tighter">{playerNo === -1 ? 'G' : `P${playerNo}`}</text> */}
+          <text x={cx} y={cy-7} textAnchor="middle" className="text-slate-400 text-[8px] font-bold uppercase tracking-[0.2em]">D{currentDay}</text>
+          <text x={cx} y={cy +7} textAnchor="middle" className="text-white/40 text-[8px] font-black uppercase tracking-[0.3em]">{mode === 'vote' ? 'VOTE' : mode === 'beVoted' ? 'RECV' : 'ALL'}</text>
         </g>
       )}
     </g>
