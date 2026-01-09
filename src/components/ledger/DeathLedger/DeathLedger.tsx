@@ -52,13 +52,13 @@ const DeathLedger = ({ deaths, setDeaths, deadPlayers, playerCount }: any) => {
                 />
               </td>
               <td className="p-0.5 border-r border-slate-100">
-                {/* <ClockPicker 
+                <ClockPicker 
                   playerCount={playerCount} 
                   label="D" 
                   value={d.playerNo} 
                   deadPlayers={deadPlayers} 
                   onChange={(val) => setDeaths(deaths.map((it: any) => it.id === d.id ? { ...it, playerNo: val } : it))} 
-                /> */}
+                />
               </td>
               <td className="p-0 border-r border-slate-100 text-center">
                 <ReasonPicker 

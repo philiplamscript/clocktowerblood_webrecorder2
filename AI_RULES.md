@@ -20,7 +20,6 @@
 - Keep components small and focused (under 100 lines where possible).
 - Store reusable UI pieces in `src/components/` and full views in `src/pages/`.
 - Every new component or hook must reside in its own file.
-- **Refactoring Guideline**: When components exceed 100 lines or become complex, refactor into smaller sub-components. Break down by logical sections (e.g., headers, controls, sections) to improve maintainability. Ensure all existing features (e.g., state, interactions, UI behaviors) are preserved during refactoring. Test thoroughly to confirm no functionality is lost.
 
 ### 3. Iconography
 - Use **Lucide React** exclusively. Do not import other icon libraries to keep the bundle size small and the design language unified.
@@ -66,19 +65,9 @@ src/
 │   │   │   ├── ResetConfirmation.tsx
 │   │   │   ├── SettingsPopup.tsx
 │   │   │   └── AboutPopup.tsx
-│   │   ├── VoteHistoryClock/
-│   │   │   ├── VoteHistoryClock.tsx
-│   │   │   ├── ClockFace.tsx
-│   │   │   ├── PlayerSlices.tsx
-│   │   │   ├── VoteArrows.tsx
-│   │   │   └── ClockCenter.tsx
+│   │   ├── VoteHistoryClock.tsx
 │   │   ├── FAB.tsx
 │   │   └── Sidebar.tsx
-│   ├── player-detail/    # Player detail view sub-components
-│   │   ├── DetailHeader.tsx
-│   │   ├── AssignmentControls.tsx
-│   │   ├── NoteSection.tsx
-│   │   └── StatusSection.tsx
 │   ├── PlayerDetailView.tsx # Main player focus view
 │   └── GlobalVotingView.tsx # Global game state view
 ├── hooks/

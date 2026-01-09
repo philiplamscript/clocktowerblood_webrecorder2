@@ -27,7 +27,7 @@ const StatusSection: React.FC<StatusSectionProps> = ({
           <button onClick={cycleDeathReason} className="flex-[2] h-full bg-white border rounded-lg text-center text-[12px] font-black hover:bg-slate-50 transition-colors">{death?.reason || '⚔️'}</button>
         </div>
       ) : (
-        <button onClick={() => togglePlayerAlive(playerNo)} className="flex-[8] h-10 rounded-lg text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 shadow-sm bg-emerald-600 text-white">EXECUTE</button>
+        <button onClick={() => togglePlayerAlive(playerNo)} className="flex-[8] h-10 rounded-lg text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 shadow-sm bg-emerald-600 text-white">ALIVE</button>
       )}
       <div className="flex-[2] flex items-center bg-white border rounded-lg px-3 h-10 shadow-sm">
         <Tag size={12} className="text-slate-400 mr-2" />
