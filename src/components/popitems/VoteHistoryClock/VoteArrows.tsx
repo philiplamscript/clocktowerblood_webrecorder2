@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { getPosition, innerRadius, cx, cy } from './utils';
+import { RefreshCw } from 'lucide-react';
 
 interface VoteArrowsProps {
   arrowData: any[];
@@ -15,31 +16,29 @@ interface VoteArrowsProps {
   currentDay: number;
   mode: string;
   ringWidth: number;
+  offset: number;
 }
 
 const VoteArrows: React.FC<VoteArrowsProps> = ({
-  arrowData, playerCount, playerNo, isVoting, isSliding, gestureStart, gestureCurrent, pendingNom, currentDay, mode, ringWidth
+  arrowData, playerCount, playerNo, isVoting, isSliding, gestureStart, gestureCurrent, pendingNom, currentDay, mode, ringWidth, offset
 }) => {
   const drawArrow = (from: number, to: number, day: number, type: 'to' | 'from' | 'self', width = 1.5) => {
     const color = type === 'to' ? '#f43f5e' : type === 'from' ? '#10b981' : '#8b5cf6';
     const radius = innerRadius + (day - 0.5) * ringWidth;
     
     if (type === 'self' || from === to) {
-      const pos = getPosition(from, playerCount, radius);
-      const rad = ((from - 1) * (360 / playerCount) - 90 + 180 / playerCount) * Math.PI / 180;
-      const ix = cx + (radius - 12) * Math.cos(rad);
-      const iy = cy + (radius - 12) * Math.sin(rad);
+      const pos = getPosition(from, playerCount, radius, offset);
       return (
-        <g key={`self-${from}-${day}`} opacity="0.5">
-          <line x1={pos.x} y1={pos.y} x2={ix} y2={iy} stroke={color} strokeWidth={width} strokeLinecap="round" />
-          <path d={`M ${pos.x + 8 * Math.cos(rad - 0.5)} ${pos.y + 8 * Math.sin(rad - 0.5)} A 8 8 0 1 1 ${pos.x + 8 * Math.cos(rad + 1.5)} ${pos.y + 8 * Math.sin(rad + 1.5)}`} fill="none" stroke={color} strokeWidth={width} />
-          <polygon points={`${ix},${iy} ${ix+2.5},${iy+2.5} ${ix-2.5},${iy+2.5}`} fill={color} transform={`rotate(${rad * 180 / Math.PI + 90}, ${ix}, ${iy})`} />
+        <g key={`self-${from}-${day}`} opacity="0.7">
+          <foreignObject x={pos.x - 8} y={pos.y - 8} width="16" height="16">
+            <RefreshCw size={16} color={color} />
+          </foreignObject>
         </g>
       );
     }
     
-    const fp = getPosition(from, playerCount, radius);
-    const tp = getPosition(to, playerCount, radius);
+    const fp = getPosition(from, playerCount, radius, offset);
+    const tp = getPosition(to, playerCount, radius, offset);
     const dx = tp.x - fp.x;
     const dy = tp.y - fp.y;
     const dist = Math.sqrt(dx * dx + dy * dy); 
