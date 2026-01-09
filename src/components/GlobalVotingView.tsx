@@ -49,7 +49,7 @@ const GlobalVotingView: React.FC<GlobalVotingViewProps> = ({
           <span className="text-white font-black text-xs uppercase tracking-wider">Global Voting & Notes</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex items-center bg-slate-800 border border-slate-700 rounded-full px-2 h-7 shadow-sm">
+          <div className="flex items-center gap-1 bg-slate-800 border border-slate-700 rounded-full px-2 h-7 shadow-sm">
             <Calendar size={12} className="text-slate-400" />
             <div className="w-10">
               <TextRotaryPicker 
@@ -83,7 +83,6 @@ const GlobalVotingView: React.FC<GlobalVotingViewProps> = ({
             currentDay={currentDay}
             setCurrentDay={setCurrentDay}
             showDeathIcons={true}
-            showAxis={false}
             assignmentMode={assignmentMode}
             selectedReason={selectedReason}
             selectedProperty={selectedProperty}
