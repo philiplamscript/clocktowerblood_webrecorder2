@@ -14,7 +14,7 @@ import {
 
 import { REASON_CYCLE, type NotepadTemplate } from '../type';
 import TextRotaryPicker from './pickers/RotaryPicker/TextRotaryPicker';
-import VoteHistoryClock from './popitems/VoteHistoryClock';
+import VoteHistoryClock from './popitems/VoteHistoryClock/VoteHistoryClock';
 
 interface PlayerDetailViewProps {
   playerNo: number;
