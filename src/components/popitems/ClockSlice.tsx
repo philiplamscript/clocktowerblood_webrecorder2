@@ -19,12 +19,13 @@ interface ClockSliceProps {
   mode: string;
   assignmentMode: string | null;
   onStart: (e: React.MouseEvent | React.TouchEvent) => void;
+  showAxis?: boolean;
 }
 
 const ClockSlice: React.FC<ClockSliceProps> = ({
   num, playerCount, isCurrent, isVoter, isDead, innerRadius, outerRadius,
   ringCount, ringWidth, votedAtDay, deathInfo, showDeathIcons, mode,
-  assignmentMode, onStart
+  assignmentMode, onStart, showAxis = true
 }) => {
   const i = num - 1;
   const fill = isVoter ? '#ef4444' : isCurrent ? 'url(#playerSpotlight)' : isDead ? '#f8fafc' : '#ffffff';
@@ -49,6 +50,24 @@ const ClockSlice: React.FC<ClockSliceProps> = ({
             {showDeathIcons && diedNow && <text x={pos.x} y={pos.y} textAnchor="middle" alignmentBaseline="middle" className="text-[12px]">{deathInfo.reason}</text>}
             {vCount !== undefined && mode === 'allReceive' && !diedNow && <text x={pos.x} y={pos.y} textAnchor="middle" alignmentBaseline="middle" className="font-black fill-white" style={{ fontSize: `${Math.max(8, ringWidth * 0.15)}px` }}>{vCount}</text>}
           </g>
+        );
+      })}
+
+      {/* Day labels on the left side of each slice for all players */}
+      {showAxis && Array.from({ length: ringCount }).map((_, rIdx) => {
+        const dayNum = rIdx + 1;
+        const rs = innerRadius + rIdx * ringWidth;
+        const re = rs + ringWidth;
+        const radius = (rs + re) / 2;
+        const angle = (i * (360 / playerCount)) - 90;
+        const leftAngle = angle - (360 / (playerCount * 2)) * 0.8; // Position towards the left of the slice
+        const lx = 144 + radius * Math.cos(leftAngle * Math.PI / 180);
+        const ly = 144 + radius * Math.sin(leftAngle * Math.PI / 180);
+
+        return (
+          <text key={`day-label-${num}-${dayNum}`} x={lx} y={ly} textAnchor="middle" alignmentBaseline="middle" className="text-[5px] font-black fill-slate-600 pointer-events-none">
+            D{dayNum}
+          </text>
         );
       })}
 
