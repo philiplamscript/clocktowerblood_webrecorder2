@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { getPosition, innerRadius, ringWidth, cx, cy } from './utils';
+import { getPosition, innerRadius, cx, cy } from './utils';
 
 interface VoteArrowsProps {
   arrowData: any[];
