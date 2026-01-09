@@ -84,8 +84,8 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
   );
 
   return (
-    <div className="h-full bg-white overflow-y-auto p-4 space-y-4">
-      <div className="bg-slate-50 rounded-lg border p-4 space-y-3 shadow-sm flex flex-col items-center">
+    <div className="h-full bg-transparent overflow-y-auto p-4 space-y-4">
+      <div className="bg-[var(--bg-color)] rounded-lg border border-[var(--border-color)] p-4 space-y-3 shadow-sm flex flex-col items-center">
         <DetailHeader 
           isVoting={isVoting} filterDay={filterDay} setFilterDay={setFilterDay}
           dayOptions={['ALL', ...Array.from({ length: props.currentDay }, (_, i) => `D${i + 1}`)]}
@@ -112,7 +112,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
         />
 
         {pendingNom && !isVoting && (
-          <div className="bg-blue-600 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase flex items-center gap-2 animate-bounce shadow-lg">
+          <div className="bg-[var(--accent-color)] text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase flex items-center gap-2 animate-bounce shadow-lg">
             Nomination: {pendingNom.f} ➔ {pendingNom.t}
             <button onClick={() => setPendingNom(null)} className="ml-2 bg-red-500 px-2 py-1 rounded text-[8px] flex items-center gap-1"><X size={10} /> CANCEL</button>
           </div>

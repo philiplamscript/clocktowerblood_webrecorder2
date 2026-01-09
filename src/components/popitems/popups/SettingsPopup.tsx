@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from 'react';
-import { X, Type, Globe, FileText, Tag, Plus, Trash2 } from 'lucide-react';
-import { type NotepadTemplate, type PropTemplate } from '../../../type';
+import { X, Type, Globe, FileText, Tag, Plus, Trash2, Palette, Sparkles, Copy, Check } from 'lucide-react';
+import { type NotepadTemplate, type PropTemplate, type ThemeType, type ThemeColors, THEMES } from '../../../type';
+import { toast } from 'react-hot-toast';
 
 interface SettingsPopupProps {
   isOpen: boolean;
@@ -15,13 +16,19 @@ interface SettingsPopupProps {
   setNotepadTemplates: (templates: NotepadTemplate[]) => void;
   propTemplates: PropTemplate[];
   setPropTemplates: (templates: PropTemplate[]) => void;
+  activeTheme: ThemeType;
+  setActiveTheme: (theme: ThemeType) => void;
+  setCustomThemeColors: (colors: ThemeColors) => void;
 }
 
 const SettingsPopup: React.FC<SettingsPopupProps> = ({
   isOpen, onClose, fontSize, setFontSize, language, setLanguage,
-  notepadTemplates, setNotepadTemplates, propTemplates, setPropTemplates
+  notepadTemplates, setNotepadTemplates, propTemplates, setPropTemplates,
+  activeTheme, setActiveTheme, setCustomThemeColors
 }) => {
-  const [activeSection, setActiveSection] = useState<'general' | 'notepad' | 'props'>('general');
+  const [activeSection, setActiveSection] = useState<'general' | 'notepad' | 'props' | 'theme'>('general');
+  const [aiThemeInput, setAiThemeInput] = useState('');
+  const [copied, setCopied] = useState(false);
 
   if (!isOpen) return null;
 
@@ -33,6 +40,44 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({
   const addPropTemplate = () => {
     const id = Math.random().toString(36).substr(2, 9);
     setPropTemplates([...propTemplates, { id, label: 'New Prop', value: '🏷️' }]);
+  };
+
+  const applyAiTheme = () => {
+    try {
+      const colors = JSON.parse(aiThemeInput);
+      const required = ['bg', 'panel', 'header', 'accent', 'text', 'border', 'muted'];
+      const missing = required.filter(k => !colors[k]);
+      
+      if (missing.length > 0) {
+        toast.error(`Invalid format. Missing: ${missing.join(', ')}`);
+        return;
+      }
+      
+      setCustomThemeColors(colors);
+      setActiveTheme('custom');
+      toast.success('AI Theme Applied!');
+    } catch (e) {
+      toast.error('Invalid JSON format.');
+    }
+  };
+
+  const aiPrompt = `Generate a JSON object for a Blood on the Clocktower app theme. 
+Style: [YOUR DESIRED STYLE HERE]. 
+Format: {
+  "bg": "hex code",
+  "panel": "hex code",
+  "header": "hex code",
+  "accent": "hex code",
+  "text": "hex code",
+  "border": "hex code",
+  "muted": "hex code"
+}`;
+
+  const copyPrompt = () => {
+    navigator.clipboard.writeText(aiPrompt);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    toast.success('Prompt copied to clipboard');
   };
 
   return (
@@ -48,13 +93,18 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({
         </header>
 
         <div className="flex-1 flex overflow-hidden">
-          {/* Sidebar Tabs */}
           <aside className="w-40 bg-slate-50 border-r border-slate-200 flex flex-col p-2 gap-1">
             <button 
               onClick={() => setActiveSection('general')}
               className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${activeSection === 'general' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-200'}`}
             >
               <Globe size={14} /> General
+            </button>
+            <button 
+              onClick={() => setActiveSection('theme')}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${activeSection === 'theme' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-200'}`}
+            >
+              <Palette size={14} /> Themes
             </button>
             <button 
               onClick={() => setActiveSection('notepad')}
@@ -70,7 +120,6 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({
             </button>
           </aside>
 
-          {/* Content Area */}
           <main className="flex-1 overflow-y-auto p-6 space-y-6">
             {activeSection === 'general' && (
               <div className="space-y-6">
@@ -110,6 +159,70 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({
               </div>
             )}
 
+            {activeSection === 'theme' && (
+              <div className="space-y-6">
+                <section className="space-y-3">
+                  <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <Palette size={14} /> Built-in Themes
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    {(Object.values(THEMES)).map((theme) => (
+                      <button 
+                        key={theme.id}
+                        onClick={() => setActiveTheme(theme.id)}
+                        className={`p-4 rounded-xl border-2 transition-all text-left flex flex-col gap-2 ${activeTheme === theme.id ? 'border-blue-600 ring-2 ring-blue-100' : 'border-slate-100 hover:border-slate-200'}`}
+                      >
+                        <span className="text-[10px] font-black uppercase">{theme.name}</span>
+                        <div className="flex gap-1">
+                          <div className="w-4 h-4 rounded-full border border-slate-200" style={{ backgroundColor: theme.colors.bg }} />
+                          <div className="w-4 h-4 rounded-full border border-slate-200" style={{ backgroundColor: theme.colors.header }} />
+                          <div className="w-4 h-4 rounded-full border border-slate-200" style={{ backgroundColor: theme.colors.accent }} />
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="space-y-3 pt-4 border-t border-slate-100">
+                  <h3 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest flex items-center gap-2">
+                    <Sparkles size={14} /> AI Custom Theme
+                  </h3>
+                  
+                  <div className="bg-slate-50 rounded-xl p-4 space-y-3">
+                    <p className="text-[10px] text-slate-500 leading-relaxed italic">
+                      Copy the prompt below and paste it into an LLM (ChatGPT, Claude, etc.) to generate a custom visual style.
+                    </p>
+                    
+                    <div className="relative">
+                      <pre className="bg-slate-900 text-slate-300 p-3 rounded-lg text-[9px] font-mono whitespace-pre-wrap">
+                        {aiPrompt}
+                      </pre>
+                      <button 
+                        onClick={copyPrompt}
+                        className="absolute top-2 right-2 p-1.5 bg-slate-800 text-white rounded hover:bg-slate-700 transition-colors"
+                      >
+                        {copied ? <Check size={12} /> : <Copy size={12} />}
+                      </button>
+                    </div>
+
+                    <textarea 
+                      className="w-full h-24 bg-white border border-slate-200 rounded-lg p-3 text-[10px] font-mono focus:ring-2 focus:ring-indigo-500/20 outline-none resize-none"
+                      placeholder='Paste JSON here... e.g. {"bg": "#000", ...}'
+                      value={aiThemeInput}
+                      onChange={(e) => setAiThemeInput(e.target.value)}
+                    />
+                    
+                    <button 
+                      onClick={applyAiTheme}
+                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-[10px] font-black uppercase transition-all shadow-md active:scale-95"
+                    >
+                      Apply Custom AI Style
+                    </button>
+                  </div>
+                </section>
+              </div>
+            )}
+
             {activeSection === 'notepad' && (
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
@@ -121,7 +234,7 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({
                   </button>
                 </div>
                 <div className="space-y-3">
-                  {notepadTemplates.map((template, idx) => (
+                  {notepadTemplates.map((template) => (
                     <div key={template.id} className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2 relative group">
                       <button 
                         onClick={() => setNotepadTemplates(notepadTemplates.filter(t => t.id !== template.id))}
@@ -143,7 +256,6 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({
                       />
                     </div>
                   ))}
-                  {notepadTemplates.length === 0 && <p className="text-center text-slate-400 text-[10px] italic py-8">No templates saved yet.</p>}
                 </div>
               </div>
             )}
@@ -186,7 +298,6 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({
                     </div>
                   ))}
                 </div>
-                {propTemplates.length === 0 && <p className="text-center text-slate-400 text-[10px] italic py-8">No property shortcuts saved yet.</p>}
               </div>
             )}
           </main>
