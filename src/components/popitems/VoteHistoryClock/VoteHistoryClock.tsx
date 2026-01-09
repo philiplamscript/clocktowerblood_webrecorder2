@@ -76,23 +76,27 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
       if (props.filterDay !== 'all' && day !== props.filterDay) return;
       const voteCount = n.voters ? n.voters.split(',').filter((v: string) => v).length : 0;
 
+      // Always collect all arrows for allReceive, but filter for vote and beVoted
+      if (n.f && n.f !== '-' && n.t && n.t !== '-') {
+        const fromNum = parseInt(n.f), toNum = parseInt(n.t);
+        if (props.mode === 'allReceive' || fromNum === props.playerNo || toNum === props.playerNo) {
+          let type: 'to' | 'from' | 'self' = fromNum === toNum ? 'self' : toNum === props.playerNo ? 'from' : fromNum === props.playerNo ? 'to' : 'to';
+          arrowData.push({ from: fromNum, to: toNum, day, type });
+        }
+      }
+
+      // Mode-specific votedAtDay for slices
       if (props.mode === 'allReceive') {
         if (n.t && n.t !== '-') {
           if (!votedAtDay[n.t]) votedAtDay[n.t] = {};
           votedAtDay[n.t][day] = voteCount;
-        }
-        if (n.f && n.f !== '-' && n.t && n.t !== '-') {
-          const fromNum = parseInt(n.f), toNum = parseInt(n.t);
-          let type: 'to' | 'from' | 'self' = fromNum === toNum ? 'self' : toNum === props.playerNo ? 'from' : fromNum === props.playerNo ? 'to' : 'to';
-          arrowData.push({ from: fromNum, to: toNum, day, type });
         }
       } else if (props.mode === 'vote') {
         if (n.voters.split(',').includes(playerStr) && n.t && n.t !== '-' && n.t !== playerStr) {
           if (!votedAtDay[n.t]) votedAtDay[n.t] = {};
           votedAtDay[n.t][day] = voteCount;
         }
-        if (n.f === playerStr) arrowData.push({ from: props.playerNo, to: parseInt(n.t), day, type: n.f === n.t ? 'self' : 'to' });
-      } else {
+      } else if (props.mode === 'beVoted') {
         if (n.t === playerStr) {
           n.voters.split(',').forEach((v: string) => {
             if (v && v !== playerStr) {
@@ -100,7 +104,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
               votedAtDay[v][day] = voteCount;
             }
           });
-          if (n.f && n.f !== '-') arrowData.push({ from: parseInt(n.f), to: props.playerNo, day, type: n.f === n.t ? 'self' : 'from' });
         }
       }
     });

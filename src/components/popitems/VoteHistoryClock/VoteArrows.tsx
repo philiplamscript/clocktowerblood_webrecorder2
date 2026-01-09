@@ -57,7 +57,7 @@ const VoteArrows: React.FC<VoteArrowsProps> = ({
     return (
       <g key={`${from}-${to}-${day}-${type}`} opacity="0.5" className="transition-opacity duration-300 hover:opacity-100">
         <line x1={fp.x} y1={fp.y} x2={hx} y2={hy} stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
-        <polygon points={`${hx},${hy} ${hx - 6 * Math.cos(angle - Math.PI / 8)},${hy - 6 * Math.sin(angle - Math.PI / 8)} ${hx - 6 * Math.cos(angle + Math.PI / 8)},${hy - 6 * Math.sin(angle + Math.PI / 8)}`} fill={color} />
+        <polygon points={`${hx},${hy} ${hx - 8 * Math.cos(angle - Math.PI / 8)},${hy - 8 * Math.sin(angle - Math.PI / 8)} ${hx - 8 * Math.cos(angle + Math.PI / 8)},${hy - 8 * Math.sin(angle + Math.PI / 8)}`} fill={color} />
       </g>
     );
   };
@@ -66,9 +66,9 @@ const VoteArrows: React.FC<VoteArrowsProps> = ({
 
   return (
     <>
-      {!isVoting && arrowData.map(a => drawArrow(a.from, a.to, a.day, a.type, mode === 'allReceive' ? 1.2 : 1.8))}
-      {isSliding && gestureStart && gestureCurrent && drawArrow(gestureStart, gestureCurrent, maxDay, gestureStart === gestureCurrent ? 'self' : 'to', 2.5)}
-      {pendingNom && !isSliding && drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), currentDay, pendingNom.f === pendingNom.t ? 'self' : 'to', 3)}
+      {!isVoting && arrowData.map(a => drawArrow(a.from, a.to, a.day, a.type, mode === 'allReceive' ? 1.2 : 1.2))}
+      {isSliding && gestureStart && gestureCurrent && drawArrow(gestureStart, gestureCurrent, maxDay, gestureStart === gestureCurrent ? 'self' : 'to', 1.8)}
+      {pendingNom && !isSliding && drawArrow(parseInt(pendingNom.f), parseInt(pendingNom.t), currentDay, pendingNom.f === pendingNom.t ? 'self' : 'to', 1.8)}
     </>
   );
 };
