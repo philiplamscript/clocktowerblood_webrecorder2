@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { X, Type, Globe, FileText, Tag, Plus, Trash2 } from 'lucide-react';
-import { NotepadTemplate, PropTemplate } from '../../../type';
+import { type NotepadTemplate, type PropTemplate } from '../../../type';
 
 interface SettingsPopupProps {
   isOpen: boolean;

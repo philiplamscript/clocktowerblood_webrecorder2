@@ -35,6 +35,7 @@ import RoleUpdatePopup from './components/popitems/popups/RoleUpdatePopup';
 import ResetConfirmation from './components/popitems/popups/ResetConfirmation';
 import GreetingPopup from './components/popitems/popups/GreetingPopup';
 import SettingsPopup from './components/popitems/popups/SettingsPopup';
+import AboutPopup from './components/popitems/popups/AboutPopup';
 import FAB from './components/popitems/FAB';
 import Sidebar from './components/Sidebar';
 
@@ -65,12 +66,14 @@ export default function App() {
   const [showGreeting, setShowGreeting] = useState(() => !localStorage.getItem('clocktower_greeted'));
   const [showReset, setShowReset] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
   const [fabOpen, setFabOpen] = useState(false);
   const [focusPlayerNo, setFocusPlayerNo] = useState<number>(1);
   const [showRoleSelector, setShowRoleSelector] = useState<{ playerNo: number; roles: { role: string; category: string }[] } | null>(null);
   const [showRoleUpdate, setShowRoleUpdate] = useState(false);
   const [showLedger, setShowLedger] = useState(false);
   const [roleUpdateText, setRoleUpdateText] = useState('');
+   const [voteHistoryMode, setVoteHistoryMode] = useState<'vote' | 'beVoted' | 'allReceive'>('allReceive');
   
   const [notepadTemplates, setNotepadTemplates] = useState<NotepadTemplate[]>(() => getStorage('notepad_templates', [
     { id: 't1', label: 'SOCIAL READ', content: 'Reads: \nTrust: \nSuspicion: ' },
@@ -277,9 +280,9 @@ export default function App() {
         onFocusPlayerDetail={() => { setSidebarOpen(false); }}
         onOpenSettings={() => { setShowSettings(true); setSidebarOpen(false); }}
         onShowHowToUse={() => { toast('Tip: Use prop templates for quick notes!', { icon: '💡' }); setSidebarOpen(false); }}
-        onShowAbout={() => { toast('Ledger Pro v3.9 - Clocktower Companion', { icon: '🎭' }); setSidebarOpen(false); }}
+        onShowAbout={() => { setShowAbout(true); setSidebarOpen(false); }}
         onShowFAQ={() => { toast('Check Settings for templates', { icon: '❓' }); setSidebarOpen(false); }}
-        onShowDonation={() => { toast('Support development with coffee!', { icon: '☕' }); setSidebarOpen(false); }}
+        onShowDonation={() => { setShowAbout(true); setSidebarOpen(false); }}
       />
 
       <header className="flex-none bg-slate-900 text-white px-3 py-2 flex justify-between items-center shadow-md z-50">
@@ -519,6 +522,11 @@ export default function App() {
         setNotepadTemplates={setNotepadTemplates}
         propTemplates={propTemplates}
         setPropTemplates={setPropTemplates}
+      />
+
+      <AboutPopup 
+        isOpen={showAbout}
+        onClose={() => setShowAbout(false)}
       />
 
       <FAB

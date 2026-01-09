@@ -12,7 +12,7 @@ import {
   FilePlus2
 } from 'lucide-react';
 
-import { REASON_CYCLE, NotepadTemplate } from '../type';
+import { REASON_CYCLE, type NotepadTemplate } from '../type';
 import TextRotaryPicker from './pickers/RotaryPicker/TextRotaryPicker';
 import VoteHistoryClock from './popitems/VoteHistoryClock';
 
