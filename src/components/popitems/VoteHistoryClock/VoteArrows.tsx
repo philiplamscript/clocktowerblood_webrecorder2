@@ -17,13 +17,19 @@ interface VoteArrowsProps {
   mode: string;
   ringWidth: number;
   offset: number;
+  showArrows?: boolean;
 }
 
 const VoteArrows: React.FC<VoteArrowsProps> = ({
-  arrowData, playerCount, playerNo, isVoting, isSliding, gestureStart, gestureCurrent, pendingNom, currentDay, mode, ringWidth, offset
+  arrowData, playerCount, playerNo, isVoting, isSliding, gestureStart, gestureCurrent, pendingNom, currentDay, mode, ringWidth, offset, showArrows = true
 }) => {
+  if (!showArrows) return null;
+
   const drawArrow = (from: number, to: number, day: number, type: 'to' | 'from' | 'self', width = 1.5) => {
-    const color = type === 'to' ? '#f43f5e' : type === 'from' ? '#10b981' : '#8b5cf6';
+    const isSelected = from === playerNo || to === playerNo;
+    const baseColor = type === 'to' ? '#f43f5e' : type === 'from' ? '#10b981' : '#8b5cf6';
+    const color = isSelected ? (type === 'to' ? '#dc2626' : type === 'from' ? '#059669' : '#7c3aed') : baseColor;
+    const strokeWidth = isSelected ? width * 2 : width;
     const radius = innerRadius + (day - 0.5) * ringWidth;
     
     if (type === 'self' || from === to) {
@@ -50,7 +56,7 @@ const VoteArrows: React.FC<VoteArrowsProps> = ({
     
     return (
       <g key={`${from}-${to}-${day}-${type}`} opacity="0.5" className="transition-opacity duration-300 hover:opacity-100">
-        <line x1={fp.x} y1={fp.y} x2={hx} y2={hy} stroke={color} strokeWidth={width} strokeLinecap="round" />
+        <line x1={fp.x} y1={fp.y} x2={hx} y2={hy} stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
         <polygon points={`${hx},${hy} ${hx - 6 * Math.cos(angle - Math.PI / 8)},${hy - 6 * Math.sin(angle - Math.PI / 8)} ${hx - 6 * Math.cos(angle + Math.PI / 8)},${hy - 6 * Math.sin(angle + Math.PI / 8)}`} fill={color} />
       </g>
     );

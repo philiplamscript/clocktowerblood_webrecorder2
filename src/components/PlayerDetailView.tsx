@@ -47,6 +47,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
   const [showTemplates, setShowTemplates] = useState(false);
   const [showDeathIcons, setShowDeathIcons] = useState(true);
   const [showAxis, setShowAxis] = useState(true);
+  const [showArrows, setShowArrows] = useState(true);
 
   const handleToggleVotingPhase = () => {
     if (!pendingNom) return;
@@ -93,6 +94,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
           showDeathIcons={showDeathIcons} setShowDeathIcons={setShowDeathIcons}
           showAxis={showAxis} setShowAxis={setShowAxis}
           voteHistoryMode={props.voteHistoryMode} setVoteHistoryMode={props.setVoteHistoryMode}
+          showArrows={showArrows} setShowArrows={setShowArrows}
         />
 
         <AssignmentControls 
@@ -109,6 +111,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
           onVoterToggle={handleVoterToggle} onToggleVotingPhase={handleToggleVotingPhase}
           currentDay={props.currentDay} setCurrentDay={props.setCurrentDay} showDeathIcons={showDeathIcons} showAxis={showAxis}
           assignmentMode={props.assignmentMode} selectedReason={props.selectedReason} selectedProperty={props.selectedProperty}
+          showArrows={showArrows}
         />
 
         {pendingNom && !isVoting && (

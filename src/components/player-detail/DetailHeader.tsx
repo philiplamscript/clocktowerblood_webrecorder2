@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Vote, Calendar, Skull, Grid3X3 } from 'lucide-react';
+import { Vote, Calendar, Skull, Grid3X3, ArrowRight } from 'lucide-react';
 import TextRotaryPicker from '../pickers/RotaryPicker/TextRotaryPicker';
 
 interface DetailHeaderProps {
@@ -16,12 +16,14 @@ interface DetailHeaderProps {
   setShowAxis: (show: boolean) => void;
   voteHistoryMode: 'vote' | 'beVoted' | 'allReceive';
   setVoteHistoryMode: (mode: 'vote' | 'beVoted' | 'allReceive') => void;
+  showArrows: boolean;
+  setShowArrows: (show: boolean) => void;
 }
 
 const DetailHeader: React.FC<DetailHeaderProps> = ({
   isVoting, filterDay, dayOptions, currentFilterText, setFilterDay,
   showDeathIcons, setShowDeathIcons, showAxis, setShowAxis,
-  voteHistoryMode, setVoteHistoryMode
+  voteHistoryMode, setVoteHistoryMode, showArrows, setShowArrows
 }) => {
   const modeLabels = { vote: 'Votes', beVoted: 'Received', allReceive: 'All Global' };
 
@@ -61,6 +63,12 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
             className={`p-1 rounded-full transition-colors ${showAxis ? 'bg-[var(--accent-color)]/10 text-[var(--accent-color)]' : 'text-[var(--muted-color)] hover:bg-slate-500/10'}`}
           >
             <Grid3X3 size={12} />
+          </button>
+          <button 
+            onClick={() => setShowArrows(!showArrows)}
+            className={`p-1 rounded-full transition-colors ${showArrows ? 'bg-blue-500/10 text-blue-500' : 'text-[var(--muted-color)] hover:bg-slate-500/10'}`}
+          >
+            <ArrowRight size={12} />
           </button>
         </div>
         

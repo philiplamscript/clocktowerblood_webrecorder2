@@ -29,6 +29,7 @@ interface VoteHistoryClockProps {
   assignmentMode?: 'death' | 'property' | null;
   selectedReason?: string;
   selectedProperty?: string;
+  showArrows?: boolean;
 }
 
 
@@ -118,7 +119,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
   const handleStart = (num: number, e: React.MouseEvent | React.TouchEvent) => {
     const now = Date.now();
     if (now - lastEventTime.current < 100) return;
-    lastEventTime.current = now;
     if (e.cancelable) e.preventDefault();
 
     if (props.isVoting) {
@@ -180,6 +180,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
           arrowData={data.arrowData} playerCount={props.playerCount} playerNo={props.playerNo} isVoting={props.isVoting} 
           isSliding={isSliding} gestureStart={gestureStart} gestureCurrent={gestureCurrent} pendingNom={props.pendingNom} 
           currentDay={props.currentDay} mode={props.mode} ringWidth={ringWidth}
+          showArrows={props.showArrows ?? true}
         />
         <ClockCenter 
           isVoting={props.isVoting} 
