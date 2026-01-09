@@ -84,8 +84,11 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
   );
 
   return (
-    <div className="h-full bg-white overflow-y-auto p-4 space-y-4">
-      <div className="bg-slate-50 rounded-lg border p-4 space-y-3 shadow-sm flex flex-col items-center">
+    <div className="h-full bg-[#2d1e16] overflow-y-auto p-4 space-y-5 selection:bg-amber-200/30">
+      {/* Decorative Wood Texture Overlay could be added in CSS, here we use colors */}
+      <div className="bg-[#3e2b20] rounded-xl border border-[#4d3a2b] p-5 space-y-4 shadow-[0_10px_30px_rgba(0,0,0,0.5)] flex flex-col items-center relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-700/0 via-amber-500/20 to-amber-700/0" />
+        
         <DetailHeader 
           isVoting={isVoting} filterDay={filterDay} setFilterDay={setFilterDay}
           dayOptions={['ALL', ...Array.from({ length: props.currentDay }, (_, i) => `D${i + 1}`)]}
@@ -101,20 +104,22 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
           selectedProperty={props.selectedProperty ?? ''} setSelectedProperty={props.setSelectedProperty ?? (() => {})}
         />
         
-        <VoteHistoryClock 
-          playerNo={props.playerNo} nominations={props.nominations} playerCount={props.playerCount} deadPlayers={props.deadPlayers} 
-          mode={props.voteHistoryMode} players={props.players} deaths={props.deaths} filterDay={filterDay}
-          onPlayerClick={props.onPlayerClick ?? (() => {})} pendingNom={pendingNom} isVoting={isVoting}
-          onNominationSlideEnd={(f, t) => setPendingNom({ f, t, voters: [] })}
-          onVoterToggle={handleVoterToggle} onToggleVotingPhase={handleToggleVotingPhase}
-          currentDay={props.currentDay} setCurrentDay={props.setCurrentDay} showDeathIcons={showDeathIcons} showAxis={showAxis}
-          assignmentMode={props.assignmentMode} selectedReason={props.selectedReason} selectedProperty={props.selectedProperty}
-        />
+        <div className="relative w-full aspect-square max-w-[320px] bg-[#1a110b] rounded-full p-4 shadow-inner border border-[#3d2b1f]">
+          <VoteHistoryClock 
+            playerNo={props.playerNo} nominations={props.nominations} playerCount={props.playerCount} deadPlayers={props.deadPlayers} 
+            mode={props.voteHistoryMode} players={props.players} deaths={props.deaths} filterDay={filterDay}
+            onPlayerClick={props.onPlayerClick ?? (() => {})} pendingNom={pendingNom} isVoting={isVoting}
+            onNominationSlideEnd={(f, t) => setPendingNom({ f, t, voters: [] })}
+            onVoterToggle={handleVoterToggle} onToggleVotingPhase={handleToggleVotingPhase}
+            currentDay={props.currentDay} setCurrentDay={props.setCurrentDay} showDeathIcons={showDeathIcons} showAxis={showAxis}
+            assignmentMode={props.assignmentMode} selectedReason={props.selectedReason} selectedProperty={props.selectedProperty}
+          />
+        </div>
 
         {pendingNom && !isVoting && (
-          <div className="bg-blue-600 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase flex items-center gap-2 animate-bounce shadow-lg">
+          <div className="bg-amber-600 text-white px-5 py-2.5 rounded-full text-[10px] font-black uppercase flex items-center gap-3 animate-pulse shadow-[0_0_20px_rgba(217,119,6,0.4)] border border-amber-400/30">
             Nomination: {pendingNom.f} ➔ {pendingNom.t}
-            <button onClick={() => setPendingNom(null)} className="ml-2 bg-red-500 px-2 py-1 rounded text-[8px] flex items-center gap-1"><X size={10} /> CANCEL</button>
+            <button onClick={() => setPendingNom(null)} className="ml-1 bg-red-900/50 hover:bg-red-900/80 px-2 py-1 rounded-full text-[8px] flex items-center gap-1 transition-colors"><X size={10} /> CANCEL</button>
           </div>
         )}
       </div>
