@@ -39,9 +39,6 @@
 ```
 src/
 ├── components/
-│   ├── layout/           # Layout components
-│   │   ├── Header.tsx
-│   │   └── PlayerHub.tsx
 │   ├── ledger/           # Main ledger components
 │   │   ├── PlayerGrid.tsx
 │   │   ├── VoteLedger.tsx
@@ -62,16 +59,11 @@ src/
 │   │   │   ├── LedgerTabsPopup.tsx
 │   │   │   ├── RoleSelectorPopup.tsx
 │   │   │   ├── RoleUpdatePopup.tsx
-│   │   │   ├── ResetConfirmation.tsx
-│   │   │   ├── SettingsPopup.tsx
-│   │   │   └── AboutPopup.tsx
+│   │   │   └── ResetConfirmation.tsx
 │   │   ├── VoteHistoryClock.tsx
-│   │   ├── FAB.tsx
-│   │   └── Sidebar.tsx
+│   │   └── FAB.tsx
 │   ├── PlayerDetailView.tsx # Main player focus view
 │   └── GlobalVotingView.tsx # Global game state view
-├── hooks/
-│   └── useGameState.ts    # Custom hook for game state management
 ├── type.tsx              # TypeScript type definitions
 ├── App.tsx               # Main application component
 ├── main.tsx              # Application entry point
