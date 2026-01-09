@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 
 import TextRotaryPicker from './pickers/RotaryPicker/TextRotaryPicker';
-import VoteHistoryClock from './popitems/VoteHistoryClock';
+import VoteHistoryClock from './popitems/VoteHistoryClock/VoteHistoryClock';
 
 interface GlobalVotingViewProps {
   nominations: any[];
