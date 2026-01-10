@@ -58,7 +58,7 @@ const AboutPopup: React.FC<AboutPopupProps> = ({ isOpen, onClose }) => {
           </section>
 
           {/* Platforms */}
-          <section className="space-y-3">
+          {/* <section className="space-y-3">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Get the Mobile App</h3>
             <div className="grid grid-cols-2 gap-3">
               <button className="flex items-center justify-center gap-2 bg-slate-900 text-white py-3 rounded-xl hover:bg-slate-800 transition-all active:scale-90 shadow-md">
@@ -76,7 +76,7 @@ const AboutPopup: React.FC<AboutPopupProps> = ({ isOpen, onClose }) => {
                 </div>
               </button>
             </div>
-          </section>
+          </section> */}
 
           {/* Support */}
           <section className="pt-4 border-t border-slate-100 flex items-center justify-between">

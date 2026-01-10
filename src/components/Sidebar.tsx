@@ -70,17 +70,17 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className="mb-2 px-3 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Management</div>
           <NavItem icon={Edit} label="Load Role" onClick={onLoadRole} color="text-blue-400" />
           <NavItem icon={RotateCcw} label="Reset session" onClick={onReset} color="text-red-500" />
-          <NavItem icon={History} label="Update Log" onClick={onShowUpdateLog} color="text-yellow-500" />
-          <NavItem icon={UserCircle} label="Player Detail" onClick={onFocusPlayerDetail} color="text-emerald-500" />
+          {/* <NavItem icon={History} label="Update Log" onClick={onShowUpdateLog} color="text-yellow-500" /> */}
+          {/* <NavItem icon={UserCircle} label="Player Detail" onClick={onFocusPlayerDetail} color="text-emerald-500" /> */}
           <NavItem icon={Settings} label="Settings" onClick={onOpenSettings} color="text-slate-400" />
         </div>
 
         {/* Lower Section */}
         <div className="p-3 border-t border-slate-800 space-y-1">
           <div className="mb-2 px-3 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Information</div>
-          <NavItem icon={HelpCircle} label="How to use?" onClick={onShowHowToUse} color="text-indigo-400" />
+          {/* <NavItem icon={HelpCircle} label="How to use?" onClick={onShowHowToUse} color="text-indigo-400" /> */}
           <NavItem icon={Info} label="About" onClick={onShowAbout} color="text-slate-400" />
-          <NavItem icon={MessageSquare} label="FAQ" onClick={onShowFAQ} color="text-slate-400" />
+          {/* <NavItem icon={MessageSquare} label="FAQ" onClick={onShowFAQ} color="text-slate-400" /> */}
           <NavItem icon={Heart} label="Donation" onClick={onShowDonation} color="text-pink-500" />
         </div>
       </aside>
