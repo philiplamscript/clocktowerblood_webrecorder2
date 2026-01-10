@@ -14,7 +14,7 @@ import RoleUpdatePopup from './components/popitems/popups/RoleUpdatePopup';
 import ResetConfirmation from './components/popitems/popups/ResetConfirmation';
 import GreetingPopup from './components/popitems/popups/GreetingPopup';
 import SettingsPopup from './components/popitems/popups/SettingsPopup';
-import AboutPopup from './components/popitems/popups/AboutPopup';
+import AboutPopup from './components/popitems/AboutPopup';
 import FAB from './components/popitems/FAB';
 import Sidebar from './components/Sidebar';
 
@@ -102,7 +102,16 @@ export default function App() {
       <main className="flex-1 relative">
         <div className={`h-full ${state.splitView ? 'grid grid-cols-2 divide-x border-[var(--border-color)]' : ''}`}>
           <div className="bg-[var(--panel-color)] transition-colors duration-500">
-            <PlayerDetailView playerNo={focusPlayerNo} setPlayerNo={setFocusPlayerNo} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} updatePlayerInfo={state.updatePlayerInfo} updatePlayerProperty={state.updatePlayerProperty} togglePlayerAlive={state.togglePlayerAlive} chars={state.chars} nominations={state.nominations} setNominations={state.setNominations} voteHistoryMode={voteHistoryMode} setVoteHistoryMode={setVoteHistoryMode} setShowRoleSelector={setShowRoleSelector} deaths={state.deaths} setDeaths={state.setDeaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} onPlayerClick={handlePlayerClick} setAssignmentMode={setAssignmentMode} setSelectedReason={setSelectedReason} setSelectedProperty={setSelectedProperty} notepadTemplates={state.notepadTemplates} />
+            <PlayerDetailView 
+              playerNo={focusPlayerNo} setPlayerNo={setFocusPlayerNo} playerCount={state.playerCount} players={state.players} 
+              deadPlayers={state.deadPlayers} updatePlayerInfo={state.updatePlayerInfo} updatePlayerProperty={state.updatePlayerProperty} 
+              togglePlayerAlive={state.togglePlayerAlive} chars={state.chars} nominations={state.nominations} setNominations={state.setNominations} 
+              voteHistoryMode={voteHistoryMode} setVoteHistoryMode={setVoteHistoryMode} setShowRoleSelector={setShowRoleSelector} deaths={state.deaths} 
+              setDeaths={state.setDeaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} assignmentMode={assignmentMode} 
+              selectedReason={selectedReason} selectedProperty={selectedProperty} onPlayerClick={handlePlayerClick} setAssignmentMode={setAssignmentMode} 
+              setSelectedReason={setSelectedReason} setSelectedProperty={setSelectedProperty} notepadTemplates={state.notepadTemplates} 
+              propTemplates={state.propTemplates}
+            />
           </div>
           {state.splitView && (
             <div className="bg-[var(--panel-color)] transition-colors duration-500">
