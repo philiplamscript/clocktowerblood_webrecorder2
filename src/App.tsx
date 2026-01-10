@@ -26,7 +26,6 @@ export default function App() {
   const [showReset, setShowReset] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
-  const [fabOpen, setFabOpen] = useState(false);
   const [focusPlayerNo, setFocusPlayerNo] = useState<number>(1);
   const [showRoleSelector, setShowRoleSelector] = useState<{ playerNo: number; roles: { role: string; category: string }[] } | null>(null);
   const [showRoleUpdate, setShowRoleUpdate] = useState(false);
@@ -138,17 +137,7 @@ export default function App() {
         setDefaultNotepad={state.setDefaultNotepad}
       />
       <AboutPopup isOpen={showAbout} onClose={() => setShowAbout(false)} />
-      <FAB 
-        fabOpen={fabOpen} 
-        setFabOpen={setFabOpen} 
-        setShowReset={setShowReset} 
-        setShowRoleUpdate={setShowRoleUpdate} 
-        setShowLedger={setShowLedger}
-        addNomination={() => state.setNominations([...state.nominations, { id: Math.random().toString(), day: state.currentDay, f: '-', t: '-', voters: '', note: '' }])} 
-        addDeath={() => state.setDeaths([...state.deaths, { id: Math.random().toString(), day: state.currentDay, playerNo: '', reason: '🌑', note: '', isConfirmed: true }])} 
-        fontSize={state.fontSize} 
-        setFontSize={state.setFontSize} 
-      />
+      <FAB setShowLedger={setShowLedger} />
       <div className="bg-[var(--panel-color)] border-t border-[var(--border-color)] px-3 py-1 text-[9px] font-bold text-[var(--muted-color)] flex justify-between items-center z-50">
         <span>PLAYERS REGISTERED: {state.players.filter(p => p.inf).length} / {state.playerCount}</span>
         <div className="w-32 h-1 bg-[var(--bg-color)] rounded-full overflow-hidden">
