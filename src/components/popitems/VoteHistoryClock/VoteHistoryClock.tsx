@@ -32,8 +32,6 @@ interface VoteHistoryClockProps {
   showArrows?: boolean;
 }
 
-
-
 const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
   const [gestureStart, setGestureStart] = useState<number | null>(null);
   const [gestureCurrent, setGestureCurrent] = useState<number | null>(null);
@@ -50,21 +48,17 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
   const ringWidth = (outerRadius - innerRadius) / ringCount;
 
   const handleCenterStart = (e: React.MouseEvent | React.TouchEvent) => {
-  // 1. Prevent double-firing within 100ms
-  const now = Date.now();
-  if (now - lastEventTime.current < 100) return;
-  lastEventTime.current = now;
+    const now = Date.now();
+    if (now - lastEventTime.current < 100) return;
+    lastEventTime.current = now;
 
-  // 2. Stop the browser from sending a fake 'MouseDown' after a touch
-  if (e.cancelable) e.preventDefault(); 
-  
-  e.stopPropagation();
+    if (e.cancelable) e.preventDefault(); 
+    e.stopPropagation();
 
-  // 3. Set your sliding states
-  const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
-  setCenterTouchX(clientX);
-  setCenterSwiped(false);
-};
+    const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
+    setCenterTouchX(clientX);
+    setCenterSwiped(false);
+  };
 
   const data = useMemo(() => {
     const votedAtDay: Record<string, Record<number, number>> = {}; 
@@ -76,7 +70,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
       if (props.filterDay !== 'all' && day !== props.filterDay) return;
       const voteCount = n.voters ? n.voters.split(',').filter((v: string) => v).length : 0;
 
-      // Always collect all arrows for allReceive, but filter for vote and beVoted
       if (n.f && n.f !== '-' && n.t && n.t !== '-') {
         const fromNum = parseInt(n.f), toNum = parseInt(n.t);
         if (props.mode === 'allReceive' || fromNum === props.playerNo || toNum === props.playerNo) {
@@ -85,7 +78,6 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
         }
       }
 
-      // Mode-specific votedAtDay for slices
       if (props.mode === 'allReceive') {
         if (n.t && n.t !== '-') {
           if (!votedAtDay[n.t]) votedAtDay[n.t] = {};
@@ -122,6 +114,8 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
   const handleStart = (num: number, e: React.MouseEvent | React.TouchEvent) => {
     const now = Date.now();
     if (now - lastEventTime.current < 100) return;
+    lastEventTime.current = now; // Update timestamp to prevent synthetic double-clicks on mobile
+
     if (e.cancelable) e.preventDefault();
 
     if (props.isVoting) {
@@ -182,7 +176,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
         <VoteArrows 
           arrowData={data.arrowData} playerCount={props.playerCount} playerNo={props.playerNo} isVoting={props.isVoting} 
           isSliding={isSliding} gestureStart={gestureStart} gestureCurrent={gestureCurrent} pendingNom={props.pendingNom} 
-          currentDay={props.currentDay} mode={props.mode} ringWidth={ringWidth}
+          currentDay={props.currentDay} mode={props.mode} ringWidth={ringWidth} offset={0}
           showArrows={props.showArrows ?? true}
         />
         <ClockCenter 
@@ -193,7 +187,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
           playerNo={props.playerNo} 
           currentDay={props.currentDay} 
           mode={props.mode}
-          onStart={handleCenterStart} // Use the guarded handler here
+          onStart={handleCenterStart}
         />
       </svg>
     </div>

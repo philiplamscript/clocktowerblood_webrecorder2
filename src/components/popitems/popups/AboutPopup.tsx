@@ -33,11 +33,16 @@ const AboutPopup: React.FC<AboutPopupProps> = ({ isOpen, onClose }) => {
               </p>
             
             <p className="text-[11px] text-slate-600 leading-relaxed">
-              As Aurthor lazy on game remind the whole game, so that trying to make note as most of you did, then gradual to create a companion app to make it easier to keep track of the game.
+              As I lazy on game memorizing, I was trying to make note as most of you did. 
             </p>
-
             <p className="text-[11px] text-slate-600 leading-relaxed">
-              This is a non-official companion app built by fan (me), for fans (with me as well).
+              Orginally all did in Tables in note app, then python steamlit (but fail). Webpage is an accident as I put my code into AI to see the protial webpage.
+            </p>
+            <p className="text-[11px] text-slate-600 leading-relaxed">
+              Result on the webpage is gradual to create a clock like app to make it easier to keep track of the game.
+            </p>
+            <p className="text-[11px] text-slate-600 leading-relaxed">
+              This is a non-official Pure Frontend app built by fan (me), for fans (with me as well).
             </p>
             
           </section>
