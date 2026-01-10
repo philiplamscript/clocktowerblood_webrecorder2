@@ -11,23 +11,14 @@ interface ClockFaceProps {
   showAxis: boolean;
 }
 
-const ClockFace: React.FC<ClockFaceProps> = ({playerCount,playerNo, ringCount, ringWidth, showAxis}) => {
+const ClockFace: React.FC<ClockFaceProps> = ({playerCount, playerNo, ringCount, ringWidth, showAxis}) => {
   if (!showAxis) return null;
-  const rotationAngle = playerNo !== 0 ? ((playerNo -1) / playerCount) * 360 +2: 0;
-  // Helper to apply counter-rotation to text
-  const renderUprightText = (x: number, y: number, label: string, className = "") => (
-    <text 
-      x={x} y={y} 
-      textAnchor="middle" 
-      className={className}
-      // Rotate backwards around its own (x, y) coordinates
-      transform={`rotate(${-rotationAngle}, ${x}, ${y})`}
-    >
-      {label}
-    </text>
-  );
+  
+  // The clock rotates so the selected player is at the top. 
+  // We need to counter-rotate text so it stays upright.
+  const rotationAngle = playerNo !== 0 ? ((playerNo - 1) / playerCount) * 360 : 0;
+
   return (
-    
     <g 
       className="pointer-events-none" 
       transform={`rotate(${rotationAngle}, ${cx}, ${cy})`}
@@ -41,30 +32,50 @@ const ClockFace: React.FC<ClockFaceProps> = ({playerCount,playerNo, ringCount, r
           fill="none" 
           stroke="currentColor" 
           strokeWidth="0.5" 
-          className="text-slate-200/50"
+          className="text-slate-200/40"
         />
       ))}
       
-      {/* Compass Axis */}
-      <line x1={cx} y1={cy - outerRadius - 5} x2={cx} y2={cy + outerRadius + 5} stroke="currentColor" strokeWidth="0.5" className="text-slate-300/40" />
-      {/* <line x1={cx - outerRadius - 5} y1={cy} x2={cx + outerRadius + 5} y2={cy} stroke="currentColor" strokeWidth="0.5" className="text-slate-300/40" /> */}
+      {/* Vertical Axis line */}
+      <line 
+        x1={cx} y1={cy - outerRadius - 10} 
+        x2={cx} y2={cy + outerRadius + 10} 
+        stroke="currentColor" 
+        strokeWidth="0.5" 
+        className="text-slate-300/30" 
+      />
       
-      {/* Elegant Compass Points */}
-      {/* <g className="text-[7px] font-bold fill-slate-400 uppercase tracking-[0.2em]">
-        <text x={cx} y={cy - outerRadius - 12} textAnchor="middle">North</text>
-        <text x={cx} y={cy + outerRadius + 18} textAnchor="middle">South</text>
-        <text x={cx + outerRadius + 22} y={cy + 3} textAnchor="middle">East</text>
-        <text x={cx - outerRadius - 22} y={cy + 3} textAnchor="middle">West</text>
-      </g> */}
-      
-      {/* Day Indicators */}
+      {/* Day Indicators along the vertical axis */}
       {Array.from({ length: ringCount }).map((_, i) => {
         const radius = innerRadius + (i + 0.5) * ringWidth;
-        const x = cx + 4;
+        const x = cx;
         const y = cy - radius;
+        const dayLabel = `D${i + 1}`;
+        
         return (
-          <g key={`day-label-${i}`}>
-            {renderUprightText(x, y, `D${i + 1}`, "text-[5px] font-black uppercase tracking-widest")}
+          <g 
+            key={`day-label-${i}`}
+            transform={`rotate(${-rotationAngle}, ${x}, ${y})`}
+          >
+            {/* Background Badge for the Day label */}
+            <rect 
+              x={x - 8} 
+              y={y - 5} 
+              width="16" 
+              height="10" 
+              rx="4" 
+              className="fill-slate-100/80 stroke-slate-200/50"
+              strokeWidth="0.5"
+            />
+            <text 
+              x={x} 
+              y={y + 0.5} 
+              textAnchor="middle" 
+              alignmentBaseline="middle"
+              className="text-[6px] font-black fill-slate-500 uppercase tracking-tighter"
+            >
+              {dayLabel}
+            </text>
           </g>
         );
       })}
