@@ -10,20 +10,19 @@ interface AboutPopupProps {
 
 const AboutPopup: React.FC<AboutPopupProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
-
   const emailSubject = encodeURIComponent("[BOTCT-ClockTracker] Feedback / Bug Report");
   const emailBody = encodeURIComponent(`Type: [Feedback / Bug Report]
-Version: v0.3
----
-Description of the issue or feedback:
+  Version: v0.3
+  ---
+  Description of the issue or feedback:
 
 
-Steps to reproduce (if bug):
+  Steps to reproduce (if bug):
 
 
-Suggested Improvements / Additional Comments:`);
+  Suggested Improvements / Additional Comments:`);
 
-  const mailtoLink = `mailto:feedback@example.com?subject=${emailSubject}&body=${emailBody}`;
+  const mailtoLink = `mailto:philip2p2026@gmail.com?subject=${emailSubject}&body=${emailBody}`;
 
   return (
     <div className="fixed inset-0 z-[10009] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
@@ -75,20 +74,14 @@ Suggested Improvements / Additional Comments:`);
           <section className="pt-4 border-t border-slate-100 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <a href="https://github.com/dummy/botct-tracker" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-slate-900 transition-colors" title="Source Code">
+                <a href="https://github.com/philiplamscript/clocktowerblood_webrecorder2.git" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-slate-900 transition-colors" title="GitHub Source Code">
                   <Github size={18} />
                 </a>
-                <a href="https://discord.gg/dummy" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-pink-500 transition-colors" title="Discord Community">
-                  <Heart size={18} />
-                </a>
-                <a href={mailtoLink} className="text-slate-400 hover:text-red-500 transition-colors" title="Report a Bug">
-                  <Bug size={18} />
-                </a>
-                <a href={mailtoLink} className="text-slate-400 hover:text-blue-500 transition-colors" title="Send Feedback">
+                <a href={mailtoLink} className="text-slate-400 hover:text-blue-500 transition-colors" title="Send Feedback/Bug Report">
                   <MessageSquare size={18} />
                 </a>
               </div>
-              <a href="https://buymeacoffee.com/dummy" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-slate-900 px-4 py-2 rounded-full text-[10px] font-black uppercase transition-all shadow-md active:scale-95">
+              <a href="https://buymeacoffee.com/philiplam2025" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-slate-900 px-4 py-2 rounded-full text-[10px] font-black uppercase transition-all shadow-md active:scale-95">
                 <Coffee size={14} /> Buy me a coffee
               </a>
             </div>
