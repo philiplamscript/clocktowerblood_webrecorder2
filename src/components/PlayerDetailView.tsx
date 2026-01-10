@@ -48,6 +48,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
   const [showDeathIcons, setShowDeathIcons] = useState(true);
   const [showAxis, setShowAxis] = useState(true);
   const [showArrows, setShowArrows] = useState(true);
+  const [showProperties, setShowProperties] = useState(true); // New state
 
   const handleToggleVotingPhase = () => {
     if (!pendingNom) return;
@@ -93,6 +94,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
           currentFilterText={filterDay === 'all' ? 'ALL' : `D${filterDay}`}
           showDeathIcons={showDeathIcons} setShowDeathIcons={setShowDeathIcons}
           showAxis={showAxis} setShowAxis={setShowAxis}
+          showProperties={showProperties} setShowProperties={setShowProperties}
           voteHistoryMode={props.voteHistoryMode} setVoteHistoryMode={props.setVoteHistoryMode}
           showArrows={showArrows} setShowArrows={setShowArrows}
         />
@@ -110,6 +112,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
           onNominationSlideEnd={(f, t) => setPendingNom({ f, t, voters: [] })}
           onVoterToggle={handleVoterToggle} onToggleVotingPhase={handleToggleVotingPhase}
           currentDay={props.currentDay} setCurrentDay={props.setCurrentDay} showDeathIcons={showDeathIcons} showAxis={showAxis}
+          showProperties={showProperties}
           assignmentMode={props.assignmentMode} selectedReason={props.selectedReason} selectedProperty={props.selectedProperty}
           showArrows={showArrows}
         />

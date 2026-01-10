@@ -26,6 +26,7 @@ interface VoteHistoryClockProps {
   setCurrentDay?: (day: number) => void;
   showDeathIcons: boolean;
   showAxis?: boolean;
+  showProperties?: boolean; // New prop
   assignmentMode?: 'death' | 'property' | null;
   selectedReason?: string;
   selectedProperty?: string;
@@ -114,7 +115,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
   const handleStart = (num: number, e: React.MouseEvent | React.TouchEvent) => {
     const now = Date.now();
     if (now - lastEventTime.current < 100) return;
-    lastEventTime.current = now; // Update timestamp to prevent synthetic double-clicks on mobile
+    lastEventTime.current = now;
 
     if (e.cancelable) e.preventDefault();
 
@@ -170,8 +171,8 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
         <ClockFace playerCount = {props.playerCount} playerNo = {props.playerNo} ringCount={ringCount} ringWidth={ringWidth} showAxis={props.showAxis ?? true} />
         <PlayerSlices 
           playerCount={props.playerCount} playerNo={props.playerNo} isVoting={props.isVoting} pendingNomVoters={props.pendingNom?.voters ?? []}
-          deaths={props.deaths} ringCount={ringCount} ringWidth={ringWidth} votedAtDay={data.votedAtDay} mode={props.mode} 
-          showDeathIcons={props.showDeathIcons} assignmentMode={props.assignmentMode ?? null} onStart={handleStart}
+          deaths={props.deaths} players={props.players} ringCount={ringCount} ringWidth={ringWidth} votedAtDay={data.votedAtDay} mode={props.mode} 
+          showDeathIcons={props.showDeathIcons} showProperties={props.showProperties} assignmentMode={props.assignmentMode ?? null} onStart={handleStart}
         />
         <VoteArrows 
           arrowData={data.arrowData} playerCount={props.playerCount} playerNo={props.playerNo} isVoting={props.isVoting} 

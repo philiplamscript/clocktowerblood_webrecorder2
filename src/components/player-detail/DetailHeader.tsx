@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Vote, Calendar, Skull, Grid3X3, ArrowRight } from 'lucide-react';
+import { Vote, Calendar, Skull, Grid3X3, ArrowRight, Tag } from 'lucide-react';
 import TextRotaryPicker from '../pickers/RotaryPicker/TextRotaryPicker';
 
 interface DetailHeaderProps {
@@ -14,6 +14,8 @@ interface DetailHeaderProps {
   setShowDeathIcons: (show: boolean) => void;
   showAxis: boolean;
   setShowAxis: (show: boolean) => void;
+  showProperties: boolean; // New prop
+  setShowProperties: (show: boolean) => void; // New prop
   voteHistoryMode: 'vote' | 'beVoted' | 'allReceive';
   setVoteHistoryMode: (mode: 'vote' | 'beVoted' | 'allReceive') => void;
   showArrows: boolean;
@@ -23,6 +25,7 @@ interface DetailHeaderProps {
 const DetailHeader: React.FC<DetailHeaderProps> = ({
   isVoting, filterDay, dayOptions, currentFilterText, setFilterDay,
   showDeathIcons, setShowDeathIcons, showAxis, setShowAxis,
+  showProperties, setShowProperties,
   voteHistoryMode, setVoteHistoryMode, showArrows, setShowArrows
 }) => {
   const modeLabels = { vote: 'Votes', beVoted: 'Received', allReceive: 'All Global' };
@@ -55,18 +58,28 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
           <button 
             onClick={() => setShowDeathIcons(!showDeathIcons)}
             className={`p-1 rounded-full transition-colors ${showDeathIcons ? 'bg-red-500/10 text-red-500' : 'text-[var(--muted-color)] hover:bg-slate-500/10'}`}
+            title="Death Icons"
           >
             <Skull size={12} />
           </button>
           <button 
+            onClick={() => setShowProperties(!showProperties)}
+            className={`p-1 rounded-full transition-colors ${showProperties ? 'bg-blue-500/10 text-blue-500' : 'text-[var(--muted-color)] hover:bg-slate-500/10'}`}
+            title="Properties Layer"
+          >
+            <Tag size={12} />
+          </button>
+          <button 
             onClick={() => setShowAxis(!showAxis)}
             className={`p-1 rounded-full transition-colors ${showAxis ? 'bg-[var(--accent-color)]/10 text-[var(--accent-color)]' : 'text-[var(--muted-color)] hover:bg-slate-500/10'}`}
+            title="Grid Axis"
           >
             <Grid3X3 size={12} />
           </button>
           <button 
             onClick={() => setShowArrows(!showArrows)}
             className={`p-1 rounded-full transition-colors ${showArrows ? 'bg-blue-500/10 text-blue-500' : 'text-[var(--muted-color)] hover:bg-slate-500/10'}`}
+            title="Vote Arrows"
           >
             <ArrowRight size={12} />
           </button>
