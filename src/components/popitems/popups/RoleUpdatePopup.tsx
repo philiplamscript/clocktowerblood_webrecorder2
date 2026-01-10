@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { X, Copy, Check, Sparkles } from 'lucide-react';
-import { ROLE_PARSING_PROMPT } from '../../type';
+import { ROLE_PARSING_PROMPT } from '../../../type';
 import { toast } from 'react-hot-toast';
 
 interface RoleUpdatePopupProps {
