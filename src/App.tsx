@@ -14,7 +14,7 @@ import RoleUpdatePopup from './components/popitems/popups/RoleUpdatePopup';
 import ResetConfirmation from './components/popitems/popups/ResetConfirmation';
 import GreetingPopup from './components/popitems/popups/GreetingPopup';
 import SettingsPopup from './components/popitems/popups/SettingsPopup';
-import AboutPopup from './components/popitems/AboutPopup';
+import AboutPopup from './components/popitems/popups/AboutPopup';
 import FAB from './components/popitems/FAB';
 import Sidebar from './components/Sidebar';
 
