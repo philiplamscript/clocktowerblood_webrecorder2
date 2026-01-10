@@ -28,9 +28,9 @@ const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <button onClick={() => setSplitView(!splitView)} className={`p-1 rounded transition-colors ${splitView ? 'text-blue-400 hover:bg-slate-800' : 'text-slate-500 hover:bg-slate-800'}`}>
+        {/* <button onClick={() => setSplitView(!splitView)} className={`p-1 rounded transition-colors ${splitView ? 'text-blue-400 hover:bg-slate-800' : 'text-slate-500 hover:bg-slate-800'}`}>
           <Split size={14} />
-        </button>
+        </button> */}
         <button onClick={() => setShowLedger(true)} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase transition-all shadow-sm">
           <BookOpen size={12} /> Full Ledger
         </button>

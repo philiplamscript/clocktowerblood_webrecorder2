@@ -9,7 +9,8 @@ import {
   Skull,
   X,
   Plus,
-  Type
+  Type,
+  BookOpen
 } from 'lucide-react';
 
 interface FABProps {
@@ -17,6 +18,7 @@ interface FABProps {
   setFabOpen: (open: boolean) => void;
   setShowReset: (show: boolean) => void;
   setShowRoleUpdate: (show: boolean) => void;
+  setShowLedger: (show: boolean) => void;
   addNomination: () => void;
   addDeath: () => void;
   fontSize: 'small' | 'mid' | 'large';
@@ -28,6 +30,7 @@ const FAB: React.FC<FABProps> = ({
   setFabOpen,
   setShowReset,
   setShowRoleUpdate,
+  setShowLedger,
   addNomination,
   addDeath,
   fontSize,
@@ -51,6 +54,9 @@ const FAB: React.FC<FABProps> = ({
             ))}
           </div>
           
+          <button onClick={() => { setShowLedger(true); setFabOpen(false); }} className="bg-white text-slate-900 border border-slate-200 px-4 py-3 rounded-full shadow-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-wider active:scale-90">
+            <BookOpen size={14} className="text-blue-600" /> Full Ledger
+          </button>
           <button onClick={() => { setShowReset(true); setFabOpen(false); }} className="bg-white text-slate-900 border border-slate-200 px-4 py-3 rounded-full shadow-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-wider active:scale-90">
             <RefreshCcw size={14} className="text-red-500" /> Reset Ledger
           </button>
