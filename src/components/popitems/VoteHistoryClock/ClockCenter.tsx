@@ -12,10 +12,11 @@ interface ClockCenterProps {
   currentDay: number;
   mode: string;
   onStart: (e: React.MouseEvent | React.TouchEvent) => void;
+  swipeOffset?: number; // New prop for animation
 }
 
 const ClockCenter: React.FC<ClockCenterProps> = ({
-  isVoting, pendingNom, assignmentMode, selectedReason, playerNo, currentDay, mode, onStart
+  isVoting, pendingNom, assignmentMode, selectedReason, playerNo, currentDay, mode, onStart, swipeOffset = 0
 }) => {
   // Determine the core theme color based on state
   const getBaseColor = () => {
@@ -27,6 +28,10 @@ const ClockCenter: React.FC<ClockCenterProps> = ({
   };
 
   const baseColor = getBaseColor();
+  
+  // Calculate horizontal rotation effect
+  // Clamped translation to make it look like the number is moving within the sphere
+  const horizontalShift = Math.max(-20, Math.min(20, swipeOffset * 0.4));
   
   return (
     <g 
@@ -41,7 +46,11 @@ const ClockCenter: React.FC<ClockCenterProps> = ({
           <stop offset="100%" stopColor="black" stopOpacity="0.2" />
         </radialGradient>
         
-        {/* Glow effect based on state */}
+        {/* Clipping mask to keep animation within the ball */}
+        <clipPath id="centerClip">
+          <circle cx={cx} cy={cy} r="28" />
+        </clipPath>
+
         <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="3" result="blur" />
           <feComposite in="SourceGraphic" in2="blur" operator="over" />
@@ -64,7 +73,73 @@ const ClockCenter: React.FC<ClockCenterProps> = ({
         className="transition-colors duration-500 shadow-2xl" 
       />
       
-      {/* Glossy Overlay for "Ball" Effect */}
+      {/* Animated Content Layer (Clipped to Ball) */}
+      <g clipPath="url(#centerClip)">
+        <g style={{ transform: `translateX(${horizontalShift}px)`, transition: swipeOffset === 0 ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none' }}>
+          {pendingNom ? (
+            <text 
+              x={cx} y={cy} 
+              textAnchor="middle" 
+              alignmentBaseline="middle" 
+              className="text-white text-[11px] font-black tracking-widest pointer-events-none uppercase drop-shadow-md"
+            >
+              {isVoting ? 'SAVE' : 'VOTE'}
+            </text>
+          ) : assignmentMode ? (
+            <text 
+              x={cx} y={cy} 
+              textAnchor="middle" 
+              alignmentBaseline="middle" 
+              className="text-white text-[12px] font-black uppercase tracking-tighter pointer-events-none drop-shadow-sm"
+            >
+              {assignmentMode === 'death' ? selectedReason : 'PROP'}
+            </text>
+          ) : (
+            <g className="pointer-events-none">
+              {/* Day Indicator Area */}
+              <text 
+                x={cx} y={cy - 12} 
+                textAnchor="middle" 
+                className="fill-white/40 text-[6px] font-black uppercase tracking-[0.2em]"
+              >
+                Day
+              </text>
+              
+              <g className="transition-transform duration-300">
+                <text x={cx - 18} y={cy + 3} textAnchor="middle" className={`fill-white/20 text-[8px] ${swipeOffset > 10 ? 'opacity-100 scale-125' : 'opacity-40'}`}>◀</text>
+                
+                <text 
+                  x={cx} y={cy + 4} 
+                  textAnchor="middle" 
+                  className="fill-white text-base font-black tracking-tighter drop-shadow-md"
+                >
+                  {currentDay}
+                </text>
+                
+                <text x={cx + 18} y={cy + 3} textAnchor="middle" className={`fill-white/20 text-[8px] ${swipeOffset < -10 ? 'opacity-100 scale-125' : 'opacity-40'}`}>▶</text>
+              </g>
+
+              {/* Mode Badge */}
+              <rect 
+                x={cx - 12} y={cy + 13} 
+                width="24" height="8" 
+                rx="4" 
+                fill="black" 
+                fillOpacity="0.2" 
+              />
+              <text 
+                x={cx} y={cy + 19} 
+                textAnchor="middle" 
+                className="fill-white/60 text-[6px] font-black uppercase tracking-[0.1em]"
+              >
+                {mode === 'vote' ? 'VOTE' : mode === 'beVoted' ? 'RECV' : 'ALL'}
+              </text>
+            </g>
+          )}
+        </g>
+      </g>
+      
+      {/* Glossy Overlay for "Ball" Effect (Always on top) */}
       <circle 
         cx={cx} cy={cy} r="28" 
         fill="url(#ballGradient)" 
@@ -79,68 +154,6 @@ const ClockCenter: React.FC<ClockCenterProps> = ({
         strokeWidth="0.5" 
         className="opacity-10 pointer-events-none" 
       />
-
-      {pendingNom ? (
-        <text 
-          x={cx} y={cy} 
-          textAnchor="middle" 
-          alignmentBaseline="middle" 
-          className="text-white text-[11px] font-black tracking-widest pointer-events-none uppercase drop-shadow-md"
-        >
-          {isVoting ? 'SAVE' : 'VOTE'}
-        </text>
-      ) : assignmentMode ? (
-        <text 
-          x={cx} y={cy} 
-          textAnchor="middle" 
-          alignmentBaseline="middle" 
-          className="text-white text-[12px] font-black uppercase tracking-tighter pointer-events-none drop-shadow-sm"
-        >
-          {assignmentMode === 'death' ? selectedReason : 'PROP'}
-        </text>
-      ) : (
-        <g className="pointer-events-none transition-opacity duration-300">
-          {/* Day Indicator Area */}
-          <text 
-            x={cx} y={cy - 12} 
-            textAnchor="middle" 
-            className="fill-white/40 text-[6px] font-black uppercase tracking-[0.2em]"
-          >
-            Day
-          </text>
-          
-          <g className="transition-transform duration-300 group-active:scale-110">
-            {/* Navigation Cues */}
-            <text x={cx - 18} y={cy + 3} textAnchor="middle" className="fill-white/20 text-[8px] animate-bounce-x">◀</text>
-            
-            <text 
-              x={cx} y={cy + 4} 
-              textAnchor="middle" 
-              className="fill-white text-base font-black tracking-tighter drop-shadow-md"
-            >
-              {currentDay}
-            </text>
-            
-            <text x={cx + 18} y={cy + 3} textAnchor="middle" className="fill-white/20 text-[8px] animate-bounce-x-reverse">▶</text>
-          </g>
-
-          {/* Mode Badge at bottom of ball */}
-          <rect 
-            x={cx - 12} y={cy + 13} 
-            width="24" height="8" 
-            rx="4" 
-            fill="black" 
-            fillOpacity="0.2" 
-          />
-          <text 
-            x={cx} y={cy + 19} 
-            textAnchor="middle" 
-            className="fill-white/60 text-[6px] font-black uppercase tracking-[0.1em]"
-          >
-            {mode === 'vote' ? 'VOTE' : mode === 'beVoted' ? 'RECV' : 'ALL'}
-          </text>
-        </g>
-      )}
     </g>
   );
 };

@@ -26,7 +26,7 @@ interface VoteHistoryClockProps {
   setCurrentDay?: (day: number) => void;
   showDeathIcons: boolean;
   showAxis?: boolean;
-  showProperties?: boolean; // New prop
+  showProperties?: boolean;
   assignmentMode?: 'death' | 'property' | null;
   selectedReason?: string;
   selectedProperty?: string;
@@ -39,6 +39,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
   const [isSliding, setIsSliding] = useState(false);
   const [dragAction, setDragAction] = useState<'add' | 'remove' | null>(null);
   const [centerTouchX, setCenterTouchX] = useState<number | null>(null);
+  const [centerSwipeOffset, setCenterSwipeOffset] = useState(0); // For globe animation
   const [centerSwiped, setCenterSwiped] = useState(false);
 
   const svgRef = useRef<SVGSVGElement>(null);
@@ -58,6 +59,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
 
     const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
     setCenterTouchX(clientX);
+    setCenterSwipeOffset(0);
     setCenterSwiped(false);
   };
 
@@ -131,6 +133,8 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
   const handleMove = (clientX: number, clientY: number) => {
     if (centerTouchX !== null) {
       const deltaX = clientX - centerTouchX;
+      setCenterSwipeOffset(deltaX); // Track the actual distance for animation
+
       if (Math.abs(deltaX) > 40 && !centerSwiped) {
         if (deltaX > 0) props.setCurrentDay?.(Math.max(1, props.currentDay - 1));
         else props.setCurrentDay?.(props.currentDay + 1);
@@ -147,7 +151,13 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
   };
 
   const handleEnd = () => {
-    if (centerTouchX !== null) { if (!centerSwiped) props.onToggleVotingPhase(); setCenterTouchX(null); setCenterSwiped(false); return; }
+    if (centerTouchX !== null) { 
+      if (!centerSwiped) props.onToggleVotingPhase(); 
+      setCenterTouchX(null); 
+      setCenterSwipeOffset(0);
+      setCenterSwiped(false); 
+      return; 
+    }
     if (gestureStart !== null) {
       if (!props.isVoting && !isSliding) props.onPlayerClick(gestureStart);
       else if (!props.isVoting && isSliding && gestureCurrent !== null) props.onNominationSlideEnd(gestureStart.toString(), gestureCurrent.toString());
@@ -189,6 +199,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
           currentDay={props.currentDay} 
           mode={props.mode}
           onStart={handleCenterStart}
+          swipeOffset={centerSwipeOffset}
         />
       </svg>
     </div>
