@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { X, Heart, Apple, Play, Github, Coffee } from 'lucide-react';
+import { X, Heart, Github, Coffee, Bug, MessageSquare } from 'lucide-react';
 
 interface AboutPopupProps {
   isOpen: boolean;
@@ -57,40 +57,27 @@ const AboutPopup: React.FC<AboutPopupProps> = ({ isOpen, onClose }) => {
             </ul>
           </section>
 
-          {/* Platforms */}
-          {/* <section className="space-y-3">
-            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Get the Mobile App</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <button className="flex items-center justify-center gap-2 bg-slate-900 text-white py-3 rounded-xl hover:bg-slate-800 transition-all active:scale-90 shadow-md">
-                <Apple size={16} />
-                <div className="flex flex-col items-start leading-none">
-                  <span className="text-[7px] uppercase font-bold text-slate-400">Download on</span>
-                  <span className="text-[10px] font-black">App Store</span>
-                </div>
-              </button>
-              <button className="flex items-center justify-center gap-2 bg-slate-900 text-white py-3 rounded-xl hover:bg-slate-800 transition-all active:scale-90 shadow-md">
-                <Play size={16} />
-                <div className="flex flex-col items-start leading-none">
-                  <span className="text-[7px] uppercase font-bold text-slate-400">Get it on</span>
-                  <span className="text-[10px] font-black">Google Play</span>
-                </div>
-              </button>
+          {/* Support & Links */}
+          <section className="pt-4 border-t border-slate-100 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <a href="https://github.com/dummy/botct-tracker" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-slate-900 transition-colors" title="Source Code">
+                  <Github size={18} />
+                </a>
+                <a href="https://discord.gg/dummy" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-pink-500 transition-colors" title="Discord Community">
+                  <Heart size={18} />
+                </a>
+                <a href="https://github.com/dummy/botct-tracker/issues" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-red-500 transition-colors" title="Report a Bug">
+                  <Bug size={18} />
+                </a>
+                <a href="mailto:feedback@example.com" className="text-slate-400 hover:text-blue-500 transition-colors" title="Send Feedback">
+                  <MessageSquare size={18} />
+                </a>
+              </div>
+              <a href="https://buymeacoffee.com/dummy" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-slate-900 px-4 py-2 rounded-full text-[10px] font-black uppercase transition-all shadow-md active:scale-95">
+                <Coffee size={14} /> Buy me a coffee
+              </a>
             </div>
-          </section> */}
-
-          {/* Support */}
-          <section className="pt-4 border-t border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button className="text-slate-400 hover:text-slate-900 transition-colors" title="Source Code">
-                <Github size={18} />
-              </button>
-              <button className="text-slate-400 hover:text-pink-500 transition-colors" title="Discord Community">
-                <Heart size={18} />
-              </button>
-            </div>
-            <button className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-slate-900 px-4 py-2 rounded-full text-[10px] font-black uppercase transition-all shadow-md active:scale-95">
-              <Coffee size={14} /> Buy me a coffee
-            </button>
           </section>
         </div>
         
