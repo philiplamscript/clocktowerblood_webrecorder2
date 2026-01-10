@@ -36,7 +36,7 @@ const AboutPopup: React.FC<AboutPopupProps> = ({ isOpen, onClose }) => {
               As I lazy on game memorizing, I was trying to make note as most of you did. 
             </p>
             <p className="text-[11px] text-slate-600 leading-relaxed">
-              Orginally all did in Tables in note app, then python steamlit (but fail). Webpage is an accident as I put my code into AI to see the protial webpage.
+              Orginally all did in Tables in note app, then python steamlit (but fail). Webpage is a little accident that I put my code into AI to see the protential of the webpage.
             </p>
             <p className="text-[11px] text-slate-600 leading-relaxed">
               Result on the webpage is gradual to create a clock like app to make it easier to keep track of the game.
