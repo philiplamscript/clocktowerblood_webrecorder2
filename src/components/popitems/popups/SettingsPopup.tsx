@@ -32,7 +32,7 @@ interface SettingsPopupProps {
 }
 
 const SettingsPopup: React.FC<SettingsPopupProps> = (props) => {
-  const [activeSection, setActiveSection] = useState<'general' | 'theme' | 'customization'>('general');
+  const [activeSection, setActiveSection] = useState<'general' | 'theme' | 'customization'>('theme');
 
   if (!props.isOpen) return null;
 
@@ -52,12 +52,12 @@ const SettingsPopup: React.FC<SettingsPopupProps> = (props) => {
           <SettingsSidebar activeSection={activeSection} setActiveSection={setActiveSection} />
 
           <main className="flex-1 overflow-y-auto p-6">
-            {activeSection === 'general' && (
+            {/* {activeSection === 'general' && (
               <GeneralSection 
                 fontSize={props.fontSize} setFontSize={props.setFontSize} 
                 language={props.language} setLanguage={props.setLanguage} 
               />
-            )}
+            )} */}
             {activeSection === 'theme' && (
               <ThemeSection 
                 activeTheme={props.activeTheme} setActiveTheme={props.setActiveTheme}

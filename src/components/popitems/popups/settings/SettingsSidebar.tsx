@@ -4,8 +4,8 @@ import React from 'react';
 import { Globe, Palette, FileText } from 'lucide-react';
 
 interface SettingsSidebarProps {
-  activeSection: 'general' | 'theme' | 'customization';
-  setActiveSection: (section: 'general' | 'theme' | 'customization') => void;
+  activeSection:  'theme' | 'customization';//'general' |
+  setActiveSection: (section:  'theme' | 'customization') => void;//'general' |
 }
 
 const SettingsSidebar: React.FC<SettingsSidebarProps> = ({ activeSection, setActiveSection }) => {

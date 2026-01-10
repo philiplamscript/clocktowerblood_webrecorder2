@@ -56,9 +56,9 @@ export const useGameState = () => {
     { id: 't2', label: 'WORLD INFO', content: 'Day 1: \nDay 2: \nDay 3: ' }
   ]));
   const [propTemplates, setPropTemplates] = useState<PropTemplate[]>(() => getStorage('prop_templates', [
-    { id: 'p1', label: 'POISON', value: '🧪' },
-    { id: 'p2', label: 'PROTECT', value: '🛡️' },
-    { id: 'p3', label: 'DRUNK', value: '🥴' }
+    { id: 'p1', label: 'RedTeam', value: '🔴' },
+    { id: 'p2', label: 'Crystal', value: '🔮' },
+    { id: 'p3', label: 'Glasses', value: '👓' }
   ]));
 
   useEffect(() => {
