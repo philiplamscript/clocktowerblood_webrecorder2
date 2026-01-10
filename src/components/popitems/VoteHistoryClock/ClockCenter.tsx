@@ -44,9 +44,24 @@ const ClockCenter: React.FC<ClockCenterProps> = ({
         </text>
       ) : (
         <g className="pointer-events-none">
-          {/* <text x={cx} y={cy - 7} textAnchor="middle" className="text-white text-[11px] font-black tracking-tighter">{playerNo === -1 ? 'G' : `P${playerNo}`}</text> */}
-          <text x={cx} y={cy-7} textAnchor="middle" className="text-slate-400 text-[8px] font-bold uppercase tracking-[0.2em]">👈D{currentDay}👉</text>
-          <text x={cx} y={cy +7} textAnchor="middle" className="text-white/40 text-[8px] font-black uppercase tracking-[0.3em]">{mode === 'vote' ? 'VOTE' : mode === 'beVoted' ? 'RECV' : 'ALL'}</text>
+          {/* Day Indicator with Swipe Context */}
+          <text x={cx} y={cy - 11} textAnchor="middle" className="text-slate-500 text-[6px] font-black uppercase tracking-[0.2em]">Day</text>
+          
+          <g>
+            <text x={cx - 18} y={cy + 2} textAnchor="middle" className="fill-white/30 text-[10px]">◀</text>
+            <text x={cx} y={cy + 3} textAnchor="middle" className="text-white text-sm font-black tracking-tighter">
+              {currentDay}
+            </text>
+            <text x={cx + 18} y={cy + 2} textAnchor="middle" className="fill-white/30 text-[10px]">▶</text>
+          </g>
+
+          {/* Current Display Mode Label */}
+          <text x={cx} y={cy + 12} textAnchor="middle" className="text-white/40 text-[7px] font-black uppercase tracking-[0.2em]">
+            {mode === 'vote' ? 'VOTE' : mode === 'beVoted' ? 'RECV' : 'ALL'}
+          </text>
+          
+          {/* Action Hint */}
+          <text x={cx} y={cy + 18} textAnchor="middle" className="text-white/10 text-[4px] font-black uppercase tracking-[0.3em]">Swipe to shift</text>
         </g>
       )}
     </g>
