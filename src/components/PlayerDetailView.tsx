@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 
-import { REASON_CYCLE, type NotepadTemplate, type PropTemplate } from '../type';
+import { REASON_CYCLE, type NotepadTemplate } from '../type';
 import VoteHistoryClock from './popitems/VoteHistoryClock/VoteHistoryClock';
 import DetailHeader from './player-detail/DetailHeader';
 import AssignmentControls from './player-detail/AssignmentControls';
@@ -37,7 +37,6 @@ interface PlayerDetailViewProps {
   setSelectedReason?: (reason: string) => void;
   setSelectedProperty?: (property: string) => void;
   notepadTemplates?: NotepadTemplate[];
-  propTemplates?: PropTemplate[];
 }
 
 const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
@@ -119,7 +118,6 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
               assignmentMode={props.assignmentMode ?? null} setAssignmentMode={props.setAssignmentMode ?? (() => {})}
               selectedReason={props.selectedReason ?? '⚔️'} setSelectedReason={props.setSelectedReason ?? (() => {})}
               selectedProperty={props.selectedProperty ?? ''} setSelectedProperty={props.setSelectedProperty ?? (() => {})}
-              propTemplates={props.propTemplates ?? []}
             />
           </div>
 

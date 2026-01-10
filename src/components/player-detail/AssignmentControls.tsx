@@ -2,8 +2,7 @@
 
 import React from 'react';
 import { Skull, Tag } from 'lucide-react';
-import { REASON_CYCLE, type PropTemplate } from '../../type';
-import { ReasonPicker, PropPicker } from '../pickers/ClockPicker/ClockPicker';
+import { REASON_CYCLE } from '../../type';
 
 interface AssignmentControlsProps {
   assignmentMode: 'death' | 'property' | null;
@@ -12,11 +11,10 @@ interface AssignmentControlsProps {
   setSelectedReason: (reason: string) => void;
   selectedProperty: string;
   setSelectedProperty: (prop: string) => void;
-  propTemplates: PropTemplate[];
 }
 
 const AssignmentControls: React.FC<AssignmentControlsProps> = ({
-  assignmentMode, setAssignmentMode, selectedReason, setSelectedReason, selectedProperty, setSelectedProperty, propTemplates
+  assignmentMode, setAssignmentMode, selectedReason, setSelectedReason, selectedProperty, setSelectedProperty
 }) => {
   return (
     <div className="flex items-center gap-1.5">
@@ -29,9 +27,15 @@ const AssignmentControls: React.FC<AssignmentControlsProps> = ({
           <Skull size={12} />
         </button>
         {assignmentMode === 'death' && (
-          <div className="bg-red-700 text-white w-8 h-full border-l border-red-800">
-            <ReasonPicker value={selectedReason} onChange={setSelectedReason} />
-          </div>
+          <button 
+            onClick={() => {
+              const nextIndex = (REASON_CYCLE.indexOf(selectedReason) + 1) % REASON_CYCLE.length;
+              setSelectedReason(REASON_CYCLE[nextIndex]);
+            }}
+            className="bg-red-700 text-white text-[10px] border-none focus:ring-0 h-full px-2 hover:bg-red-800 transition-colors font-black"
+          >
+            {selectedReason}
+          </button>
         )}
       </div>
 
@@ -43,11 +47,6 @@ const AssignmentControls: React.FC<AssignmentControlsProps> = ({
         >
           <Tag size={12} />
         </button>
-        {assignmentMode === 'property' && (
-          <div className="bg-blue-700 w-8 h-full border-l border-blue-800">
-            <PropPicker value={selectedProperty} templates={propTemplates} onChange={setSelectedProperty} />
-          </div>
-        )}
         <input 
           type="text" 
           value={selectedProperty} 
