@@ -20,7 +20,9 @@ const AboutPopup: React.FC<AboutPopupProps> = ({ isOpen, onClose }) => {
   Steps to reproduce (if bug):
 
 
-  Suggested Improvements / Additional Comments:`);
+  Suggested Improvements / Additional Comments:
+  
+  `);
 
   const mailtoLink = `mailto:philip2p2026@gmail.com?subject=${emailSubject}&body=${emailBody}`;
 
