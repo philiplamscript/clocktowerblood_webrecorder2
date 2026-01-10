@@ -77,7 +77,6 @@ export default function App() {
 
   const fontSizeClass = { small: 'text-[10px]', mid: 'text-xs', large: 'text-sm' }[state.fontSize];
 
-  // Dynamic Theme CSS Variables
   const themeStyles = useMemo(() => {
     const c = state.currentTheme.colors;
     return {
@@ -94,14 +93,14 @@ export default function App() {
   return (
     <div 
       style={themeStyles}
-      className={`fixed inset-0 bg-[var(--bg-color)] flex flex-col font-sans select-none ${fontSizeClass} transition-colors duration-500`}
+      className={`min-h-screen w-full bg-[var(--bg-color)] flex flex-col font-sans select-none ${fontSizeClass} transition-colors duration-500`}
     >
       <Toaster position="top-center" reverseOrder={false} />
       <GreetingPopup isOpen={showGreeting} onClose={() => { setShowGreeting(false); localStorage.setItem('clocktower_greeted', 'true'); }} />
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} onReset={() => { setShowReset(true); setSidebarOpen(false); }} onLoadRole={() => { setShowRoleUpdate(true); setSidebarOpen(false); }} onShowUpdateLog={() => toast.info('Log: Added Settings system')} onFocusPlayerDetail={() => {}} onOpenSettings={() => { setShowSettings(true); setSidebarOpen(false); }} onShowHowToUse={() => toast('Tip: Use prop templates!', { icon: '💡' })} onShowAbout={() => { setShowAbout(true); setSidebarOpen(false); }} onShowFAQ={() => toast('Check Settings', { icon: '❓' })} onShowDonation={() => setShowAbout(true)} />
       <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} splitView={state.splitView} setSplitView={state.setSplitView} showHub={state.showHub} setShowHub={state.setShowHub} setShowLedger={setShowLedger} />
       {state.showHub && <PlayerHub currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} deaths={state.deaths} assignmentMode={assignmentMode} setAssignmentMode={setAssignmentMode} selectedReason={selectedReason} setSelectedReason={setSelectedReason} selectedProperty={selectedProperty} setSelectedProperty={setSelectedProperty} propTemplates={state.propTemplates} focusPlayerNo={focusPlayerNo} onPlayerClick={handlePlayerClick} />}
-      <main className="flex-1 overflow-hidden relative">
+      <main className="flex-1 relative">
         <div className={`h-full ${state.splitView ? 'grid grid-cols-2 divide-x border-[var(--border-color)]' : ''}`}>
           <div className="bg-[var(--panel-color)] transition-colors duration-500">
             <PlayerDetailView playerNo={focusPlayerNo} setPlayerNo={setFocusPlayerNo} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} updatePlayerInfo={state.updatePlayerInfo} updatePlayerProperty={state.updatePlayerProperty} togglePlayerAlive={state.togglePlayerAlive} chars={state.chars} nominations={state.nominations} setNominations={state.setNominations} voteHistoryMode={voteHistoryMode} setVoteHistoryMode={setVoteHistoryMode} setShowRoleSelector={setShowRoleSelector} deaths={state.deaths} setDeaths={state.setDeaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} onPlayerClick={handlePlayerClick} setAssignmentMode={setAssignmentMode} setSelectedReason={setSelectedReason} setSelectedProperty={setSelectedProperty} notepadTemplates={state.notepadTemplates} />
