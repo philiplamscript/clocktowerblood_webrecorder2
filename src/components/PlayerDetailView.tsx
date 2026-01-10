@@ -124,7 +124,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
           </div>
 
           {pendingNom && !isVoting && (
-            <div className="absolute bottom-16 bg-[var(--accent-color)] text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase flex items-center gap-2 animate-bounce shadow-lg z-20">
+            <div className="absolute bottom-20 bg-[var(--accent-color)] text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase flex items-center gap-2 animate-bounce shadow-lg z-20">
               {pendingNom.f} ➔ {pendingNom.t}
               <button onClick={() => setPendingNom(null)} className="ml-1 bg-white/20 hover:bg-white/30 p-1 rounded-md transition-colors"><X size={10} /></button>
             </div>
