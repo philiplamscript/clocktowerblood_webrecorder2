@@ -88,6 +88,25 @@ export const INITIAL_PLAYERS = 15;
 export const REASON_CYCLE = ['⚔️', '☀️', '🌑'];
 export const STATUS_OPTIONS = ["—", "POSS", "CONF", "NOT"];
 
+export const ROLE_PARSING_PROMPT = `Please analyze this Blood on the Clocktower script image and output the role names in the following plain text format. Do not include descriptions or icons, just the names under the category headers. Use traditional Chinese characters for the headers:
+
+鎮民:
+[Role Name 1]
+[Role Name 2]
+...
+
+外來者:
+[Role Name 1]
+...
+
+爪牙:
+[Role Name 1]
+...
+
+惡魔:
+[Role Name 1]
+...`;
+
 export const createInitialChars = (): CharDict => ({
   Townsfolk: Array(8).fill(null).map(() => ({ name: '', status: '—', note: '' })),
   Outsider: Array(8).fill(null).map(() => ({ name: '', status: '—', note: '' })),
