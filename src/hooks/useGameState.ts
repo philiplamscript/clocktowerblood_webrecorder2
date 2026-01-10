@@ -43,7 +43,7 @@ export const useGameState = () => {
   const [note, setNote] = useState(() => getStorage('note', ''));
   const [fontSize, setFontSize] = useState<'small' | 'mid' | 'large'>(() => getStorage('font', 'mid'));
   const [language, setLanguage] = useState(() => getStorage('lang', 'Eng'));
-  const [showHub, setShowHub] = useState(() => getStorage('showHub', true));
+  const [showHub, setShowHub] = useState(() => getStorage('showHub', false));
   const [splitView, setSplitView] = useState(() => getStorage('splitView', false));
   
   // Theme State
