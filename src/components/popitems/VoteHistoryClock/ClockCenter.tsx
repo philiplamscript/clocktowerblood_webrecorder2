@@ -106,7 +106,7 @@ const ClockCenter: React.FC<ClockCenterProps> = ({
               </text>
               
               <g className="transition-transform duration-300">
-                <text x={cx - 18} y={cy + 3} textAnchor="middle" className={`fill-white/20 text-[8px] ${swipeOffset > 10 ? 'opacity-100 scale-125' : 'opacity-40'}`}>◀</text>
+                <text x={cx - 18} y={cy + 3} textAnchor="middle" className={`fill-blue/20 text-[8px] ${swipeOffset > 10 ? 'opacity-0 scale-125' : 'opacity-100'}`}>◀</text>
                 
                 <text 
                   x={cx} y={cy + 4} 
@@ -116,7 +116,7 @@ const ClockCenter: React.FC<ClockCenterProps> = ({
                   {currentDay}
                 </text>
                 
-                <text x={cx + 18} y={cy + 3} textAnchor="middle" className={`fill-white/20 text-[8px] ${swipeOffset < -10 ? 'opacity-100 scale-125' : 'opacity-40'}`}>▶</text>
+                <text x={cx + 18} y={cy + 3} textAnchor="middle" className={`fill-blue/20 text-[8px] ${swipeOffset < -10 ? 'opacity-0 scale-125' : 'opacity-100'}`}>▶</text>
               </g>
 
               {/* Mode Badge */}
