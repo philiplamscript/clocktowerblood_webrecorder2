@@ -43,7 +43,7 @@ export const useGameState = () => {
   const [note, setNote] = useState(() => getStorage('note', ''));
   const [fontSize, setFontSize] = useState<'small' | 'mid' | 'large'>(() => getStorage('font', 'mid'));
   const [language, setLanguage] = useState(() => getStorage('lang', 'Eng'));
-  const [showHub, setShowHub] = useState(() => getStorage('showHub', true));
+  const [showHub, setShowHub] = useState(() => getStorage('showHub', false));
   const [splitView, setSplitView] = useState(() => getStorage('splitView', false));
   
   // Theme State
@@ -56,9 +56,9 @@ export const useGameState = () => {
     { id: 't2', label: 'WORLD INFO', content: 'Day 1: \nDay 2: \nDay 3: ' }
   ]));
   const [propTemplates, setPropTemplates] = useState<PropTemplate[]>(() => getStorage('prop_templates', [
-    { id: 'p1', label: 'POISON', value: '🧪' },
-    { id: 'p2', label: 'PROTECT', value: '🛡️' },
-    { id: 'p3', label: 'DRUNK', value: '🥴' }
+    { id: 'p1', label: 'RedTeam', value: '🔴' },
+    { id: 'p2', label: 'Crystal', value: '🔮' },
+    { id: 'p3', label: 'Glasses', value: '👓' }
   ]));
 
   useEffect(() => {

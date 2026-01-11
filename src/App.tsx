@@ -26,7 +26,6 @@ export default function App() {
   const [showReset, setShowReset] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
-  const [fabOpen, setFabOpen] = useState(false);
   const [focusPlayerNo, setFocusPlayerNo] = useState<number>(1);
   const [showRoleSelector, setShowRoleSelector] = useState<{ playerNo: number; roles: { role: string; category: string }[] } | null>(null);
   const [showRoleUpdate, setShowRoleUpdate] = useState(false);
@@ -103,7 +102,7 @@ export default function App() {
       <main className="flex-1 relative">
         <div className={`h-full ${state.splitView ? 'grid grid-cols-2 divide-x border-[var(--border-color)]' : ''}`}>
           <div className="bg-[var(--panel-color)] transition-colors duration-500">
-            <PlayerDetailView playerNo={focusPlayerNo} setPlayerNo={setFocusPlayerNo} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} updatePlayerInfo={state.updatePlayerInfo} updatePlayerProperty={state.updatePlayerProperty} togglePlayerAlive={state.togglePlayerAlive} chars={state.chars} nominations={state.nominations} setNominations={state.setNominations} voteHistoryMode={voteHistoryMode} setVoteHistoryMode={setVoteHistoryMode} setShowRoleSelector={setShowRoleSelector} deaths={state.deaths} setDeaths={state.setDeaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} onPlayerClick={handlePlayerClick} setAssignmentMode={setAssignmentMode} setSelectedReason={setSelectedReason} setSelectedProperty={setSelectedProperty} notepadTemplates={state.notepadTemplates} />
+            <PlayerDetailView playerNo={focusPlayerNo} setPlayerNo={setFocusPlayerNo} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} updatePlayerInfo={state.updatePlayerInfo} updatePlayerProperty={state.updatePlayerProperty} togglePlayerAlive={state.togglePlayerAlive} chars={state.chars} nominations={state.nominations} setNominations={state.setNominations} voteHistoryMode={voteHistoryMode} setVoteHistoryMode={setVoteHistoryMode} setShowRoleSelector={setShowRoleSelector} deaths={state.deaths} setDeaths={state.setDeaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} onPlayerClick={handlePlayerClick} setAssignmentMode={setAssignmentMode} setSelectedReason={setSelectedReason} setSelectedProperty={setSelectedProperty} notepadTemplates={state.notepadTemplates} propTemplates={state.propTemplates} />
           </div>
           {state.splitView && (
             <div className="bg-[var(--panel-color)] transition-colors duration-500">
@@ -138,7 +137,7 @@ export default function App() {
         setDefaultNotepad={state.setDefaultNotepad}
       />
       <AboutPopup isOpen={showAbout} onClose={() => setShowAbout(false)} />
-      <FAB fabOpen={fabOpen} setFabOpen={setFabOpen} setShowReset={setShowReset} setShowRoleUpdate={setShowRoleUpdate} addNomination={() => state.setNominations([...state.nominations, { id: Math.random().toString(), day: state.currentDay, f: '-', t: '-', voters: '', note: '' }])} addDeath={() => state.setDeaths([...state.deaths, { id: Math.random().toString(), day: state.currentDay, playerNo: '', reason: '🌑', note: '', isConfirmed: true }])} fontSize={state.fontSize} setFontSize={state.setFontSize} />
+      <FAB setShowLedger={setShowLedger} />
       <div className="bg-[var(--panel-color)] border-t border-[var(--border-color)] px-3 py-1 text-[9px] font-bold text-[var(--muted-color)] flex justify-between items-center z-50">
         <span>PLAYERS REGISTERED: {state.players.filter(p => p.inf).length} / {state.playerCount}</span>
         <div className="w-32 h-1 bg-[var(--bg-color)] rounded-full overflow-hidden">

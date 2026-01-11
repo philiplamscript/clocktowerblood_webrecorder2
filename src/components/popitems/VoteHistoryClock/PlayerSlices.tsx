@@ -71,7 +71,7 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
                     fill={vCount !== undefined ? (mode === 'vote' ? 'rgba(6, 182, 212, 0.4)' : mode === 'allReceive' ? 'rgba(168, 85, 247, 0.3)' : 'rgba(59, 130, 246, 0.4)') : diedLater ? 'rgba(203, 213, 225, 0.3)' : 'transparent'} 
                   />
                   {showDeathIcons && diedNow && (
-                    <text x={pos.x} y={pos.y} textAnchor="middle" alignmentBaseline="middle" className="text-[10px] grayscale opacity-60">{pd.reason}</text>
+                    <text x={pos.x} y={pos.y} textAnchor="middle" alignmentBaseline="middle" className="text-[10px] opacity-60">{pd.reason}</text>
                   )}
                   {vCount !== undefined && mode === 'allReceive' && !diedNow && (
                     <text x={getPosition(num, playerCount, rs + ringWidth * 0.3).x} y={getPosition(num, playerCount, rs + ringWidth * 0.3).y} textAnchor="middle" alignmentBaseline="middle" className="font-bold fill-slate-700" style={{ fontSize: `${Math.max(7, ringWidth * 0.12)}px` }}>{vCount}</text>
