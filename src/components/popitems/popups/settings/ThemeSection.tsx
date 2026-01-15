@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Palette, Sparkles, Copy, Check, Save } from 'lucide-react';
+import { Palette, Sparkles, Copy, Check, Save, Wand2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { type ThemeType, type ThemeColors, THEMES } from '../../../../type';
 
@@ -17,12 +17,13 @@ const ThemeSection: React.FC<ThemeSectionProps> = ({
   activeTheme, setActiveTheme, setCustomThemeColors, savedCustomThemes, saveCustomTheme
 }) => {
   const [aiThemeInput, setAiThemeInput] = useState('');
+  const [desiredStyle, setDesiredStyle] = useState('');
   const [copied, setCopied] = useState(false);
   const [showSaveTheme, setShowSaveTheme] = useState(false);
   const [themeName, setThemeName] = useState('');
 
-  const aiPrompt = `Generate a JSON object for a Blood on the Clocktower app theme. 
-Style: [YOUR DESIRED STYLE HERE]
+  const getAiPrompt = (style: string) => `Generate a JSON object for a Blood on the Clocktower app theme. 
+Style: ${style || '[YOUR DESIRED STYLE HERE]'}
 
 Rules for high legibility:
 1. "bg" should be different from "panel" to create depth.
@@ -43,10 +44,10 @@ Format:
 }`;
 
   const copyPrompt = () => {
-    navigator.clipboard.writeText(aiPrompt);
+    navigator.clipboard.writeText(getAiPrompt(desiredStyle));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    toast.success('Prompt copied to clipboard');
+    toast.success('AI Prompt copied with your style!');
   };
 
   const applyAiTheme = () => {
@@ -130,51 +131,66 @@ Format:
           <Sparkles size={14} /> AI Custom Theme
         </h3>
         
-        <div className="bg-slate-50 rounded-xl p-4 space-y-3">
-          <p className="text-[10px] text-slate-500 leading-relaxed italic">
-            Copy the prompt below and paste it into an LLM to generate a custom visual style.
-          </p>
-          
-          <div className="relative">
-            <pre className="bg-slate-900 text-slate-300 p-3 rounded-lg text-[9px] font-mono whitespace-pre-wrap">
-              {aiPrompt}
-            </pre>
-            <button 
-              onClick={copyPrompt}
-              className="absolute top-2 right-2 p-1.5 bg-slate-800 text-white rounded hover:bg-slate-700 transition-colors"
-            >
-              {copied ? <Check size={12} /> : <Copy size={12} />}
-            </button>
+        <div className="bg-slate-50 rounded-xl p-4 space-y-4">
+          <div className="space-y-2">
+            <p className="text-[10px] text-slate-500 leading-relaxed italic">
+              1. Describe your style and copy the prompt for an AI (ChatGPT/Claude).
+            </p>
+            <div className="flex gap-2">
+              <div className="flex-1 relative">
+                <Wand2 size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input 
+                  type="text" 
+                  placeholder="e.g. Cyberpunk Neon, Forest Moss, Minimalist Gold..." 
+                  value={desiredStyle}
+                  onChange={(e) => setDesiredStyle(e.target.value)}
+                  className="w-full pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-[10px] focus:ring-2 focus:ring-indigo-500/20 outline-none"
+                />
+              </div>
+              <button 
+                onClick={copyPrompt}
+                className="px-4 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-all flex items-center gap-2 text-[10px] font-black uppercase shadow-sm active:scale-95"
+              >
+                {copied ? <Check size={14} /> : <Copy size={14} />}
+                {copied ? 'Copied' : 'Copy Prompt'}
+              </button>
+            </div>
           </div>
 
-          <textarea 
-            className="w-full h-24 bg-white border border-slate-200 rounded-lg p-3 text-[10px] font-mono focus:ring-2 focus:ring-indigo-500/20 outline-none resize-none"
-            placeholder='Paste JSON here...'
-            value={aiThemeInput}
-            onChange={(e) => setAiThemeInput(e.target.value)}
-          />
+          <div className="space-y-2">
+            <p className="text-[10px] text-slate-500 leading-relaxed italic">
+              2. Paste the JSON result from the AI below.
+            </p>
+            <textarea 
+              className="w-full h-24 bg-white border border-slate-200 rounded-lg p-3 text-[10px] font-mono focus:ring-2 focus:ring-indigo-500/20 outline-none resize-none"
+              placeholder='Paste JSON here...'
+              value={aiThemeInput}
+              onChange={(e) => setAiThemeInput(e.target.value)}
+            />
+          </div>
           
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-3">
             <button 
               onClick={applyAiTheme}
-              className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-[10px] font-black uppercase transition-all shadow-md active:scale-95"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-lg text-[10px] font-black uppercase transition-all shadow-md active:scale-95"
             >
               Apply Custom AI Style
             </button>
+            
             {showSaveTheme && (
-              <div className="flex gap-2">
+              <div className="flex gap-2 animate-in fade-in slide-in-from-top-2 duration-200">
                 <input 
                   type="text" 
-                  placeholder="Theme Name" 
+                  placeholder="Name your new theme..." 
                   value={themeName} 
                   onChange={(e) => setThemeName(e.target.value)} 
-                  className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-[10px] focus:ring-0"
+                  className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-[10px] focus:ring-2 focus:ring-green-500/20 outline-none"
                 />
                 <button 
                   onClick={handleSaveTheme}
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase transition-all shadow-md active:scale-95"
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase transition-all shadow-md active:scale-95 flex items-center gap-2"
                 >
-                  <Save size={14} />
+                  <Save size={14} /> Save
                 </button>
               </div>
             )}
