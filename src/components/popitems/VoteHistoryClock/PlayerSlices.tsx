@@ -79,7 +79,7 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
                     className={diedLater ? 'opacity-10' : ''}
                   />
                   {showDeathIcons && diedNow && (
-                    <text x={pos.x} y={pos.y} textAnchor="middle" alignmentBaseline="middle" className="text-[10px] opacity-60 fill-[var(--text-color)]">{pd.reason}</text>
+                    <text x={pos.x} y={pos.y} textAnchor="middle" alignmentBaseline="middle" className="text-[10px] opacity-100 fill-[var(--text-color)]">{pd.reason}</text>
                   )}
                   {vCount !== undefined && mode === 'allReceive' && !diedNow && (
                     <text 

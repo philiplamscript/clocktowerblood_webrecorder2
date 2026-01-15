@@ -41,7 +41,7 @@ const VoteArrows: React.FC<VoteArrowsProps> = ({
     // Core colors influenced by theme
     const baseColor = type === 'to' ? '#f43f5e' : type === 'from' ? '#10b981' : 'var(--accent-color)';
     const color = isSelected ? (type === 'to' ? '#dc2626' : type === 'from' ? '#059669' : 'var(--accent-color)') : baseColor;
-    const opacity = isPending ? 0.8 : (isSelected ? 0.7 : (isOld ? 0.2 : 0.4));
+    const opacity = isPending ? 0.9 : (isSelected ? 0.8 : (isOld ? 0.3 : 0.5));
     const strokeWidth = isSelected ? width * 1.5 : width;
     
     const radius = innerRadius + (day - 0.5) * ringWidth;
