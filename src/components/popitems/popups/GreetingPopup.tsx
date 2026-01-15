@@ -5,12 +5,14 @@ import {
   X, 
   MousePointer2, 
   MoveRight, 
-  Calendar, 
   Zap, 
   Skull, 
   Tag, 
   CheckCircle2,
-  Info
+  BookOpen,
+  Edit3,
+  Search,
+  Users
 } from 'lucide-react';
 
 interface GreetingPopupProps {
@@ -37,72 +39,98 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose, title = 
         </div>
         
         {/* Content Scroll Area */}
-        <div className="p-6 space-y-6 overflow-y-auto no-scrollbar">
+        <div className="p-6 space-y-8 overflow-y-auto no-scrollbar">
           
-          {/* Section: Nominations */}
+          {/* Section: Note Recording */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
+              <Users size={14} className="text-blue-500" />
+              <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">1. Player Notes</h3>
+            </div>
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex gap-4 items-center">
+              <div className="w-10 h-10 shrink-0 bg-white rounded-lg border border-slate-200 flex items-center justify-center text-blue-600 shadow-sm">
+                <Edit3 size={18} />
+              </div>
+              <p className="text-[10px] text-slate-600 leading-relaxed font-medium">
+                Tap any player in the top <span className="text-slate-900 font-bold">Player Hub</span> to record social reads and role claims in their private notepad.
+              </p>
+            </div>
+          </section>
+
+          {/* Section: Nomination Flow */}
           <section className="space-y-3">
             <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
               <Zap size={14} className="text-yellow-500" />
-              <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Nominations & Voting</h3>
+              <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">2. The Nomination Flow</h3>
             </div>
-            <div className="grid grid-cols-1 gap-4">
-              <div className="flex gap-4 items-start bg-slate-50 p-3 rounded-xl border border-slate-100">
-                <div className="w-10 h-10 shrink-0 bg-white rounded-lg border border-slate-200 flex items-center justify-center text-blue-500 shadow-sm">
-                  <MousePointer2 size={20} />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[11px] font-black text-slate-800 uppercase tracking-tighter">Slide to Nominate</p>
-                  <p className="text-[10px] text-slate-500 leading-relaxed font-medium">Click a player slice and <span className="text-blue-600 font-bold">Slide Across</span> the clock to the target to create a nomination link.</p>
-                </div>
+            <div className="space-y-2">
+              <div className="flex gap-3 items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                <MousePointer2 size={14} className="text-blue-500" />
+                <p className="text-[10px] text-slate-600 font-medium"><span className="font-bold text-slate-900">Link:</span> Slide from Nominee to Target on the clock.</p>
               </div>
-              <div className="flex gap-4 items-start bg-slate-50 p-3 rounded-xl border border-slate-100">
-                <div className="w-10 h-10 shrink-0 bg-white rounded-lg border border-slate-200 flex items-center justify-center text-red-500 shadow-sm">
-                  <CheckCircle2 size={20} />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[11px] font-black text-slate-800 uppercase tracking-tighter">Record Votes</p>
-                  <p className="text-[10px] text-slate-500 leading-relaxed font-medium">Tap the center ball to enter <span className="text-red-600 font-bold">Voting Mode</span>, then tap players to toggle their votes.</p>
-                </div>
+              <div className="flex gap-3 items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                <Info size={14} className="text-indigo-500" />
+                <p className="text-[10px] text-slate-600 font-medium"><span className="font-bold text-slate-900">Verify:</span> Update info/notes on the pending badge before voting.</p>
+              </div>
+              <div className="flex gap-3 items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                <CheckCircle2 size={14} className="text-red-500" />
+                <p className="text-[10px] text-slate-600 font-medium"><span className="font-bold text-slate-900">Vote:</span> Enter Voting Mode (center ball) to toggle player votes.</p>
               </div>
             </div>
           </section>
 
-          {/* Section: Game Flow */}
+          {/* Section: Clock Interaction */}
           <section className="space-y-3">
             <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
-              <Calendar size={14} className="text-blue-500" />
-              <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Game Flow Control</h3>
-            </div>
-            <div className="flex gap-4 items-start bg-slate-50 p-3 rounded-xl border border-slate-100">
-              <div className="w-10 h-10 shrink-0 bg-white rounded-lg border border-slate-200 flex items-center justify-center text-slate-700 shadow-sm">
-                <div className="flex items-center gap-0.5">
-                  <MoveRight size={16} className="animate-pulse" />
-                </div>
-              </div>
-              <div className="space-y-1">
-                <p className="text-[11px] font-black text-slate-800 uppercase tracking-tighter">Swipe Day Change</p>
-                <p className="text-[10px] text-slate-500 leading-relaxed font-medium">Swipe <span className="text-slate-900 font-bold">Left/Right</span> on the center sphere to quickly advance or regress the current game day.</p>
-              </div>
-            </div>
-          </section>
-
-          {/* Section: Quick Assignment */}
-          <section className="space-y-3">
-            <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
-              <Info size={14} className="text-emerald-500" />
-              <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Quick Tags & Death</h3>
+              <Skull size={14} className="text-red-500" />
+              <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">3. Quick Assignment</h3>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-2">
-                <Skull size={16} className="text-red-500" />
-                <p className="text-[9px] font-black text-slate-800 uppercase tracking-tighter leading-tight">Death Mode</p>
-                <p className="text-[9px] text-slate-500 leading-snug">Toggle Death Mode, then tap players to execute.</p>
+                <div className="flex items-center gap-2">
+                  <Skull size={14} className="text-red-500" />
+                  <Tag size={14} className="text-blue-500" />
+                </div>
+                <p className="text-[9px] text-slate-500 leading-snug">Toggle <span className="font-bold text-slate-900">Death/Prop</span> mode, then tap clock slices to execute or tag.</p>
               </div>
               <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-2">
-                <Tag size={16} className="text-blue-500" />
-                <p className="text-[9px] font-black text-slate-800 uppercase tracking-tighter leading-tight">Prop Mode</p>
-                <p className="text-[9px] text-slate-500 leading-snug">Toggle Prop Mode to assign status effects (Drunk, etc).</p>
+                <MoveRight size={14} className="text-slate-600" />
+                <p className="text-[9px] text-slate-500 leading-snug">Swipe <span className="font-bold text-slate-900">Left/Right</span> on the center sphere to travel through game days.</p>
               </div>
+            </div>
+          </section>
+
+          {/* Section: Reviewing */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
+              <Search size={14} className="text-indigo-500" />
+              <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">4. Review & Ledgers</h3>
+            </div>
+            <div className="space-y-2">
+              <div className="flex gap-3 items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                <Search size={14} className="text-indigo-500 opacity-50" />
+                <p className="text-[10px] text-slate-600 font-medium">Toggle <span className="font-bold text-slate-900">V/R/G</span> modes in Detail View to visualize patterns.</p>
+              </div>
+              <div className="flex gap-3 items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                <BookOpen size={14} className="text-emerald-500" />
+                <p className="text-[10px] text-slate-600 font-medium">Open <span className="font-bold text-slate-900">Full Ledger</span> for detailed Player/Vote/Role tables.</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Section: Setup */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
+              <Edit3 size={14} className="text-slate-400" />
+              <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">5. Script Setup</h3>
+            </div>
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex gap-4 items-center">
+              <div className="w-10 h-10 shrink-0 bg-white rounded-lg border border-slate-200 flex items-center justify-center text-slate-700 shadow-sm">
+                <Users size={18} />
+              </div>
+              <p className="text-[10px] text-slate-600 leading-relaxed font-medium">
+                Use <span className="text-slate-900 font-bold">Load Role</span> in the Sidebar to quickly paste and update your script character list.
+              </p>
             </div>
           </section>
 
