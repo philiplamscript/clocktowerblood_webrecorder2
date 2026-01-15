@@ -70,10 +70,10 @@ export default function App() {
     const newChars: any = { Townsfolk: [], Outsider: [], Minion: [], Demon: [] };
     let current: string | null = null;
     lines.forEach(l => {
-      if (l.includes('鎮民:')) current = 'Townsfolk';
-      else if (l.includes('外來者:')) current = 'Outsider';
-      else if (l.includes('爪牙:')) current = 'Minion';
-      else if (l.includes('惡魔:')) current = 'Demon';
+      if (l.includes('Townsfolk:')) current = 'Townsfolk';
+      else if (l.includes('Outsider:')) current = 'Outsider';
+      else if (l.includes('Minion:')) current = 'Minion';
+      else if (l.includes('Demon:')) current = 'Demon';
       else if (current) newChars[current].push({ name: l, status: '—', note: '' });
     });
     Object.keys(newChars).forEach(cat => { while (newChars[cat].length < 8) newChars[cat].push({ name: '', status: '—', note: '' }); });
