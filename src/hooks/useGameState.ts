@@ -26,12 +26,12 @@ export const useGameState = () => {
   const [defaultNotepad, setDefaultNotepad] = useState(() => getStorage('default_notepad', ''));
 
   const [currentDay, setCurrentDay] = useState(() => getStorage('day', 1));
-  const [playerCount, setPlayerCount] = useState(() => getStorage('count', 15));
+  const [playerCount, setPlayerCount] = useState(() => getStorage('count', 20));
   const [players, setPlayers] = useState<Player[]>(() => {
     const saved = getStorage('players', []);
     if (saved.length > 0) return saved;
     // Create new players with default notepad
-    return Array.from({ length: getStorage('count', 15) }, (_, i) => ({ no: i + 1, inf: defaultNotepad, day: '', reason: '', red: '', property: '' }));
+    return Array.from({ length: getStorage('count', 20) }, (_, i) => ({ no: i + 1, inf: defaultNotepad, day: '', reason: '', red: '', property: '' }));
   });
   const [nominations, setNominations] = useState<Nomination[]>(() => getStorage('nominations', [{ id: '1', day: 1, f: '-', t: '-', voters: '', note: '' }]));
   const [deaths, setDeaths] = useState<Death[]>(() => getStorage('deaths', [
@@ -81,7 +81,8 @@ export const useGameState = () => {
   const deadPlayers = useMemo(() => players.filter(p => p.day !== '' || p.red !== '').map(p => p.no), [players]);
 
   const reset = () => {
-    setPlayers(Array.from({ length: playerCount }, (_, i) => ({ no: i + 1, inf: defaultNotepad, day: '', reason: '', red: '', property: '' })));
+    setPlayerCount(20);
+    setPlayers(Array.from({ length: 20 }, (_, i) => ({ no: i + 1, inf: defaultNotepad, day: '', reason: '', red: '', property: '' })));
     setNominations([{ id: Math.random().toString(), day: 1, f: '-', t: '-', voters: '', note: '' }]);
     setDeaths([
       { id: 'default-execution', day: 1, playerNo: '', reason: '⚔️', note: '', isConfirmed: true },
