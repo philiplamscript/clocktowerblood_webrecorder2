@@ -17,12 +17,13 @@ const ThemeSection: React.FC<ThemeSectionProps> = ({
   activeTheme, setActiveTheme, setCustomThemeColors, savedCustomThemes, saveCustomTheme
 }) => {
   const [aiThemeInput, setAiThemeInput] = useState('');
+  const [styleInput, setStyleInput] = useState('');
   const [copied, setCopied] = useState(false);
   const [showSaveTheme, setShowSaveTheme] = useState(false);
   const [themeName, setThemeName] = useState('');
 
   const aiPrompt = `Generate a JSON object for a Blood on the Clocktower app theme. 
-Style: [YOUR DESIRED STYLE HERE]
+Style: ${styleInput || '[YOUR DESIRED STYLE HERE]'}
 
 Rules for high legibility:
 1. "bg" should be slightly darker or different from "panel" to create depth.
@@ -130,10 +131,14 @@ Format:
         </h3>
         
         <div className="bg-slate-50 rounded-xl p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <p className="text-[10px] text-slate-500 leading-relaxed italic">
-              Generate a custom theme with AI and paste the JSON here.
-            </p>
+          <div className="flex items-center gap-2">
+            <input 
+              type="text" 
+              placeholder="Enter style (e.g., ocean blue, dark forest)" 
+              value={styleInput} 
+              onChange={(e) => setStyleInput(e.target.value)} 
+              className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-[10px] focus:ring-2 focus:ring-indigo-500/20 outline-none"
+            />
             <button 
               onClick={copyPrompt}
               className="p-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-colors"
