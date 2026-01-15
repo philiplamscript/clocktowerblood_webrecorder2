@@ -30,7 +30,6 @@ export const useGameState = () => {
   const [players, setPlayers] = useState<Player[]>(() => {
     const saved = getStorage('players', []);
     if (saved.length > 0) return saved;
-    // Create new players with default notepad
     return Array.from({ length: getStorage('count', 15) }, (_, i) => ({ no: i + 1, inf: defaultNotepad, day: '', reason: '', red: '', property: '' }));
   });
   const [nominations, setNominations] = useState<Nomination[]>(() => getStorage('nominations', [{ id: '1', day: 1, f: '-', t: '-', voters: '', note: '' }]));
@@ -46,7 +45,6 @@ export const useGameState = () => {
   const [showHub, setShowHub] = useState(() => getStorage('showHub', false));
   const [splitView, setSplitView] = useState(() => getStorage('splitView', false));
   
-  // Theme State
   const [activeTheme, setActiveTheme] = useState<ThemeType>(() => getStorage('active_theme', 'standard'));
   const [customThemeColors, setCustomThemeColors] = useState<ThemeColors | null>(() => getStorage('custom_theme_colors', null));
   const [savedCustomThemes, setSavedCustomThemes] = useState<Theme[]>(() => getStorage('saved_custom_themes', []));
@@ -60,6 +58,31 @@ export const useGameState = () => {
     { id: 'p2', label: 'Crystal', value: '🔮' },
     { id: 'p3', label: 'Glasses', value: '👓' }
   ]));
+
+  // Sync player count changes to the players array
+  useEffect(() => {
+    setPlayers(prev => {
+      if (prev.length === playerCount) return prev;
+      if (prev.length < playerCount) {
+        // Adding players: use defaultNotepad for new entries
+        const newPlayers = [...prev];
+        for (let i = prev.length; i < playerCount; i++) {
+          newPlayers.push({ 
+            no: i + 1, 
+            inf: defaultNotepad, 
+            day: '', 
+            reason: '', 
+            red: '', 
+            property: '' 
+          });
+        }
+        return newPlayers;
+      } else {
+        // Removing players
+        return prev.slice(0, playerCount);
+      }
+    });
+  }, [playerCount, defaultNotepad]);
 
   useEffect(() => {
     const state = {
@@ -89,7 +112,6 @@ export const useGameState = () => {
     ]);
     setCurrentDay(1);
     
-    // Preserve Role Names but clear status/notes
     setChars(prev => {
       const newChars = { ...prev };
       (Object.keys(newChars) as (keyof CharDict)[]).forEach(cat => {
