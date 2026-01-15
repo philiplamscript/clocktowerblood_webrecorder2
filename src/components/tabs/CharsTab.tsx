@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Scroll } from 'lucide-react';
+import { Scroll, Plus, Trash2 } from 'lucide-react';
 import RotaryPicker from '../pickers/RotaryPicker/RotaryPicker';
 import { STATUS_OPTIONS, type Character, type CharDict, type RoleDist } from '../../type';
 
@@ -28,6 +28,20 @@ const CharsTab: React.FC<CharsTabProps> = ({ chars, setChars, playerCount, setPl
       [category]: chars[category].map((item, idx) => 
         idx === index ? { ...item, status: nextStatus } : item
       )
+    });
+  };
+
+  const addRow = (category: keyof CharDict) => {
+    setChars({
+      ...chars,
+      [category]: [...chars[category], { name: '', status: '—', note: '' }]
+    });
+  };
+
+  const removeRow = (category: keyof CharDict, index: number) => {
+    setChars({
+      ...chars,
+      [category]: chars[category].filter((_, idx) => idx !== index)
     });
   };
 
@@ -75,22 +89,41 @@ const CharsTab: React.FC<CharsTabProps> = ({ chars, setChars, playerCount, setPl
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         {categories.map((f) => (
           <div key={f} className="space-y-1">
-            <h3 className="text-[9px] font-black text-slate-400 px-1 uppercase tracking-widest">{f}s</h3>
+            <div className="flex justify-between items-center px-1 mb-1">
+              <h3 className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{f}s</h3>
+              <button 
+                onClick={() => addRow(f)}
+                className="p-1 hover:bg-slate-200 rounded text-slate-400 hover:text-slate-600 transition-colors"
+                title="Add Row"
+              >
+                <Plus size={10} />
+              </button>
+            </div>
             <div className="bg-white rounded border overflow-hidden">
               {chars[f].map((c: Character, i: number) => (
-                <div key={i} className="flex border-b last:border-0 h-8 items-center px-2 gap-2">
+                <div key={i} className="flex border-b last:border-0 h-8 items-center px-2 gap-2 group">
                   <input 
                     className="flex-1 bg-transparent border-none p-0 text-[10px] focus:ring-0 font-bold" 
                     placeholder="..." 
                     value={c.name} 
                     onChange={(e) => setChars({ ...chars, [f]: chars[f].map((item, idx) => idx === i ? { ...item, name: e.target.value } : item) })} 
                   />
-                  <button 
-                    onClick={() => toggleStatus(f, i)}
-                    className={`w-10 h-5 rounded text-[7px] font-black flex items-center justify-center transition-colors ${getStatusStyle(c.status)}`}
-                  >
-                    {c.status}
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button 
+                      onClick={() => toggleStatus(f, i)}
+                      className={`w-10 h-5 rounded text-[7px] font-black flex items-center justify-center transition-colors ${getStatusStyle(c.status)}`}
+                    >
+                      {c.status}
+                    </button>
+                    {chars[f].length > 1 && (
+                      <button 
+                        onClick={() => removeRow(f, i)}
+                        className="opacity-0 group-hover:opacity-100 p-1 text-slate-300 hover:text-red-500 transition-all"
+                      >
+                        <Trash2 size={10} />
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
