@@ -38,6 +38,7 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
         const pd = deaths.find(d => d.playerNo === numStr);
         const pData = players.find(p => p.no === num);
         
+        // Base fill: Dead players get a background-colored slice to look 'empty'
         const fill = isVoter ? 'var(--accent-color)' : isCurrent ? 'var(--panel-color)' : pd ? 'var(--bg-color)' : 'var(--panel-color)';
         const stroke = isCurrent ? 'var(--accent-color)' : assignmentMode === 'death' ? '#ef4444' : assignmentMode === 'property' ? '#3b82f6' : 'var(--border-color)';
 
@@ -70,15 +71,27 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
               const re = rs + ringWidth;
               const pos = getPosition(num, playerCount, (rs + re) / 2);
               
+              // Determine ring fill for dead/voting states
+              let ringFill = 'transparent';
+              if (vCount !== undefined) {
+                ringFill = `rgba(var(--accent-color-rgb), ${mode === 'allReceive' ? '0.3' : '0.4'})`;
+              } else if (diedNow) {
+                // Highlight the specific day of death with a semi-transparent muted overlay
+                ringFill = 'rgba(var(--accent-color-rgb), 0.1)';
+              } else if (diedLater) {
+                // Post-death rings are clearly greyed out
+                ringFill = 'var(--muted-color)';
+              }
+
               return (
                 <g key={`${num}-${dayNum}`} className="pointer-events-none">
                   <path 
                     d={getSlicePath(i, playerCount, rs, re)} 
-                    fill={vCount !== undefined ? `rgba(var(--accent-color-rgb), ${mode === 'allReceive' ? '0.3' : '0.4'})` : diedLater ? 'var(--muted-color)' : 'transparent'}
-                    className={diedLater ? 'opacity-10' : ''}
+                    fill={ringFill} 
+                    className={diedLater ? 'opacity-20' : ''}
                   />
                   {showDeathIcons && diedNow && (
-                    <text x={pos.x} y={pos.y} textAnchor="middle" alignmentBaseline="middle" className="text-[10px] opacity-100 fill-[var(--text-color)]">{pd.reason}</text>
+                    <text x={pos.x} y={pos.y} textAnchor="middle" alignmentBaseline="middle" className="text-[10px] opacity-100 fill-[var(--text-color)] drop-shadow-sm">{pd.reason}</text>
                   )}
                   {vCount !== undefined && mode === 'allReceive' && !diedNow && (
                     <text 

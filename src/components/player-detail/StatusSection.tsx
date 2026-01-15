@@ -56,7 +56,7 @@ const StatusSection: React.FC<StatusSectionProps> = ({
           value={currentPlayer?.property || ''} 
           onChange={(e) => updatePlayerProperty(playerNo, e.target.value)} 
           placeholder="Props" 
-          className="bg-transparent border-none p-0 text-[11px] font-bold focus:ring-0 w-full text-[var(--text-color)] placeholder:text-[var(--muted-color)]/50" 
+          className="bg-transparent border-none p-0 text-[11px] font-bold focus:ring-0 w-full text-[var(--text-color)] placeholder:text-[var(--muted-color)]" 
         />
       </div>
     </div>

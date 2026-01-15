@@ -60,7 +60,7 @@ const NoteSection: React.FC<NoteSectionProps> = ({
 
       <div className="flex gap-2 items-start">
         <textarea 
-          className="flex-1 min-h-[120px] border border-[var(--border-color)] bg-[var(--panel-color)] text-[var(--text-color)] rounded-lg p-4 text-xs focus:ring-2 focus:ring-[var(--accent-color)]/20 outline-none resize-none font-medium leading-relaxed shadow-sm transition-all placeholder:text-[var(--muted-color)]/50"
+          className="flex-1 min-h-[120px] border border-[var(--border-color)] bg-[var(--panel-color)] text-[var(--text-color)] rounded-lg p-4 text-xs focus:ring-2 focus:ring-[var(--accent-color)]/20 outline-none resize-none font-medium leading-relaxed shadow-sm transition-all placeholder:text-[var(--muted-color)]"
           placeholder="Type social reads, role claims..."
           value={currentPlayer?.inf || ''}
           onChange={(e) => updatePlayerInfo(playerNo, e.target.value)}
