@@ -52,7 +52,7 @@ export const PlayerGrid = ({ players, setPlayers }: { players: Player[], setPlay
 
   const SortIcon = ({ column }: { column: keyof Player }) => {
     if (sortConfig.key !== column) return <ArrowUpDown size={8} className="ml-1 opacity-20" />;
-    return sortConfig.direction === 'asc' ? <ChevronUp size={8} className="ml-1 text-red-500" /> : <ChevronDown size={8} className="ml-1 text-red-500" />;
+    return sortConfig.direction === 'asc' ? <ChevronUp size={8} className="ml-1 text-[var(--accent-color)]" /> : <ChevronDown size={8} className="ml-1 text-[var(--accent-color)]" />;
   };
 
   const updatePlayer = (no: number, field: keyof Player, value: string) => {
@@ -66,43 +66,43 @@ export const PlayerGrid = ({ players, setPlayers }: { players: Player[], setPlay
   }, []);
 
   return (
-    <div className="bg-white rounded border shadow-sm overflow-hidden">
+    <div className="bg-[var(--panel-color)] rounded border border-[var(--border-color)] shadow-sm overflow-hidden transition-colors duration-500">
       <table className="w-full text-left border-collapse table-fixed">
-        <thead className="bg-slate-50 border-b text-[8px] uppercase text-slate-400 font-black">
+        <thead className="bg-[var(--bg-color)] border-b border-[var(--border-color)] text-[8px] uppercase text-[var(--muted-color)] font-black transition-colors duration-500">
           <tr>
-            <th className="px-1 py-1.5 w-7 text-center cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('no')}>
+            <th className="px-1 py-1.5 w-7 text-center cursor-pointer hover:bg-black/5 transition-colors" onClick={() => handleSort('no')}>
               <div className="flex items-center justify-center"># <SortIcon column="no" /></div>
             </th>
-            <th className="px-1 py-1.5 w-8 text-center border-l cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('day')}>
+            <th className="px-1 py-1.5 w-8 text-center border-l border-[var(--border-color)] cursor-pointer hover:bg-black/5 transition-colors" onClick={() => handleSort('day')}>
               <div className="flex flex-col items-center"><Calendar size={10} /><SortIcon column="day" /></div>
             </th>
-            <th className="px-1 py-1.5 w-8 text-center border-l"><Zap size={10} className="mx-auto" /></th>
-            <th className="px-3 py-1.5 border-l cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('inf')}>
+            <th className="px-1 py-1.5 w-8 text-center border-l border-[var(--border-color)]"><Zap size={10} className="mx-auto" /></th>
+            <th className="px-3 py-1.5 border-l border-[var(--border-color)] cursor-pointer hover:bg-black/5 transition-colors" onClick={() => handleSort('inf')}>
               <div className="flex items-center">INFO <SortIcon column="inf" /></div>
             </th>
-            <th className="px-1 py-1.5 w-8 text-center text-red-500 border-l cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('red')}>
+            <th className="px-1 py-1.5 w-8 text-center text-[var(--accent-color)] border-l border-[var(--border-color)] cursor-pointer hover:bg-black/5 transition-colors" onClick={() => handleSort('red')}>
               <div className="flex flex-col items-center"><Skull size={10} /><SortIcon column="red" /></div>
             </th>
-            <th className="px-1 py-1.5 w-12 text-center border-l cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('property')}>
+            <th className="px-1 py-1.5 w-12 text-center border-l border-[var(--border-color)] cursor-pointer hover:bg-black/5 transition-colors" onClick={() => handleSort('property')}>
               <div className="flex flex-col items-center"><Tag size={10} /><SortIcon column="property" /></div>
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody className="divide-y divide-[var(--border-color)]">
           {sortedPlayers.map((p) => (
-            <tr key={p.no} className="align-top hover:bg-slate-50/50">
-              <td className="px-1 py-2 text-center text-slate-300 font-mono text-[10px]">{p.no}</td>
-              <td className="border-l border-slate-50"><input className="w-full text-center bg-transparent border-none p-1 text-[11px] font-mono focus:ring-0" value={p.day} onChange={(e) => updatePlayer(p.no, 'day', e.target.value)} /></td>
-              <td className="border-l border-slate-50"><input className="w-full text-center bg-transparent border-none p-1 text-[11px] font-mono focus:ring-0" value={p.reason} onChange={(e) => updatePlayer(p.no, 'reason', e.target.value)} /></td>
-              <td className="px-1 py-1 border-l border-slate-50">
+            <tr key={p.no} className="align-top hover:bg-black/5 transition-colors">
+              <td className="px-1 py-2 text-center text-[var(--muted-color)] font-mono text-[10px]">{p.no}</td>
+              <td className="border-l border-[var(--border-color)]"><input className="w-full text-center bg-transparent border-none p-1 text-[11px] font-mono focus:ring-0 text-[var(--text-color)]" value={p.day} onChange={(e) => updatePlayer(p.no, 'day', e.target.value)} /></td>
+              <td className="border-l border-[var(--border-color)]"><input className="w-full text-center bg-transparent border-none p-1 text-[11px] font-mono focus:ring-0 text-[var(--text-color)]" value={p.reason} onChange={(e) => updatePlayer(p.no, 'reason', e.target.value)} /></td>
+              <td className="px-1 py-1 border-l border-[var(--border-color)]">
                 <AutoResizeTextarea 
                   value={p.inf} 
                   onChange={(value) => updatePlayer(p.no, 'inf', value)} 
                   adjustHeight={adjustHeight}
                 />
               </td>
-              <td className="border-l border-slate-50"><input className="w-full text-center bg-transparent border-none p-1 text-[11px] font-black text-red-600 focus:ring-0" value={p.red} onChange={(e) => updatePlayer(p.no, 'red', e.target.value)} /></td>
-              <td className="border-l border-slate-50"><input className="w-full text-center bg-transparent border-none p-1 text-[10px] font-bold focus:ring-0" value={p.property} onChange={(e) => updatePlayer(p.no, 'property', e.target.value)} /></td>
+              <td className="border-l border-[var(--border-color)]"><input className="w-full text-center bg-transparent border-none p-1 text-[11px] font-black text-[var(--accent-color)] focus:ring-0" value={p.red} onChange={(e) => updatePlayer(p.no, 'red', e.target.value)} /></td>
+              <td className="border-l border-[var(--border-color)]"><input className="w-full text-center bg-transparent border-none p-1 text-[10px] font-bold text-[var(--text-color)] focus:ring-0" value={p.property} onChange={(e) => updatePlayer(p.no, 'property', e.target.value)} /></td>
             </tr>
           ))}
         </tbody>
@@ -124,7 +124,7 @@ const AutoResizeTextarea = ({ value, onChange, adjustHeight }: { value: string, 
   return (
     <textarea 
       ref={textareaRef}
-      className="w-full bg-transparent border-none p-1 text-[11px] leading-tight resize-none min-h-[1.5rem] focus:ring-0 overflow-hidden" 
+      className="w-full bg-transparent border-none p-1 text-[11px] leading-tight resize-none min-h-[1.5rem] focus:ring-0 overflow-hidden text-[var(--text-color)]" 
       rows={1} 
       value={value} 
       placeholder="..." 
