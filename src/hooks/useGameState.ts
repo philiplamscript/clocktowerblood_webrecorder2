@@ -27,11 +27,21 @@ export const useGameState = () => {
 
   const [currentDay, setCurrentDay] = useState(() => getStorage('day', 1));
   const [playerCount, setPlayerCount] = useState(() => getStorage('count', 15));
+  
+  // We maintain a master list of players (up to 20) to preserve data even when count decreases
   const [players, setPlayers] = useState<Player[]>(() => {
     const saved = getStorage('players', []);
     if (saved.length > 0) return saved;
-    return Array.from({ length: getStorage('count', 15) }, (_, i) => ({ no: i + 1, inf: defaultNotepad, day: '', reason: '', red: '', property: '' }));
+    return Array.from({ length: 20 }, (_, i) => ({ 
+      no: i + 1, 
+      inf: defaultNotepad, 
+      day: '', 
+      reason: '', 
+      red: '', 
+      property: '' 
+    }));
   });
+
   const [nominations, setNominations] = useState<Nomination[]>(() => getStorage('nominations', [{ id: '1', day: 1, f: '-', t: '-', voters: '', note: '' }]));
   const [deaths, setDeaths] = useState<Death[]>(() => getStorage('deaths', [
     { id: 'default-execution', day: 1, playerNo: '', reason: '⚔️', note: '', isConfirmed: true },
@@ -59,31 +69,7 @@ export const useGameState = () => {
     { id: 'p3', label: 'Glasses', value: '👓' }
   ]));
 
-  // Sync player count changes to the players array
-  useEffect(() => {
-    setPlayers(prev => {
-      if (prev.length === playerCount) return prev;
-      if (prev.length < playerCount) {
-        // Adding players: use defaultNotepad for new entries
-        const newPlayers = [...prev];
-        for (let i = prev.length; i < playerCount; i++) {
-          newPlayers.push({ 
-            no: i + 1, 
-            inf: defaultNotepad, 
-            day: '', 
-            reason: '', 
-            red: '', 
-            property: '' 
-          });
-        }
-        return newPlayers;
-      } else {
-        // Removing players
-        return prev.slice(0, playerCount);
-      }
-    });
-  }, [playerCount, defaultNotepad]);
-
+  // Persistence effect
   useEffect(() => {
     const state = {
       day: currentDay, count: playerCount, players, nominations, deaths, chars, dist: roleDist,
@@ -94,6 +80,7 @@ export const useGameState = () => {
     Object.entries(state).forEach(([key, val]) => localStorage.setItem(`clocktower_${key}`, JSON.stringify(val)));
   }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, language, showHub, splitView, notepadTemplates, propTemplates, activeTheme, customThemeColors, savedCustomThemes, defaultNotepad]);
 
+  // Sync deaths to player status
   useEffect(() => {
     setPlayers(prev => prev.map(p => {
       const death = deaths.find(d => parseInt(d.playerNo) === p.no);
@@ -101,10 +88,19 @@ export const useGameState = () => {
     }));
   }, [deaths]);
 
-  const deadPlayers = useMemo(() => players.filter(p => p.day !== '' || p.red !== '').map(p => p.no), [players]);
+  // Derived state: only consider players within the current active count
+  const activePlayers = useMemo(() => players.slice(0, playerCount), [players, playerCount]);
+  const deadPlayers = useMemo(() => activePlayers.filter(p => p.day !== '' || p.red !== '').map(p => p.no), [activePlayers]);
 
   const reset = () => {
-    setPlayers(Array.from({ length: playerCount }, (_, i) => ({ no: i + 1, inf: defaultNotepad, day: '', reason: '', red: '', property: '' })));
+    setPlayers(Array.from({ length: 20 }, (_, i) => ({ 
+      no: i + 1, 
+      inf: defaultNotepad, 
+      day: '', 
+      reason: '', 
+      red: '', 
+      property: '' 
+    })));
     setNominations([{ id: Math.random().toString(), day: 1, f: '-', t: '-', voters: '', note: '' }]);
     setDeaths([
       { id: 'default-execution', day: 1, playerNo: '', reason: '⚔️', note: '', isConfirmed: true },
@@ -172,7 +168,9 @@ export const useGameState = () => {
   };
 
   return {
-    currentDay, setCurrentDay, playerCount, setPlayerCount, players, setPlayers,
+    currentDay, setCurrentDay, playerCount, setPlayerCount, 
+    players: activePlayers, // Return only active players to the UI
+    setPlayers,
     nominations, setNominations, deaths, setDeaths, chars, setChars, roleDist, setRoleDist,
     note, setNote, fontSize, setFontSize, language, setLanguage, showHub, setShowHub,
     splitView, setSplitView, notepadTemplates, setNotepadTemplates, propTemplates, setPropTemplates,
