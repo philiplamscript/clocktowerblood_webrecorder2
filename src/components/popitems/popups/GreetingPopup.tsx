@@ -49,8 +49,8 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose, title = 
               <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">1. Player Notes</h3>
             </div>
             <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex gap-4 items-center">
-              <div className="w-10 h-10 shrink-0 bg-white rounded-lg border border-slate-200 flex items-center justify-center text-blue-600 shadow-sm">
-                <img src="how2use/screen-1.jpg" alt="Logo" className="w-120 h-240" />
+              <div className="w-16 h-20 shrink-0 bg-white rounded-lg border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm">
+                <img src="/how2use/screen-1.jpg" alt="Notes" className="w-full h-full object-cover" />
               </div>
               <p className="text-[10px] text-slate-600 leading-relaxed font-medium">
                 Tap any player in the top <span className="text-slate-900 font-bold">Player Hub</span> to record social reads and role claims in their private notepad.
@@ -66,15 +66,21 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose, title = 
             </div>
             <div className="space-y-2">
               <div className="flex gap-3 items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                <img src="how2use/screen-2.0.jpg" alt="Logo" className="w-120 h-240" />
+                <div className="w-12 h-12 shrink-0 bg-white rounded border border-slate-200 overflow-hidden">
+                  <img src="/how2use/screen-2.0.jpg" alt="Slide" className="w-full h-full object-cover" />
+                </div>
                 <p className="text-[10px] text-slate-600 font-medium"><span className="font-bold text-slate-900">Link:</span> Slide from Nominee to Target on the clock.</p>
               </div>
               <div className="flex gap-3 items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                <img src="how2use/screen-2.1.jpg" alt="Logo" className="w-120 h-240" />
+                <div className="w-12 h-12 shrink-0 bg-white rounded border border-slate-200 overflow-hidden">
+                  <img src="/how2use/screen-2.1.jpg" alt="Verify" className="w-full h-full object-cover" />
+                </div>
                 <p className="text-[10px] text-slate-600 font-medium"><span className="font-bold text-slate-900">Verify:</span> Update info/notes on the pending badge before voting.</p>
               </div>
               <div className="flex gap-3 items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                <img src="how2use/screen-2.2.jpg" alt="Logo" className="w-120 h-240" />
+                <div className="w-12 h-12 shrink-0 bg-white rounded border border-slate-200 overflow-hidden">
+                  <img src="/how2use/screen-2.2.jpg" alt="Vote" className="w-full h-full object-cover" />
+                </div>
                 <p className="text-[10px] text-slate-600 font-medium"><span className="font-bold text-slate-900">Vote:</span> Enter Voting Mode (center ball) to toggle player votes.</p>
               </div>
             </div>
@@ -87,15 +93,15 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose, title = 
               <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">3. Quick Assignment</h3>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-2">
-                <div className="flex items-center gap-2">
-                  <img src="how2use/screen-3.jpg" alt="Logo" className="w-120 h-240" />
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-2 flex flex-col items-center">
+                <div className="w-full h-20 bg-white rounded border border-slate-200 overflow-hidden">
+                  <img src="/how2use/screen-3.jpg" alt="Assignment" className="w-full h-full object-cover" />
                 </div>
-                <p className="text-[9px] text-slate-500 leading-snug">Toggle <span className="font-bold text-slate-900">Death/Prop</span> mode, then tap clock slices to execute or tag.</p>
+                <p className="text-[9px] text-slate-500 leading-snug text-center">Toggle <span className="font-bold text-slate-900">Death/Prop</span> mode, then tap slices to execute or tag.</p>
               </div>
-              <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-2">
-                <MoveRight size={14} className="text-slate-600" />
-                <p className="text-[9px] text-slate-500 leading-snug">Swipe <span className="font-bold text-slate-900">Left/Right</span> on the center sphere to travel through game days.</p>
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-2 flex flex-col justify-center items-center">
+                <MoveRight size={24} className="text-slate-400 mb-1" />
+                <p className="text-[9px] text-slate-500 leading-snug text-center">Swipe <span className="font-bold text-slate-900">Left/Right</span> on the center sphere to travel through days.</p>
               </div>
             </div>
           </section>
@@ -108,12 +114,20 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose, title = 
             </div>
             <div className="space-y-2">
               <div className="flex gap-3 items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                <img src="how2use/screen-4.jpg" alt="Logo" className="w-120 h-240" />
-                <p className="text-[10px] text-slate-600 font-medium">Toggle <span className="font-bold text-slate-900">V/R/G</span> modes in Detail View to visualize patterns.</p>
+                <div className="w-12 h-12 shrink-0 bg-white rounded border border-slate-200 overflow-hidden">
+                  <img src="/how2use/screen-4.jpg" alt="Review" className="w-full h-full object-cover" />
+                </div>
+                <p className="text-[10px] text-slate-600 font-medium">Toggle <span className="font-bold text-slate-900">V/R/G</span> modes to visualize patterns and patterns.</p>
               </div>
               <div className="flex gap-3 items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                <img src="how2use/screen-5.jpg" alt="Logo" className="w-120 h-240" />
-                <img src="how2use/screen-5.1.jpg" alt="Logo" className="w-120 h-240" />
+                <div className="flex gap-1 shrink-0">
+                  <div className="w-8 h-8 bg-white rounded border border-slate-200 overflow-hidden">
+                    <img src="/how2use/screen-5.jpg" alt="Ledger 1" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="w-8 h-8 bg-white rounded border border-slate-200 overflow-hidden">
+                    <img src="/how2use/screen-5.1.jpg" alt="Ledger 2" className="w-full h-full object-cover" />
+                  </div>
+                </div>
                 <p className="text-[10px] text-slate-600 font-medium">Open <span className="font-bold text-slate-900">Full Ledger</span> for detailed Player/Vote/Role tables.</p>
               </div>
             </div>
@@ -126,8 +140,8 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose, title = 
               <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">5. Script Setup</h3>
             </div>
             <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex gap-4 items-center">
-              <div className="w-10 h-10 shrink-0 bg-white rounded-lg border border-slate-200 flex items-center justify-center text-slate-700 shadow-sm">
-                <img src="how2use/screen-6.jpg" alt="Logo" className="w-120 h-240" />
+              <div className="w-16 h-12 shrink-0 bg-white rounded-lg border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm">
+                <img src="/how2use/screen-6.jpg" alt="Script Setup" className="w-full h-full object-cover" />
               </div>
               <p className="text-[10px] text-slate-600 leading-relaxed font-medium">
                 Use <span className="text-slate-900 font-bold">Load Role</span> in the Sidebar to quickly paste and update your script character list.
