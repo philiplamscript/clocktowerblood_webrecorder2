@@ -71,7 +71,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <NavItem icon={Edit} label="Load Role" onClick={onLoadRole} color="text-blue-400" />
           <NavItem icon={RotateCcw} label="Reset session" onClick={onReset} color="text-red-500" />
           {/* <NavItem icon={History} label="Update Log" onClick={onShowUpdateLog} color="text-yellow-500" /> */}
-          {/* <NavItem icon={UserCircle} label="Player Detail" onClick={onFocusPlayerDetail} color="text-emerald-500" /> */}
+          <NavItem icon={UserCircle} label="Player Detail" onClick={onFocusPlayerDetail} color="text-emerald-500" />
           <NavItem icon={Settings} label="Settings" onClick={onOpenSettings} color="text-slate-400" />
         </div>
 
