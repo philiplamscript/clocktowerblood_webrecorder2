@@ -12,7 +12,8 @@ import {
   BookOpen,
   Edit3,
   Search,
-  Users
+  Users,
+  Info
 } from 'lucide-react';
 
 interface GreetingPopupProps {
