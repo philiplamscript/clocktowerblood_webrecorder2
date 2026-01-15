@@ -5,6 +5,7 @@ import ClockFace from './ClockFace';
 import PlayerSlices from './PlayerSlices';
 import VoteArrows from './VoteArrows';
 import ClockCenter from './ClockCenter';
+import ClockLabels from './ClockLabels';
 import { cx, cy, innerRadius, outerRadius } from './utils';
 
 interface VoteHistoryClockProps {
@@ -73,17 +74,12 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
       if (props.filterDay !== 'all' && day !== props.filterDay) return;
       const voteCount = n.voters ? n.voters.split(',').filter((v: string) => v).length : 0;
 
-      // Global arrows: always include all nominations that have source and target
       if (n.f && n.f !== '-' && n.t && n.t !== '-') {
         const fromNum = parseInt(n.f), toNum = parseInt(n.t);
-        // Determine highlighting type based on current player
         let type: 'to' | 'from' | 'self' = fromNum === toNum ? 'self' : toNum === props.playerNo ? 'from' : fromNum === props.playerNo ? 'to' : 'to';
-        
-        // Push all arrows to arrowData for global display
         arrowData.push({ from: fromNum, to: toNum, day, type });
       }
 
-      // Highlight logic (votedAtDay) remains mode-specific for the rings
       if (props.mode === 'allReceive') {
         if (n.t && n.t !== '-') {
           if (!votedAtDay[n.t]) votedAtDay[n.t] = {};
@@ -174,14 +170,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
         onMouseMove={(e) => handleMove(e.clientX, e.clientY)} onMouseUp={handleEnd} onMouseLeave={handleEnd}
         onTouchMove={(e) => handleMove(e.touches[0].clientX, e.touches[0].clientY)} onTouchEnd={handleEnd}
       >
-        <defs>
-          <radialGradient id="playerSpotlight" cx="0%" cy="0%" r="0%">
-            <stop offset="0%" stopColor="#fef3c7" stopOpacity="1" />
-            <stop offset="50%" stopColor="#fef3c7" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#fde68a" stopOpacity="0.4" />
-          </radialGradient>
-        </defs>
-        <ClockFace playerCount = {props.playerCount} playerNo = {props.playerNo} ringCount={ringCount} ringWidth={ringWidth} showAxis={props.showAxis ?? true} />
+        <ClockFace playerCount={props.playerCount} playerNo={props.playerNo} ringCount={ringCount} ringWidth={ringWidth} showAxis={props.showAxis ?? true} />
         <PlayerSlices 
           playerCount={props.playerCount} playerNo={props.playerNo} isVoting={props.isVoting} pendingNomVoters={props.pendingNom?.voters ?? []}
           deaths={props.deaths} players={props.players} ringCount={ringCount} ringWidth={ringWidth} votedAtDay={data.votedAtDay} mode={props.mode} 
@@ -192,6 +181,12 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
           isSliding={isSliding} gestureStart={gestureStart} gestureCurrent={gestureCurrent} pendingNom={props.pendingNom} 
           currentDay={props.currentDay} mode={props.mode} ringWidth={ringWidth} offset={0}
           showArrows={props.showArrows ?? true}
+        />
+        <ClockLabels 
+          playerCount={props.playerCount} playerNo={props.playerNo} ringCount={ringCount} ringWidth={ringWidth}
+          players={props.players} deaths={props.deaths} votedAtDay={data.votedAtDay} mode={props.mode}
+          showDeathIcons={props.showDeathIcons} showProperties={props.showProperties ?? true} showAxis={props.showAxis ?? true}
+          isVoting={props.isVoting} pendingNomVoters={props.pendingNom?.voters ?? []}
         />
         <ClockCenter 
           isVoting={props.isVoting} 
