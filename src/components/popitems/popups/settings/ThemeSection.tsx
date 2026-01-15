@@ -25,8 +25,8 @@ const ThemeSection: React.FC<ThemeSectionProps> = ({
 Style: [YOUR DESIRED STYLE HERE]
 
 Rules for high legibility:
-1. "bg" should be slightly darker or different from "panel" to create depth.
-2. "panel" is the main surface; "text" must have high contrast against it.
+1. "bg" should be different from "panel" to create depth.
+2. "panel" is the main surface; "text" must have high contrast against "panel" and "bg".
 3. "header" and "accent" should be bold, distinct colors for primary actions.
 4. "border" should be a subtle version of the text or background color.
 5. "muted" is for secondary labels; ensure it's still visible but lower contrast than "text".
