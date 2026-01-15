@@ -13,7 +13,8 @@ import {
   Edit3,
   Search,
   Users,
-  Info
+  Info,
+  Sparkles
 } from 'lucide-react';
 
 interface GreetingPopupProps {
@@ -28,6 +29,12 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose, title = 
   if (!isOpen) return null;
 
   const pages = [
+    {
+      title: "Welcome to ClockTracker",
+      icon: <Sparkles size={16} className="text-red-500" />,
+      images: ["/The_Minimalist_Wheel.svg"],
+      content: "A digital companion for Blood on the Clocktower. Track votes, manage roles, and solve the mystery with elegance and speed. Let's take a quick look at how it works."
+    },
     {
       title: "1. Player Notes",
       icon: <Users size={16} className="text-blue-500" />,
@@ -62,6 +69,7 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose, title = 
 
   const page = pages[currentPage];
   const isLast = currentPage === pages.length - 1;
+  const isFirst = currentPage === 0;
 
   const handleNext = () => {
     if (isLast) onClose();
@@ -79,7 +87,7 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose, title = 
         {/* Top 60%: Images Container */}
         <div className="h-[60%] bg-slate-100 flex items-center justify-center p-4 gap-2 overflow-hidden border-b border-slate-200">
           {page.images.map((src, idx) => (
-            <div key={idx} className="flex-1 h-full max-h-[90%] rounded-xl overflow-hidden shadow-lg border border-white/50 bg-white">
+            <div key={idx} className={`flex-1 h-full max-h-[90%] rounded-xl overflow-hidden shadow-lg border border-white/50 bg-white ${isFirst ? 'p-12' : ''}`}>
               <img src={src} alt={`Step ${idx + 1}`} className="w-full h-full object-contain" />
             </div>
           ))}
@@ -112,7 +120,7 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose, title = 
             </div>
 
             <div className="flex gap-2">
-              {currentPage > 0 && (
+              {!isFirst && (
                 <button 
                   onClick={handleBack}
                   className="p-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl transition-all active:scale-90"
@@ -126,7 +134,7 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose, title = 
                   isLast ? 'bg-red-600 text-white shadow-red-200' : 'bg-slate-900 text-white shadow-slate-200'
                 }`}
               >
-                {isLast ? "Let's Play" : "Next Step"}
+                {isFirst ? "Get Started" : isLast ? "Let's Play" : "Next Step"}
                 {!isLast && <ChevronRight size={16} />}
               </button>
             </div>
