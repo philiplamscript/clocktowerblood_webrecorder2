@@ -11,9 +11,9 @@ interface AboutPopupProps {
 const AboutPopup: React.FC<AboutPopupProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
-  const supportEmail = import.meta.env.VITE_SUPPORT_EMAIL || 'philip2p2026@gmail.com';
-  const githubUrl = import.meta.env.VITE_GITHUB_URL || 'https://github.com/philiplamscript/clocktowerblood_webrecorder2.git';
-  const bmcUrl = import.meta.env.VITE_BUYMEACOFFEE_URL || 'https://buymeacoffee.com/philip2p2026';
+  const supportEmail = import.meta.env.VITE_SUPPORT_EMAIL || '';
+  const githubUrl = import.meta.env.VITE_GITHUB_URL || '';
+  const bmcUrl = import.meta.env.VITE_BUYMEACOFFEE_URL || '';
 
   const emailSubject = encodeURIComponent("[BOTCT-ClockTracker] Feedback / Bug Report");
   const emailBody = encodeURIComponent(`Type: [Feedback / Bug Report]
@@ -71,7 +71,7 @@ const AboutPopup: React.FC<AboutPopupProps> = ({ isOpen, onClose }) => {
           <section className="space-y-2">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Special Thanks</h3>
             <ul className="space-y-1 text-[11px] text-slate-700 font-medium">
-              <li className="flex items-center gap-2">• <a href='https://www.dyad.sh/' className="text-emerald-500">Dyad</a> Make idea simple and come true</li>
+              <li className="flex items-center gap-2">• <img src="/dyad_logo.svg" alt="dyad_Logo" className="w-3 h-3" /><a href='https://www.dyad.sh/' className="text-emerald-500">Dyad</a> Make idea simple and come true</li>
               <li className="flex items-center gap-2">• <span className="text-emerald-500">Blood of the ClockTower Community</span> for Great Passion Community</li>
               <li className="flex items-center gap-2">• <span className="text-emerald-500">Amazing Supportor</span> for Supporting</li>
             </ul>
