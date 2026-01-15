@@ -36,13 +36,13 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose }) => {
       title: "1. Player Notes",
       icon: <Users size={16} className="text-blue-500" />,
       images: ["/how2use/screen-1.jpg"],
-      content: "Tap any player in the hub❶ to record social reads and role claims in their private notepad❶❷❸. This keeps your data organized per player."
+      content: "Tap any player in the hub❶ to record social reads and role claims in their private notepad❷. This keeps your data organized per player."
     },
     {
       title: "2. Nomination Flow",
       icon: <Zap size={16} className="text-yellow-500" />,
       images: ["/how2use/screen-2.0.jpg", "/how2use/screen-2.1.jpg", "/how2use/screen-2.2.jpg"],
-      content: "Slide from Nominee to Target on the clock to create a link❶. Enter Voting Mode in the center to toggle voter status❷."
+      content: `Slide from Nominee to Target on the clock to create a link❶. Before Voting still able review/edit player notes❷.Enter Voting Mode in the center to toggle voter status.`
     },
     {
       title: "3. Quick Assignment",
@@ -60,7 +60,7 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose }) => {
       title: "5. Full Ledgers",
       icon: <BookOpen size={16} className="text-emerald-500" />,
       images: ["/how2use/screen-5.2.jpg", "/how2use/screen-5.3.jpg", "/how2use/screen-5.4.jpg"],
-      content: "Access detailed tables for all nominations, player records, and the full role script for the session."
+      content: "Access detailed tables for player records, all nominations, and the full role script for the session."
     },
     {
       title: "6. Script Setup",
