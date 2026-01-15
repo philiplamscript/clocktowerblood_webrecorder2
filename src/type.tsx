@@ -154,17 +154,17 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       muted: '#8c7851'
     }
   },
-  puppet: {
-    id: 'puppet',
-    name: 'The Puppet Master',
+  crino: {
+    id: 'crino',
+    name: 'Ice Fairy',
     colors: {
-      bg: '#09090b',
-      panel: '#18181b',
-      header: '#581c87',
-      accent: '#d946ef',
-      text: '#fafafa',
-      border: '#3f3f46',
-      muted: '#a1a1aa'
-    }
+  "bg": "#1A3A5F",
+  "panel": "#D0EFFF",
+  "header": "#0074D9",
+  "accent": "#FF4136",
+  "text": "#002B5B",
+  "border": "#A5D8FF",
+  "muted": "#5A8BB0"
+}
   }
 };
