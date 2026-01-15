@@ -26,8 +26,7 @@ const VoteArrows: React.FC<VoteArrowsProps> = ({
   if (!showArrows) return null;
 
   const getShiftedPosition = (num: number, radius: number, day: number) => {
-    // Add a slight angle jitter based on the day to prevent perfect overlaps
-    const jitter = ((day % 5) - 2) * 1.5; // -3 to 3 degrees
+    const jitter = ((day % 5) - 2) * 1.5;
     const angle = ((num - 1) * (360 / playerCount)) - 90 + (360 / (playerCount * 2)) + jitter;
     return {
       x: cx + radius * Math.cos(angle * Math.PI / 180),
@@ -39,9 +38,9 @@ const VoteArrows: React.FC<VoteArrowsProps> = ({
     const isSelected = from === playerNo || to === playerNo;
     const isOld = day < currentDay;
     
-    // Visual settings: older arrows are thinner and more transparent
-    const baseColor = type === 'to' ? '#f43f5e' : type === 'from' ? '#10b981' : '#8b5cf6';
-    const color = isSelected ? (type === 'to' ? '#dc2626' : type === 'from' ? '#059669' : '#7c3aed') : baseColor;
+    // Core colors influenced by theme
+    const baseColor = type === 'to' ? '#f43f5e' : type === 'from' ? '#10b981' : 'var(--accent-color)';
+    const color = isSelected ? (type === 'to' ? '#dc2626' : type === 'from' ? '#059669' : 'var(--accent-color)') : baseColor;
     const opacity = isPending ? 0.8 : (isSelected ? 0.7 : (isOld ? 0.2 : 0.4));
     const strokeWidth = isSelected ? width * 1.5 : width;
     
@@ -52,7 +51,7 @@ const VoteArrows: React.FC<VoteArrowsProps> = ({
       return (
         <g key={`self-${from}-${day}-${Math.random()}`} opacity={opacity} className="transition-all duration-300">
           <foreignObject x={pos.x - 6} y={pos.y - 6} width="12" height="12">
-            <RefreshCw size={12} color={color} />
+            <RefreshCw size={12} color={color === 'var(--accent-color)' ? '#8b5cf6' : color} />
           </foreignObject>
         </g>
       );
@@ -61,22 +60,15 @@ const VoteArrows: React.FC<VoteArrowsProps> = ({
     const fp = getShiftedPosition(from, radius, day);
     const tp = getShiftedPosition(to, radius, day);
     
-    // Calculate a control point for the Bezier curve
-    // We pull the curve slightly towards the center of the clock to create space
     const midX = (fp.x + tp.x) / 2;
     const midY = (fp.y + tp.y) / 2;
-    
-    // Vector from center of clock to midpoint of the chord
     const dx = midX - cx;
     const dy = midY - cy;
-    const distFromCenter = Math.sqrt(dx * dx + dy * dy);
     
-    // Curviness factor: pull closer to center
     const curveFactor = 0.15;
     const cpX = midX - dx * curveFactor;
     const cpY = midY - dy * curveFactor;
 
-    // Calculate arrowhead angle based on the end of the curve (tangent at tp)
     const angle = Math.atan2(tp.y - cpY, tp.x - cpX);
     const hx = tp.x - 2 * Math.cos(angle);
     const hy = tp.y - 2 * Math.sin(angle);
@@ -88,13 +80,13 @@ const VoteArrows: React.FC<VoteArrowsProps> = ({
         <path 
           d={`M ${fp.x} ${fp.y} Q ${cpX} ${cpY} ${hx} ${hy}`} 
           fill="none" 
-          stroke={color} 
+          stroke={color === 'var(--accent-color)' ? '#8b5cf6' : color} 
           strokeWidth={strokeWidth} 
           strokeLinecap="round" 
         />
         <polygon 
           points={`${tp.x},${tp.y} ${tp.x - 6 * Math.cos(angle - Math.PI / 8)},${tp.y - 6 * Math.sin(angle - Math.PI / 8)} ${tp.x - 6 * Math.cos(angle + Math.PI / 8)},${tp.y - 6 * Math.sin(angle + Math.PI / 8)}`} 
-          fill={color} 
+          fill={color === 'var(--accent-color)' ? '#8b5cf6' : color} 
         />
       </g>
     );
