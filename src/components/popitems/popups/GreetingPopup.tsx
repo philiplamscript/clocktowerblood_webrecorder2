@@ -36,25 +36,25 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose }) => {
       title: "1. Player Notes",
       icon: <Users size={16} className="text-blue-500" />,
       images: ["/how2use/screen-1.jpg"],
-      content: "Tap any player in the hub to record social reads and role claims in their private notepad. This keeps your data organized per player."
+      content: "Tap any player in the hub❶ to record social reads and role claims in their private notepad❶❷❸. This keeps your data organized per player."
     },
     {
       title: "2. Nomination Flow",
       icon: <Zap size={16} className="text-yellow-500" />,
       images: ["/how2use/screen-2.0.jpg", "/how2use/screen-2.1.jpg", "/how2use/screen-2.2.jpg"],
-      content: "Slide from Nominee to Target on the clock to create a link. Enter Voting Mode in the center to toggle voter status."
+      content: "Slide from Nominee to Target on the clock to create a link❶. Enter Voting Mode in the center to toggle voter status❷."
     },
     {
       title: "3. Quick Assignment",
       icon: <Skull size={16} className="text-red-500" />,
       images: ["/how2use/screen-3.jpg"],
-      content: "Toggle Death or Property mode, then tap clock slices to tag players. Swipe the center ball to change the current game day."
+      content: "Toggle Death or Property mode❶, then tap clock slices to tag players. Swipe the center ball❷ to change the current game day."
     },
     {
       title: "4. Pattern Review",
       icon: <Search size={16} className="text-indigo-500" />,
       images: ["/how2use/screen-4.jpg"],
-      content: "V/R/G modes help visualize patterns. See who voted for whom and global trends. Use the ring filter to focus on specific days."
+      content: "V/R/G modes help visualize patterns❶. See who voted for whom and global trends. Able/Disable layer❷. Use the ring filter❸ to focus on specific days."
     },
     {
       title: "5. Full Ledgers",
