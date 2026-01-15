@@ -50,19 +50,19 @@ const CharsTab: React.FC<CharsTabProps> = ({ chars, setChars, playerCount, setPl
       case "POSS": return "bg-blue-500 text-white";
       case "CONF": return "bg-emerald-500 text-white";
       case "NOT": return "bg-red-500 text-white";
-      default: return "bg-slate-100 text-slate-400";
+      default: return "bg-[var(--bg-color)] text-[var(--muted-color)]";
     }
   };
 
   return (
     <div className="space-y-4">
-      <div className="bg-slate-900 rounded border border-slate-800 shadow-2xl overflow-hidden max-w-lg mx-auto">
-        <div className="flex items-center gap-2 px-3 py-2 border-b border-slate-800 bg-slate-950">
+      <div className="bg-[var(--header-color)] rounded border border-[var(--border-color)] shadow-2xl overflow-hidden max-w-lg mx-auto transition-colors duration-500">
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-[var(--border-color)] bg-black/20">
           <Scroll size={12} className="text-yellow-500" />
-          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Script & Player Distribution</span>
+          <span className="text-[9px] font-black text-white/60 uppercase tracking-widest">Script & Player Distribution</span>
         </div>
-        <div className="grid grid-cols-5 divide-x divide-slate-800">
-          <div className="flex flex-col items-center py-2 bg-slate-900/50">
+        <div className="grid grid-cols-5 divide-x divide-[var(--border-color)]">
+          <div className="flex flex-col items-center py-2 bg-black/10">
             <span className="text-[7px] font-black text-slate-500 mb-1">PLAYERS</span>
             <RotaryPicker value={playerCount} min={1} max={20} onChange={setPlayerCount} color="text-yellow-500" />
           </div>
@@ -90,20 +90,20 @@ const CharsTab: React.FC<CharsTabProps> = ({ chars, setChars, playerCount, setPl
         {categories.map((f) => (
           <div key={f} className="space-y-1">
             <div className="flex justify-between items-center px-1 mb-1">
-              <h3 className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{f}s</h3>
+              <h3 className="text-[9px] font-black text-[var(--muted-color)] uppercase tracking-widest">{f}s</h3>
               <button 
                 onClick={() => addRow(f)}
-                className="p-1 hover:bg-slate-200 rounded text-slate-400 hover:text-slate-600 transition-colors"
+                className="p-1 hover:bg-black/5 rounded text-[var(--muted-color)] hover:text-[var(--text-color)] transition-colors"
                 title="Add Row"
               >
                 <Plus size={10} />
               </button>
             </div>
-            <div className="bg-white rounded border overflow-hidden">
+            <div className="bg-[var(--panel-color)] rounded border border-[var(--border-color)] overflow-hidden transition-colors duration-500">
               {chars[f].map((c: Character, i: number) => (
-                <div key={i} className="flex border-b last:border-0 h-8 items-center px-2 gap-2 group">
+                <div key={i} className="flex border-b border-[var(--border-color)] last:border-0 h-8 items-center px-2 gap-2 group hover:bg-black/5 transition-colors">
                   <input 
-                    className="flex-1 bg-transparent border-none p-0 text-[10px] focus:ring-0 font-bold" 
+                    className="flex-1 bg-transparent border-none p-0 text-[10px] focus:ring-0 font-bold text-[var(--text-color)]" 
                     placeholder="..." 
                     value={c.name} 
                     onChange={(e) => setChars({ ...chars, [f]: chars[f].map((item, idx) => idx === i ? { ...item, name: e.target.value } : item) })} 
@@ -118,7 +118,7 @@ const CharsTab: React.FC<CharsTabProps> = ({ chars, setChars, playerCount, setPl
                     {chars[f].length > 1 && (
                       <button 
                         onClick={() => removeRow(f, i)}
-                        className="opacity-0 group-hover:opacity-100 p-1 text-slate-300 hover:text-red-500 transition-all"
+                        className="opacity-0 group-hover:opacity-100 p-1 text-[var(--muted-color)] hover:text-[var(--accent-color)] transition-all"
                       >
                         <Trash2 size={10} />
                       </button>

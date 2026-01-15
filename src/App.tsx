@@ -18,6 +18,14 @@ import AboutPopup from './components/popitems/popups/AboutPopup';
 import FAB from './components/popitems/FAB';
 import Sidebar from './components/Sidebar';
 
+// Helper to convert hex to RGB for CSS variables (needed for rgba usage in clock)
+const hexToRgb = (hex: string) => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? 
+    `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : 
+    '0, 0, 0';
+};
+
 export default function App() {
   const state = useGameState();
   const [activeTab, setActiveTab] = useState<'players' | 'votes' | 'chars' | 'notes'>('players');
@@ -62,10 +70,10 @@ export default function App() {
     const newChars: any = { Townsfolk: [], Outsider: [], Minion: [], Demon: [] };
     let current: string | null = null;
     lines.forEach(l => {
-      if (l.includes('鎮民:')) current = 'Townsfolk';
-      else if (l.includes('外來者:')) current = 'Outsider';
-      else if (l.includes('爪牙:')) current = 'Minion';
-      else if (l.includes('惡魔:')) current = 'Demon';
+      if (l.includes('Townsfolk:')) current = 'Townsfolk';
+      else if (l.includes('Outsider:')) current = 'Outsider';
+      else if (l.includes('Minion:')) current = 'Minion';
+      else if (l.includes('Demon:')) current = 'Demon';
       else if (current) newChars[current].push({ name: l, status: '—', note: '' });
     });
     Object.keys(newChars).forEach(cat => { while (newChars[cat].length < 8) newChars[cat].push({ name: '', status: '—', note: '' }); });
@@ -84,6 +92,7 @@ export default function App() {
       '--panel-color': c.panel,
       '--header-color': c.header,
       '--accent-color': c.accent,
+      '--accent-color-rgb': hexToRgb(c.accent),
       '--text-color': c.text,
       '--border-color': c.border,
       '--muted-color': c.muted,

@@ -88,24 +88,38 @@ export const INITIAL_PLAYERS = 15;
 export const REASON_CYCLE = ['⚔️', '☀️', '🌑'];
 export const STATUS_OPTIONS = ["—", "POSS", "CONF", "NOT"];
 
-export const ROLE_PARSING_PROMPT = `Please analyze this Blood on the Clocktower script image and output the role names in the following plain text format. Do not include descriptions or icons, just the names under the category headers. Use traditional Chinese characters for the headers:
+export const ROLE_PARSING_PROMPT = `
+Please analyze this Blood on the Clocktower script image and output the role names. 
+Do not include descriptions or icons, just the names under the category headers. 
+Use English characters for the headers, but keep Role Names in same language as the photo attached.
+find the most suitable icon that represent the role name.
+Alternate lines for each category and each role name.
+Start with \`\`\`bash and End with \`\`\`.
 
-鎮民:
-[Role Name 1]
-[Role Name 2]
+
+Example output format:
+\`\`\`bash
+Townsfolk: \n
+[icon for townsfolk Role Name 1][townsfolk Role Name 1] \n
+[icon for townsfolk Role Name 2][townsfolk Role Name 2] \n
+...
+\n
+Outsider: \n
+[icon for outsider Role Name 1][outsider Role Name 1] \n
+[icon for outsider Role Name 2][outsider Role Name 2] \n
+...
+ \n
+Minion: \n
+[icon for minion Role Name 1][minion Role Name 1] \n
+[icon for minion Role Name 2][minion Role Name 2] \n
+...
+ \n
+Demon: \n
+[icon for demon Role Name 1][demon Role Name 1] \n
+[icon for demon Role Name 2][demon Role Name 2] \n
 ...
 
-外來者:
-[Role Name 1]
-...
-
-爪牙:
-[Role Name 1]
-...
-
-惡魔:
-[Role Name 1]
-...`;
+\`\`\``;
 
 export const createInitialChars = (): CharDict => ({
   Townsfolk: Array(8).fill(null).map(() => ({ name: '', status: '—', note: '' })),
@@ -154,17 +168,17 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       muted: '#8c7851'
     }
   },
-  puppet: {
-    id: 'puppet',
-    name: 'The Puppet Master',
+  crino: {
+    id: 'crino',
+    name: 'Ice Fairy',
     colors: {
-      bg: '#09090b',
-      panel: '#18181b',
-      header: '#581c87',
-      accent: '#d946ef',
-      text: '#fafafa',
-      border: '#3f3f46',
-      muted: '#a1a1aa'
-    }
+  "bg": "#1A3A5F",
+  "panel": "#D0EFFF",
+  "header": "#0074D9",
+  "accent": "#FF4136",
+  "text": "#002B5B",
+  "border": "#A5D8FF",
+  "muted": "#5A8BB0"
+}
   }
 };

@@ -22,16 +22,42 @@ const StatusSection: React.FC<StatusSectionProps> = ({
     <div className="flex items-center gap-2">
       {isDead ? (
         <div className="flex-[8] flex items-center gap-1 h-10">
-          <button onClick={() => togglePlayerAlive(playerNo)} className="flex-1 h-full bg-red-600 text-white rounded-lg flex items-center justify-center shadow-sm transition-all"><Skull size={14} /></button>
-          <input type="number" value={death?.day || currentDay} onChange={(e) => updateDeathDay(playerNo, parseInt(e.target.value) || currentDay)} className="flex-1 h-full bg-white border rounded-lg text-center text-[10px] font-black focus:ring-0" />
-          <button onClick={cycleDeathReason} className="flex-[2] h-full bg-white border rounded-lg text-center text-[12px] font-black hover:bg-slate-50 transition-colors">{death?.reason || '⚔️'}</button>
+          <button 
+            onClick={() => togglePlayerAlive(playerNo)} 
+            className="flex-1 h-full bg-red-600 text-white rounded-lg flex items-center justify-center shadow-sm transition-all hover:bg-red-700"
+          >
+            <Skull size={14} />
+          </button>
+          <input 
+            type="number" 
+            value={death?.day || currentDay} 
+            onChange={(e) => updateDeathDay(playerNo, parseInt(e.target.value) || currentDay)} 
+            className="flex-1 h-full bg-[var(--panel-color)] border border-[var(--border-color)] text-[var(--text-color)] rounded-lg text-center text-[10px] font-black focus:ring-0" 
+          />
+          <button 
+            onClick={cycleDeathReason} 
+            className="flex-[2] h-full bg-[var(--panel-color)] border border-[var(--border-color)] text-[var(--text-color)] rounded-lg text-center text-[12px] font-black hover:bg-black/5 transition-colors"
+          >
+            {death?.reason || '⚔️'}
+          </button>
         </div>
       ) : (
-        <button onClick={() => togglePlayerAlive(playerNo)} className="flex-[8] h-10 rounded-lg text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 shadow-sm bg-emerald-600 text-white">EXECUTE</button>
+        <button 
+          onClick={() => togglePlayerAlive(playerNo)} 
+          className="flex-[8] h-10 rounded-lg text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 shadow-sm bg-emerald-600 text-white hover:bg-emerald-700"
+        >
+          EXECUTE
+        </button>
       )}
-      <div className="flex-[2] flex items-center bg-white border rounded-lg px-3 h-10 shadow-sm">
-        <Tag size={12} className="text-slate-400 mr-2" />
-        <input type="text" value={currentPlayer?.property || ''} onChange={(e) => updatePlayerProperty(playerNo, e.target.value)} placeholder="Props" className="bg-transparent border-none p-0 text-[11px] font-bold focus:ring-0 w-full" />
+      <div className="flex-[2] flex items-center bg-[var(--panel-color)] border border-[var(--border-color)] rounded-lg px-3 h-10 shadow-sm">
+        <Tag size={12} className="text-[var(--muted-color)] mr-2" />
+        <input 
+          type="text" 
+          value={currentPlayer?.property || ''} 
+          onChange={(e) => updatePlayerProperty(playerNo, e.target.value)} 
+          placeholder="Props" 
+          className="bg-transparent border-none p-0 text-[11px] font-bold focus:ring-0 w-full text-[var(--text-color)] placeholder:text-[var(--muted-color)]" 
+        />
       </div>
     </div>
   );

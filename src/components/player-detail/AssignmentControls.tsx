@@ -21,10 +21,10 @@ const AssignmentControls: React.FC<AssignmentControlsProps> = ({
   return (
     <div className="flex flex-col gap-1.5 items-start">
       <div className="flex items-center gap-1.5">
-        <div className={`flex items-center rounded-lg h-7 overflow-hidden border transition-all ${assignmentMode === 'death' ? 'bg-red-600 border-red-700 shadow-lg' : 'bg-white border-slate-200 shadow-sm'}`}>
+        <div className={`flex items-center rounded-lg h-7 overflow-hidden border transition-all ${assignmentMode === 'death' ? 'bg-red-600 border-red-700 shadow-lg' : 'bg-[var(--panel-color)] border-[var(--border-color)] shadow-sm'}`}>
           <button 
             onClick={() => setAssignmentMode(assignmentMode === 'death' ? null : 'death')} 
-            className={`px-2 h-full flex items-center justify-center transition-colors ${assignmentMode === 'death' ? 'text-white' : 'text-slate-400 hover:text-red-500'}`}
+            className={`px-2 h-full flex items-center justify-center transition-colors ${assignmentMode === 'death' ? 'text-white' : 'text-[var(--muted-color)] hover:text-red-500'}`}
             title="Death Mode"
           >
             <Skull size={12} />
@@ -42,10 +42,10 @@ const AssignmentControls: React.FC<AssignmentControlsProps> = ({
           )}
         </div>
 
-        <div className={`flex items-center rounded-lg h-7 overflow-hidden border transition-all ${assignmentMode === 'property' ? 'bg-blue-600 border-blue-700 shadow-lg' : 'bg-white border-slate-200 shadow-sm'}`}>
+        <div className={`flex items-center rounded-lg h-7 overflow-hidden border transition-all ${assignmentMode === 'property' ? 'bg-blue-600 border-blue-700 shadow-lg' : 'bg-[var(--panel-color)] border-[var(--border-color)] shadow-sm'}`}>
           <button 
             onClick={() => setAssignmentMode(assignmentMode === 'property' ? null : 'property')} 
-            className={`px-2 h-full flex items-center justify-center transition-colors ${assignmentMode === 'property' ? 'text-white' : 'text-slate-400 hover:text-blue-500'}`}
+            className={`px-2 h-full flex items-center justify-center transition-colors ${assignmentMode === 'property' ? 'text-white' : 'text-[var(--muted-color)] hover:text-blue-500'}`}
             title="Property Mode"
           >
             <Tag size={12} />
@@ -55,7 +55,7 @@ const AssignmentControls: React.FC<AssignmentControlsProps> = ({
             value={selectedProperty} 
             onChange={(e) => setSelectedProperty(e.target.value)} 
             placeholder="Prop..." 
-            className={`text-[10px] border-none focus:ring-0 h-full px-1.5 w-16 transition-colors ${assignmentMode === 'property' ? 'bg-blue-700 text-white placeholder:text-blue-300' : 'bg-transparent text-slate-700'}`}
+            className={`text-[10px] border-none focus:ring-0 h-full px-1.5 w-16 transition-colors ${assignmentMode === 'property' ? 'bg-blue-700 text-white placeholder:text-blue-300' : 'bg-transparent text-[var(--text-color)] placeholder:text-[var(--muted-color)]/50'}`}
             onFocus={() => setAssignmentMode('property')}
           />
         </div>
@@ -70,7 +70,7 @@ const AssignmentControls: React.FC<AssignmentControlsProps> = ({
               className={`px-1.5 py-0.5 rounded text-[10px] font-bold border transition-all ${
                 selectedProperty === template.value 
                   ? 'bg-blue-600 border-blue-700 text-white shadow-sm' 
-                  : 'bg-white border-slate-200 text-slate-600 hover:border-blue-300'
+                  : 'bg-[var(--panel-color)] border-[var(--border-color)] text-[var(--text-color)] hover:border-blue-300'
               }`}
               title={template.label}
             >

@@ -54,22 +54,26 @@ const LedgerTabsPopup: React.FC<LedgerTabsPopupProps> = ({
 
   return (
     <div className="fixed inset-0 z-[10005] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-slate-100 rounded-2xl shadow-2xl border border-slate-200 w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
-        <header className="flex-none bg-slate-900 text-white px-4 py-3 flex justify-between items-center">
+      <div className="bg-[var(--bg-color)] rounded-2xl shadow-2xl border border-[var(--border-color)] w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 transition-colors duration-500">
+        <header className="flex-none bg-[var(--header-color)] text-white px-4 py-3 flex justify-between items-center transition-colors duration-500">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-black uppercase tracking-widest text-slate-400">Game Ledger</span>
+            <span className="text-xs font-black uppercase tracking-widest opacity-60">Game Ledger</span>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-800 rounded-full transition-colors">
+          <button onClick={onClose} className="p-2 hover:bg-black/20 rounded-full transition-colors">
             <X size={20} />
           </button>
         </header>
 
-        <nav className="flex-none bg-white border-b flex shadow-sm">
+        <nav className="flex-none bg-[var(--panel-color)] border-b border-[var(--border-color)] flex shadow-sm transition-colors duration-500">
           {tabs.map((t) => (
             <button 
               key={t.id} 
               onClick={() => setActiveTab(t.id as any)} 
-              className={`flex-1 py-3 flex flex-col items-center gap-1 border-b-2 transition-all ${activeTab === t.id ? 'border-red-600 bg-red-50 text-red-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+              className={`flex-1 py-3 flex flex-col items-center gap-1 border-b-2 transition-all ${
+                activeTab === t.id 
+                  ? 'border-[var(--accent-color)] bg-[var(--accent-color)]/5 text-[var(--accent-color)]' 
+                  : 'border-transparent text-[var(--muted-color)] hover:text-[var(--text-color)]'
+              }`}
             >
               <t.icon size={16} /><span className="text-[10px] font-black uppercase tracking-tighter">{t.label}</span>
             </button>

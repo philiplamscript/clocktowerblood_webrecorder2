@@ -25,6 +25,12 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
 }) => {
   return (
     <>
+      <defs>
+        <radialGradient id="playerSpotlight" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="var(--accent-color)" stopOpacity="0.2" />
+          <stop offset="100%" stopColor="var(--panel-color)" stopOpacity="1" />
+        </radialGradient>
+      </defs>
       {Array.from({ length: playerCount }, (_, i) => i + 1).map((num, i) => {
         const numStr = num.toString();
         const isCurrent = num === playerNo;
@@ -32,8 +38,9 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
         const pd = deaths.find(d => d.playerNo === numStr);
         const pData = players.find(p => p.no === num);
         
-        const fill = isVoter ? '#f43f5e' : isCurrent ? 'url(#playerSpotlight)' : pd ? '#f1f5f9' : '#ffffff';
-        const stroke = isCurrent ? '#f59e0b' : assignmentMode === 'death' ? '#ef4444' : assignmentMode === 'property' ? '#3b82f6' : '#e2e8f0';
+        // Base fill: Dead players get a background-colored slice to look 'empty'
+        const fill = isVoter ? 'var(--accent-color)' : isCurrent ? 'var(--panel-color)' : pd ? 'var(--bg-color)' : 'var(--panel-color)';
+        const stroke = isCurrent ? 'var(--accent-color)' : assignmentMode === 'death' ? '#ef4444' : assignmentMode === 'property' ? '#3b82f6' : 'var(--border-color)';
 
         const angleStep = 360 / playerCount;
         const centerAngle = ((num - 1) * angleStep) - 90 + (angleStep / 2);
@@ -64,23 +71,44 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
               const re = rs + ringWidth;
               const pos = getPosition(num, playerCount, (rs + re) / 2);
               
+              // Determine ring fill for dead/voting states
+              let ringFill = 'transparent';
+              if (vCount !== undefined) {
+                ringFill = `rgba(var(--accent-color-rgb), ${mode === 'allReceive' ? '0.3' : '0.4'})`;
+              } else if (diedNow) {
+                // Highlight the specific day of death with a semi-transparent muted overlay
+                ringFill = 'rgba(var(--accent-color-rgb), 0.1)';
+              } else if (diedLater) {
+                // Post-death rings are clearly greyed out
+                ringFill = 'var(--muted-color)';
+              }
+
               return (
                 <g key={`${num}-${dayNum}`} className="pointer-events-none">
                   <path 
                     d={getSlicePath(i, playerCount, rs, re)} 
-                    fill={vCount !== undefined ? (mode === 'vote' ? 'rgba(6, 182, 212, 0.4)' : mode === 'allReceive' ? 'rgba(168, 85, 247, 0.3)' : 'rgba(59, 130, 246, 0.4)') : diedLater ? 'rgba(203, 213, 225, 0.3)' : 'transparent'} 
+                    fill={ringFill} 
+                    className={diedLater ? 'opacity-20' : ''}
                   />
                   {showDeathIcons && diedNow && (
-                    <text x={pos.x} y={pos.y} textAnchor="middle" alignmentBaseline="middle" className="text-[10px] opacity-60">{pd.reason}</text>
+                    <text x={pos.x} y={pos.y} textAnchor="middle" alignmentBaseline="middle" className="text-[10px] opacity-100 fill-[var(--text-color)] drop-shadow-sm">{pd.reason}</text>
                   )}
                   {vCount !== undefined && mode === 'allReceive' && !diedNow && (
-                    <text x={getPosition(num, playerCount, rs + ringWidth * 0.3).x} y={getPosition(num, playerCount, rs + ringWidth * 0.3).y} textAnchor="middle" alignmentBaseline="middle" className="font-bold fill-slate-700" style={{ fontSize: `${Math.max(7, ringWidth * 0.12)}px` }}>{vCount}</text>
+                    <text 
+                      x={getPosition(num, playerCount, rs + ringWidth * 0.3).x} 
+                      y={getPosition(num, playerCount, rs + ringWidth * 0.3).y} 
+                      textAnchor="middle" 
+                      alignmentBaseline="middle" 
+                      className="font-bold fill-[var(--text-color)]" 
+                      style={{ fontSize: `${Math.max(7, ringWidth * 0.12)}px` }}
+                    >
+                      {vCount}
+                    </text>
                   )}
                 </g>
               );
             })}
             
-            {/* Multiple Property Emblems (Vertical Stack) */}
             {showProperties && properties.length > 0 && (
               <g className="pointer-events-none">
                 {properties.map((prop, pIdx) => (
@@ -90,7 +118,7 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
                     y={cornerPos.y + (pIdx * 8)} 
                     textAnchor="middle" 
                     alignmentBaseline="middle" 
-                    className="text-[8px] drop-shadow-sm font-bold"
+                    className="text-[8px] drop-shadow-sm font-bold fill-[var(--text-color)]"
                   >
                     {prop}
                   </text>
@@ -103,7 +131,7 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
               y={getPosition(num, playerCount, (innerRadius + outerRadius) / 2).y} 
               textAnchor="middle" 
               alignmentBaseline="middle" 
-              className={`text-[10px] font-black tracking-tight pointer-events-none transition-all duration-200 ${isVoter ? 'fill-white' : isCurrent ? 'fill-slate-900' : pd ? 'fill-slate-400' : 'fill-slate-500 opacity-60'}`}
+              className={`text-[10px] font-black tracking-tight pointer-events-none transition-all duration-200 ${isVoter ? 'fill-white' : isCurrent ? 'fill-[var(--accent-color)]' : pd ? 'fill-[var(--muted-color)]' : 'fill-[var(--text-color)] opacity-60'}`}
             >
               {num}
             </text>
