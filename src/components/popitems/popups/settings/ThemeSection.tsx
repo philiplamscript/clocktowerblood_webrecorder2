@@ -25,8 +25,8 @@ const ThemeSection: React.FC<ThemeSectionProps> = ({
 Style: [YOUR DESIRED STYLE HERE]
 
 Rules for high legibility:
-1. "bg" should be different from "panel" to create depth.
-2. "panel" is the main surface; "text" must have high contrast against "panel" and "bg".
+1. "bg" should be slightly darker or different from "panel" to create depth.
+2. "panel" is the main surface; "text" must have high contrast against it.
 3. "header" and "accent" should be bold, distinct colors for primary actions.
 4. "border" should be a subtle version of the text or background color.
 5. "muted" is for secondary labels; ensure it's still visible but lower contrast than "text".
@@ -116,7 +116,6 @@ Format:
                 <span className="text-[10px] font-black uppercase">{theme.name}</span>
                 <div className="flex gap-1">
                   <div className="w-4 h-4 rounded-full border border-slate-200" style={{ backgroundColor: theme.colors.bg }} />
-                  <div className="w-4 h-4 rounded-full border border-slate-200" style={{ backgroundColor: theme.colors.header }} />
                   <div className="w-4 h-4 rounded-full border border-slate-200" style={{ backgroundColor: theme.colors.accent }} />
                 </div>
               </button>
@@ -131,19 +130,16 @@ Format:
         </h3>
         
         <div className="bg-slate-50 rounded-xl p-4 space-y-3">
-          <p className="text-[10px] text-slate-500 leading-relaxed italic">
-            Copy the prompt below and paste it into an LLM to generate a custom visual style.
-          </p>
-          
-          <div className="relative">
-            <pre className="bg-slate-900 text-slate-300 p-3 rounded-lg text-[9px] font-mono whitespace-pre-wrap">
-              {aiPrompt}
-            </pre>
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] text-slate-500 leading-relaxed italic">
+              Generate a custom theme with AI and paste the JSON here.
+            </p>
             <button 
               onClick={copyPrompt}
-              className="absolute top-2 right-2 p-1.5 bg-slate-800 text-white rounded hover:bg-slate-700 transition-colors"
+              className="p-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-colors"
+              title="Copy AI Prompt"
             >
-              {copied ? <Check size={12} /> : <Copy size={12} />}
+              {copied ? <Check size={16} /> : <Copy size={16} />}
             </button>
           </div>
 
