@@ -28,6 +28,8 @@ export const PlayerGrid = ({ players, setPlayers }: { players: Player[], setPlay
   };
 
   const sortedPlayers = useMemo(() => {
+    // We want to show 20 rows total. 
+    // First, we take the existing players and sort them if needed.
     const items = [...players];
     if (sortConfig.key !== null) {
       items.sort((a, b) => {
@@ -47,7 +49,23 @@ export const PlayerGrid = ({ players, setPlayers }: { players: Player[], setPlay
         return 0;
       });
     }
-    return items;
+
+    // Then we pad the array to 20 items for the UI
+    const totalRows = 20;
+    const paddedItems = [...items];
+    for (let i = items.length; i < totalRows; i++) {
+      paddedItems.push({ 
+        no: i + 1, 
+        inf: '', 
+        day: '', 
+        reason: '', 
+        red: '', 
+        property: '',
+        isPlaceholder: true 
+      } as any);
+    }
+    
+    return paddedItems;
   }, [players, sortConfig]);
 
   const SortIcon = ({ column }: { column: keyof Player }) => {
@@ -56,10 +74,12 @@ export const PlayerGrid = ({ players, setPlayers }: { players: Player[], setPlay
   };
 
   const updatePlayer = (no: number, field: keyof Player, value: string) => {
-    setPlayers(prev => prev.map(p => p.no === no ? { ...p, [field]: value } : p));
+    // Only update if the player actually exists in the state
+    if (no <= players.length) {
+      setPlayers(prev => prev.map(p => p.no === no ? { ...p, [field]: value } : p));
+    }
   };
 
-  // Helper for auto-expanding textareas
   const adjustHeight = useCallback((textarea: HTMLTextAreaElement) => {
     textarea.style.height = 'inherit';
     textarea.style.height = `${textarea.scrollHeight}px`;
@@ -89,30 +109,61 @@ export const PlayerGrid = ({ players, setPlayers }: { players: Player[], setPlay
           </tr>
         </thead>
         <tbody className="divide-y divide-[var(--border-color)]">
-          {sortedPlayers.map((p) => (
-            <tr key={p.no} className="align-top hover:bg-black/5 transition-colors">
-              <td className="px-1 py-2 text-center text-[var(--muted-color)] font-mono text-[10px]">{p.no}</td>
-              <td className="border-l border-[var(--border-color)]"><input className="w-full text-center bg-transparent border-none p-1 text-[11px] font-mono focus:ring-0 text-[var(--text-color)]" value={p.day} onChange={(e) => updatePlayer(p.no, 'day', e.target.value)} /></td>
-              <td className="border-l border-[var(--border-color)]"><input className="w-full text-center bg-transparent border-none p-1 text-[11px] font-mono focus:ring-0 text-[var(--text-color)]" value={p.reason} onChange={(e) => updatePlayer(p.no, 'reason', e.target.value)} /></td>
-              <td className="px-1 py-1 border-l border-[var(--border-color)]">
-                <AutoResizeTextarea 
-                  value={p.inf} 
-                  onChange={(value) => updatePlayer(p.no, 'inf', value)} 
-                  adjustHeight={adjustHeight}
-                />
-              </td>
-              <td className="border-l border-[var(--border-color)]"><input className="w-full text-center bg-transparent border-none p-1 text-[11px] font-black text-[var(--accent-color)] focus:ring-0" value={p.red} onChange={(e) => updatePlayer(p.no, 'red', e.target.value)} /></td>
-              <td className="border-l border-[var(--border-color)]"><input className="w-full text-center bg-transparent border-none p-1 text-[10px] font-bold text-[var(--text-color)] focus:ring-0" value={p.property} onChange={(e) => updatePlayer(p.no, 'property', e.target.value)} /></td>
-            </tr>
-          ))}
+          {sortedPlayers.map((p) => {
+            const isPlaceholder = (p as any).isPlaceholder;
+            return (
+              <tr key={p.no} className={`align-top transition-colors ${isPlaceholder ? 'opacity-30 grayscale' : 'hover:bg-black/5'}`}>
+                <td className="px-1 py-2 text-center text-[var(--muted-color)] font-mono text-[10px]">{p.no}</td>
+                <td className="border-l border-[var(--border-color)]">
+                  <input 
+                    disabled={isPlaceholder}
+                    className="w-full text-center bg-transparent border-none p-1 text-[11px] font-mono focus:ring-0 text-[var(--text-color)] disabled:cursor-not-allowed" 
+                    value={p.day} 
+                    onChange={(e) => updatePlayer(p.no, 'day', e.target.value)} 
+                  />
+                </td>
+                <td className="border-l border-[var(--border-color)]">
+                  <input 
+                    disabled={isPlaceholder}
+                    className="w-full text-center bg-transparent border-none p-1 text-[11px] font-mono focus:ring-0 text-[var(--text-color)] disabled:cursor-not-allowed" 
+                    value={p.reason} 
+                    onChange={(e) => updatePlayer(p.no, 'reason', e.target.value)} 
+                  />
+                </td>
+                <td className="px-1 py-1 border-l border-[var(--border-color)]">
+                  <AutoResizeTextarea 
+                    value={p.inf} 
+                    onChange={(value) => updatePlayer(p.no, 'inf', value)} 
+                    adjustHeight={adjustHeight}
+                    disabled={isPlaceholder}
+                  />
+                </td>
+                <td className="border-l border-[var(--border-color)]">
+                  <input 
+                    disabled={isPlaceholder}
+                    className="w-full text-center bg-transparent border-none p-1 text-[11px] font-black text-[var(--accent-color)] focus:ring-0 disabled:cursor-not-allowed" 
+                    value={p.red} 
+                    onChange={(e) => updatePlayer(p.no, 'red', e.target.value)} 
+                  />
+                </td>
+                <td className="border-l border-[var(--border-color)]">
+                  <input 
+                    disabled={isPlaceholder}
+                    className="w-full text-center bg-transparent border-none p-1 text-[10px] font-bold text-[var(--text-color)] focus:ring-0 disabled:cursor-not-allowed" 
+                    value={p.property} 
+                    onChange={(e) => updatePlayer(p.no, 'property', e.target.value)} 
+                  />
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
   );
 };
 
-// Auto-resizing textarea component
-const AutoResizeTextarea = ({ value, onChange, adjustHeight }: { value: string, onChange: (value: string) => void, adjustHeight: (textarea: HTMLTextAreaElement) => void }) => {
+const AutoResizeTextarea = ({ value, onChange, adjustHeight, disabled }: { value: string, onChange: (value: string) => void, adjustHeight: (textarea: HTMLTextAreaElement) => void, disabled?: boolean }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -124,10 +175,11 @@ const AutoResizeTextarea = ({ value, onChange, adjustHeight }: { value: string, 
   return (
     <textarea 
       ref={textareaRef}
-      className="w-full bg-transparent border-none p-1 text-[11px] leading-tight resize-none min-h-[1.5rem] focus:ring-0 overflow-hidden text-[var(--text-color)]" 
+      disabled={disabled}
+      className="w-full bg-transparent border-none p-1 text-[11px] leading-tight resize-none min-h-[1.5rem] focus:ring-0 overflow-hidden text-[var(--text-color)] placeholder:opacity-30 disabled:cursor-not-allowed" 
       rows={1} 
       value={value} 
-      placeholder="..." 
+      placeholder={disabled ? "" : "..."} 
       onChange={(e) => {
         onChange(e.target.value);
         adjustHeight(e.target);
