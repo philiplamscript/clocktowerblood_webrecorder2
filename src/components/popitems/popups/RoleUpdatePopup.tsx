@@ -63,21 +63,20 @@ const RoleUpdatePopup: React.FC<RoleUpdatePopupProps> = ({
 
           <textarea 
             className="w-full min-h-[250px] border border-slate-200 rounded p-3 text-[11px] font-mono resize-none focus:ring-2 focus:ring-blue-500/20 outline-none"
-            placeholder={`鎮民:
-洗衣婦
-圖書管理員
+            placeholder={`Townfolk:
+Character Name
+....
+
+Outsider:
+Character Name
 ...
 
-外來者:
-管家
+Minion:
+Character Name
 ...
 
-爪牙:
-投毒者
-...
-
-惡魔:
-小惡魔
+Demon:
+Character Name
 ...`}
             value={roleUpdateText}
             onChange={(e) => setRoleUpdateText(e.target.value)}
