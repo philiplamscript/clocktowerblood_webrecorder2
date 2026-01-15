@@ -88,9 +88,18 @@ export const useGameState = () => {
       { id: 'default-night', day: 1, playerNo: '', reason: '🌑', note: '', isConfirmed: true }
     ]);
     setCurrentDay(1);
-    setChars(createInitialChars());
+    
+    // Preserve Role Names but clear status/notes
+    setChars(prev => {
+      const newChars = { ...prev };
+      (Object.keys(newChars) as (keyof CharDict)[]).forEach(cat => {
+        newChars[cat] = newChars[cat].map(c => ({ ...c, status: '—', note: '' }));
+      });
+      return newChars;
+    });
+    
     setNote('');
-    toast.success('Session reset successfully');
+    toast.success('Session reset (Roles preserved)');
   };
 
   const updatePlayerInfo = (no: number, text: string) => setPlayers(prev => prev.map(p => p.no === no ? { ...p, inf: text } : p));

@@ -23,6 +23,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'players' | 'votes' | 'chars' | 'notes'>('players');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showGreeting, setShowGreeting] = useState(() => !localStorage.getItem('clocktower_greeted'));
+  const [greetingTitle, setGreetingTitle] = useState("Welcome to BOTCT-ClockTracker");
   const [showReset, setShowReset] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
@@ -89,14 +90,20 @@ export default function App() {
     } as React.CSSProperties;
   }, [state.currentTheme]);
 
+  const openHowToUse = () => {
+    setGreetingTitle("How to use ClockTracker");
+    setShowGreeting(true);
+    setSidebarOpen(false);
+  };
+
   return (
     <div 
       style={themeStyles}
       className={`min-h-screen w-full bg-[var(--bg-color)] flex flex-col font-sans select-none ${fontSizeClass} transition-colors duration-500`}
     >
       <Toaster position="top-center" reverseOrder={false} />
-      <GreetingPopup isOpen={showGreeting} onClose={() => { setShowGreeting(false); localStorage.setItem('clocktower_greeted', 'true'); }} />
-      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} onReset={() => { setShowReset(true); setSidebarOpen(false); }} onLoadRole={() => { setShowRoleUpdate(true); setSidebarOpen(false); }} onShowUpdateLog={() => toast.info('Log: Added Settings system')} onFocusPlayerDetail={() => {}} onOpenSettings={() => { setShowSettings(true); setSidebarOpen(false); }} onShowHowToUse={() => toast('Tip: Use prop templates!', { icon: '💡' })} onShowAbout={() => { setShowAbout(true); setSidebarOpen(false); }} onShowFAQ={() => toast('Check Settings', { icon: '❓' })} onShowDonation={() => setShowAbout(true)} />
+      <GreetingPopup isOpen={showGreeting} title={greetingTitle} onClose={() => { setShowGreeting(false); localStorage.setItem('clocktower_greeted', 'true'); }} />
+      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} onReset={() => { setShowReset(true); setSidebarOpen(false); }} onLoadRole={() => { setShowRoleUpdate(true); setSidebarOpen(false); }} onShowUpdateLog={() => toast.info('Log: Added Settings system')} onFocusPlayerDetail={() => {}} onOpenSettings={() => { setShowSettings(true); setSidebarOpen(false); }} onShowHowToUse={openHowToUse} onShowAbout={() => { setShowAbout(true); setSidebarOpen(false); }} onShowFAQ={() => toast('Check Settings', { icon: '❓' })} onShowDonation={() => setShowAbout(true)} />
       <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} splitView={state.splitView} setSplitView={state.setSplitView} showHub={state.showHub} setShowHub={state.setShowHub} setShowLedger={setShowLedger} />
       {state.showHub && <PlayerHub currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} deaths={state.deaths} assignmentMode={assignmentMode} setAssignmentMode={setAssignmentMode} selectedReason={selectedReason} setSelectedReason={setSelectedReason} selectedProperty={selectedProperty} setSelectedProperty={setSelectedProperty} propTemplates={state.propTemplates} focusPlayerNo={focusPlayerNo} onPlayerClick={handlePlayerClick} />}
       <main className="flex-1 relative">

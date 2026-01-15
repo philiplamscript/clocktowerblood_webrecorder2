@@ -39,7 +39,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
   const [isSliding, setIsSliding] = useState(false);
   const [dragAction, setDragAction] = useState<'add' | 'remove' | null>(null);
   const [centerTouchX, setCenterTouchX] = useState<number | null>(null);
-  const [centerSwipeOffset, setCenterSwipeOffset] = useState(0); // For globe animation
+  const [centerSwipeOffset, setCenterSwipeOffset] = useState(0); 
   const [centerSwiped, setCenterSwiped] = useState(false);
 
   const svgRef = useRef<SVGSVGElement>(null);
@@ -73,14 +73,17 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
       if (props.filterDay !== 'all' && day !== props.filterDay) return;
       const voteCount = n.voters ? n.voters.split(',').filter((v: string) => v).length : 0;
 
+      // Global arrows: always include all nominations that have source and target
       if (n.f && n.f !== '-' && n.t && n.t !== '-') {
         const fromNum = parseInt(n.f), toNum = parseInt(n.t);
-        if (props.mode === 'allReceive' || fromNum === props.playerNo || toNum === props.playerNo) {
-          let type: 'to' | 'from' | 'self' = fromNum === toNum ? 'self' : toNum === props.playerNo ? 'from' : fromNum === props.playerNo ? 'to' : 'to';
-          arrowData.push({ from: fromNum, to: toNum, day, type });
-        }
+        // Determine highlighting type based on current player
+        let type: 'to' | 'from' | 'self' = fromNum === toNum ? 'self' : toNum === props.playerNo ? 'from' : fromNum === props.playerNo ? 'to' : 'to';
+        
+        // Push all arrows to arrowData for global display
+        arrowData.push({ from: fromNum, to: toNum, day, type });
       }
 
+      // Highlight logic (votedAtDay) remains mode-specific for the rings
       if (props.mode === 'allReceive') {
         if (n.t && n.t !== '-') {
           if (!votedAtDay[n.t]) votedAtDay[n.t] = {};
@@ -133,7 +136,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
   const handleMove = (clientX: number, clientY: number) => {
     if (centerTouchX !== null) {
       const deltaX = clientX - centerTouchX;
-      setCenterSwipeOffset(deltaX); // Track the actual distance for animation
+      setCenterSwipeOffset(deltaX); 
 
       if (Math.abs(deltaX) > 40 && !centerSwiped) {
         if (deltaX > 0) props.setCurrentDay?.(Math.max(1, props.currentDay - 1));
