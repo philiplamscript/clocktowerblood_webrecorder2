@@ -42,22 +42,22 @@ const AboutPopup: React.FC<AboutPopupProps> = ({ isOpen, onClose }) => {
         <div className="p-6 space-y-6 overflow-y-auto max-h-[70vh]">
           {/* Introduction */}
           <section className="space-y-2">
-            <h2 className="text-lg font-black text-slate-900 leading-tight uppercase tracking-tighter italic">Precision Tracking for the Ultimate Game.</h2>
+            <h2 className="text-lg font-black text-slate-900 leading-tight uppercase tracking-tighter italic">Tracking for the BOTCT Game.</h2>
             <p className="text-[11px] text-slate-600 leading-relaxed">
-              BOTCT-ClockTracker was born from a passion for Blood on the Clocktower. 
+              BOTCT-ClockTracker is a non-official web/app built by fan, for fans.
               </p>
             
             <p className="text-[11px] text-slate-600 leading-relaxed">
               As I lazy on game memorizing, I was trying to make note as most of you did. 
             </p>
             <p className="text-[11px] text-slate-600 leading-relaxed">
-              Orginally all did in Tables in note app, then python steamlit (but fail). Webpage is a little accident that I put my code into AI to see the protential of the webpage.
+              Orginally all did in Tables in note app, then python steamlit (failed due to auto reflesh). This Webpage is a little accident that I put my code into AI to see the protential of the webpage.
             </p>
             <p className="text-[11px] text-slate-600 leading-relaxed">
               Result on the webpage is gradual to create a clock like app to make it easier to keep track of the game.
             </p>
             <p className="text-[11px] text-slate-600 leading-relaxed">
-              This is a non-official Pure Frontend app built by fan (me), for fans (with me as well).
+              Current build without external connection (i.e. database, backend server). So feel free to use.
             </p>
             
           </section>
@@ -83,7 +83,7 @@ const AboutPopup: React.FC<AboutPopupProps> = ({ isOpen, onClose }) => {
                   <MessageSquare size={18} />
                 </a>
               </div>
-              <a href="https://buymeacoffee.com/philiplam2025" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-slate-900 px-4 py-2 rounded-full text-[10px] font-black uppercase transition-all shadow-md active:scale-95">
+              <a href="https://buymeacoffee.com/philip2p2026" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-slate-900 px-4 py-2 rounded-full text-[10px] font-black uppercase transition-all shadow-md active:scale-95">
                 <Coffee size={14} /> Buy me a coffee
               </a>
             </div>
@@ -92,7 +92,7 @@ const AboutPopup: React.FC<AboutPopupProps> = ({ isOpen, onClose }) => {
         
         <footer className="bg-slate-50 px-6 py-3 border-t border-slate-200">
           <p className="text-[9px] text-center text-slate-400 font-bold uppercase tracking-widest">
-            BOTCT-ClockTracker © 2024 • MIT License
+            BOTCT-ClockTracker © 2026 • Apache-2.0 License
           </p>
         </footer>
       </div>
