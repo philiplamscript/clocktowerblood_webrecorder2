@@ -66,9 +66,9 @@ const AboutPopup: React.FC<AboutPopupProps> = ({ isOpen, onClose }) => {
           <section className="space-y-2">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Special Thanks</h3>
             <ul className="space-y-1 text-[11px] text-slate-700 font-medium">
-              <li className="flex items-center gap-2">• <span className="text-emerald-500">Dyad</span> Make idea simple and come true</li>
+              <li className="flex items-center gap-2">• <a href='https://www.dyad.sh/' className="text-emerald-500">Dyad</a> Make idea simple and come true</li>
               <li className="flex items-center gap-2">• <span className="text-emerald-500">Blood of the ClockTower Community</span> for Great Passion Community</li>
-              <li className="flex items-center gap-2">• <span className="text-emerald-500">Amazing Patrons</span> for Supporting</li>
+              <li className="flex items-center gap-2">• <span className="text-emerald-500">Amazing Supportor</span> for Supporting</li>
             </ul>
           </section>
 
