@@ -31,7 +31,7 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose, title = 
         {/* Header */}
         <div className="bg-slate-900 p-6 text-center space-y-4 shrink-0">
           <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-red-900/20">
-            <img src="/The_Minimalist_Wheel.svg" alt="Logo" className="w-12 h-12" />
+            <img src="/The_Minimalist_Wheel.svg" alt="logo" className="w-12 h-12" />
           </div>
           <div>
             <h1 className="text-white font-black text-xl uppercase tracking-tighter">{title}</h1>
@@ -50,7 +50,7 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose, title = 
             </div>
             <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex gap-4 items-center">
               <div className="w-10 h-10 shrink-0 bg-white rounded-lg border border-slate-200 flex items-center justify-center text-blue-600 shadow-sm">
-                <Edit3 size={18} />
+                <img src="how2use/screen-1.jpg" alt="Logo" className="w-120 h-240" />
               </div>
               <p className="text-[10px] text-slate-600 leading-relaxed font-medium">
                 Tap any player in the top <span className="text-slate-900 font-bold">Player Hub</span> to record social reads and role claims in their private notepad.
@@ -66,15 +66,15 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose, title = 
             </div>
             <div className="space-y-2">
               <div className="flex gap-3 items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                <MousePointer2 size={14} className="text-blue-500" />
+                <img src="how2use/screen-2.0.jpg" alt="Logo" className="w-120 h-240" />
                 <p className="text-[10px] text-slate-600 font-medium"><span className="font-bold text-slate-900">Link:</span> Slide from Nominee to Target on the clock.</p>
               </div>
               <div className="flex gap-3 items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                <Info size={14} className="text-indigo-500" />
+                <img src="how2use/screen-2.1.jpg" alt="Logo" className="w-120 h-240" />
                 <p className="text-[10px] text-slate-600 font-medium"><span className="font-bold text-slate-900">Verify:</span> Update info/notes on the pending badge before voting.</p>
               </div>
               <div className="flex gap-3 items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                <CheckCircle2 size={14} className="text-red-500" />
+                <img src="how2use/screen-2.2.jpg" alt="Logo" className="w-120 h-240" />
                 <p className="text-[10px] text-slate-600 font-medium"><span className="font-bold text-slate-900">Vote:</span> Enter Voting Mode (center ball) to toggle player votes.</p>
               </div>
             </div>
@@ -89,8 +89,7 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose, title = 
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-2">
                 <div className="flex items-center gap-2">
-                  <Skull size={14} className="text-red-500" />
-                  <Tag size={14} className="text-blue-500" />
+                  <img src="how2use/screen-3.jpg" alt="Logo" className="w-120 h-240" />
                 </div>
                 <p className="text-[9px] text-slate-500 leading-snug">Toggle <span className="font-bold text-slate-900">Death/Prop</span> mode, then tap clock slices to execute or tag.</p>
               </div>
@@ -109,11 +108,12 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose, title = 
             </div>
             <div className="space-y-2">
               <div className="flex gap-3 items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                <Search size={14} className="text-indigo-500 opacity-50" />
+                <img src="how2use/screen-4.jpg" alt="Logo" className="w-120 h-240" />
                 <p className="text-[10px] text-slate-600 font-medium">Toggle <span className="font-bold text-slate-900">V/R/G</span> modes in Detail View to visualize patterns.</p>
               </div>
               <div className="flex gap-3 items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                <BookOpen size={14} className="text-emerald-500" />
+                <img src="how2use/screen-5.jpg" alt="Logo" className="w-120 h-240" />
+                <img src="how2use/screen-5.1.jpg" alt="Logo" className="w-120 h-240" />
                 <p className="text-[10px] text-slate-600 font-medium">Open <span className="font-bold text-slate-900">Full Ledger</span> for detailed Player/Vote/Role tables.</p>
               </div>
             </div>
@@ -127,7 +127,7 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose, title = 
             </div>
             <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex gap-4 items-center">
               <div className="w-10 h-10 shrink-0 bg-white rounded-lg border border-slate-200 flex items-center justify-center text-slate-700 shadow-sm">
-                <Users size={18} />
+                <img src="how2use/screen-6.jpg" alt="Logo" className="w-120 h-240" />
               </div>
               <p className="text-[10px] text-slate-600 leading-relaxed font-medium">
                 Use <span className="text-slate-900 font-bold">Load Role</span> in the Sidebar to quickly paste and update your script character list.
