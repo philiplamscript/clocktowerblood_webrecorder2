@@ -36,37 +36,41 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose }) => {
       title: "1. Player Notes",
       icon: <Users size={16} className="text-blue-500" />,
       images: ["/how2use/screen-1.jpg"],
-      content: "Tap any player in the top Player Hub to record social reads and role claims in their private notepad. This keeps your data organized per player."
+      content: "Tap any player in the top Player Hub❶ to record social reads and role claims in their private notepad❷. This keeps your data organized per player."
     },
     {
       title: "2. The Nomination Flow",
       icon: <Zap size={16} className="text-yellow-500" />,
       images: ["/how2use/screen-2.0.jpg", "/how2use/screen-2.1.jpg", "/how2use/screen-2.2.jpg"],
-      content: "Slide from Nominee to Target on the clock to create a link. Verify the details on the pending badge, then enter Voting Mode (center ball) to toggle voter status."
+      content: "Slide from Nominee to Target on the clock to create a link❶. Verify the details on the pending badge❷, then enter Voting Mode (center ball) to toggle voter status."
     },
     {
       title: "3. Quick Assignment",
       icon: <Skull size={16} className="text-red-500" />,
       images: ["/how2use/screen-3.jpg"],
-      content: "Toggle Death or Property mode in the controls, then tap clock slices to execute or tag players. Swipe the center sphere left or right to change the current game day."
+      content: "Toggle Death or Property mode in the controls❶, then tap clock slices to execute or tag players. Swipe the center sphere left or right to change the current game day❷."
     },
     {
       title: "4. Pattern Review",
       icon: <Search size={16} className="text-indigo-500" />,
       images: ["/how2use/screen-4.jpg"],
-      content: "Use V/R/G modes on the clock to visualize voting patterns. See who voted for whom, who receives the most heat, and global trends at a glance."
-    },
+      content: `V/R/G modes on the clock to visualize voting patterns. See who voted for whom, who receives the most heat, and global trends at a glance❶.
+      Able/disable layers❷.
+      Rotate to filter day❸.`    },
     {
       title: "5. Full Ledgers",
       icon: <BookOpen size={16} className="text-emerald-500" />,
-      images: ["/how2use/screen-5.jpg", "/how2use/screen-5.1.jpg"],
-      content: "Open the Full Ledger for high-density tables tracking every nomination, vote count, and player status history in a traditional monospaced format."
+      images: ["/how2use/screen-5.2.jpg", "/how2use/screen-5.3.jpg", "/how2use/screen-5.4.jpg"],
+      content: "Open the Full Ledger for tables tracking player recorded from notepad, every nomination and Role table (set player number here)."
     },
     {
       title: "6. Script Setup",
       icon: <Edit3 size={16} className="text-slate-400" />,
       images: ["/how2use/screen-6.jpg"],
-      content: "Found in the Sidebar: Use 'Load Role' to quickly paste your character list. This populates the role keyword selector for easy note-taking during the game."
+      content: `Found in the Sidebar: 
+      'Load Role': to quickly paste your character list. This populates the role keyword selector for easy note-taking during the game.
+      'Reset Session': Reset the game record.
+      'Setting': Game UI settings.`
     }
   ];
 
