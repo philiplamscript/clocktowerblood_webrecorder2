@@ -1,10 +1,10 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   X, 
-  MousePointer2, 
-  MoveRight, 
+  ChevronLeft, 
+  ChevronRight,
   Zap, 
   Skull, 
   Tag, 
@@ -23,143 +23,120 @@ interface GreetingPopupProps {
 }
 
 const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose, title = "Welcome to BOTCT-ClockTracker" }) => {
+  const [currentPage, setCurrentPage] = useState(0);
+
   if (!isOpen) return null;
+
+  const pages = [
+    {
+      title: "1. Player Notes",
+      icon: <Users size={16} className="text-blue-500" />,
+      images: ["/how2use/screen-1.jpg"],
+      content: "Tap any player in the top Player Hub to record social reads and role claims in their private notepad. This keeps your data organized per player."
+    },
+    {
+      title: "2. The Nomination Flow",
+      icon: <Zap size={16} className="text-yellow-500" />,
+      images: ["/how2use/screen-2.0.jpg", "/how2use/screen-2.1.jpg", "/how2use/screen-2.2.jpg"],
+      content: "Slide from Nominee to Target on the clock to create a link. Verify the details on the pending badge, then enter Voting Mode (center ball) to toggle voter status."
+    },
+    {
+      title: "3. Quick Assignment",
+      icon: <Skull size={16} className="text-red-500" />,
+      images: ["/how2use/screen-3.jpg"],
+      content: "Toggle Death or Property mode in the controls, then tap clock slices to execute or tag players. Swipe the center sphere left or right to change the current game day."
+    },
+    {
+      title: "4. Review & Ledgers",
+      icon: <Search size={16} className="text-indigo-500" />,
+      images: ["/how2use/screen-4.jpg", "/how2use/screen-5.jpg", "/how2use/screen-5.1.jpg"],
+      content: "Use V/R/G modes to visualize voting patterns. Open the Full Ledger for detailed tables tracking every player action and vote history throughout the game."
+    },
+    {
+      title: "5. Script Setup",
+      icon: <Edit3 size={16} className="text-slate-400" />,
+      images: ["/how2use/screen-6.jpg"],
+      content: "Found in the Sidebar: Use 'Load Role' to quickly paste your character list. This populates the role keyword selector for easy note-taking during the game."
+    }
+  ];
+
+  const page = pages[currentPage];
+  const isLast = currentPage === pages.length - 1;
+
+  const handleNext = () => {
+    if (isLast) onClose();
+    else setCurrentPage(prev => prev + 1);
+  };
+
+  const handleBack = () => {
+    setCurrentPage(prev => Math.max(0, prev - 1));
+  };
 
   return (
     <div className="fixed inset-0 z-[20000] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
-        {/* Header */}
-        <div className="bg-slate-900 p-6 text-center space-y-4 shrink-0">
-          <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-red-900/20">
-            <img src="/The_Minimalist_Wheel.svg" alt="logo" className="w-12 h-12" />
+      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-xl aspect-[4/5] overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col relative">
+        
+        {/* Top 60%: Images Container */}
+        <div className="h-[60%] bg-slate-100 flex items-center justify-center p-4 gap-2 overflow-hidden border-b border-slate-200">
+          {page.images.map((src, idx) => (
+            <div key={idx} className="flex-1 h-full max-h-[90%] rounded-xl overflow-hidden shadow-lg border border-white/50 bg-white">
+              <img src={src} alt={`Step ${idx + 1}`} className="w-full h-full object-contain" />
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom 40%: Content Area */}
+        <div className="h-[40%] p-8 flex flex-col justify-between bg-white">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-slate-50 rounded-xl">
+                {page.icon}
+              </div>
+              <h2 className="text-xl font-black text-slate-900 uppercase tracking-tighter italic">
+                {page.title}
+              </h2>
+            </div>
+            <p className="text-xs text-slate-500 font-medium leading-relaxed max-w-md">
+              {page.content}
+            </p>
           </div>
-          <div>
-            <h1 className="text-white font-black text-xl uppercase tracking-tighter">{title}</h1>
-            <p className="text-slate-400 text-[10px] mt-1 uppercase tracking-widest font-black">Digital Grimoire Companion</p>
+
+          <div className="flex items-center justify-between">
+            <div className="flex gap-1.5">
+              {pages.map((_, idx) => (
+                <div 
+                  key={idx} 
+                  className={`h-1.5 transition-all duration-300 rounded-full ${currentPage === idx ? 'w-6 bg-slate-900' : 'w-1.5 bg-slate-200'}`} 
+                />
+              ))}
+            </div>
+
+            <div className="flex gap-2">
+              {currentPage > 0 && (
+                <button 
+                  onClick={handleBack}
+                  className="p-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl transition-all active:scale-90"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+              )}
+              <button 
+                onClick={handleNext}
+                className={`px-6 h-12 flex items-center gap-2 font-black text-[10px] uppercase tracking-widest rounded-2xl transition-all active:scale-95 shadow-md ${
+                  isLast ? 'bg-red-600 text-white shadow-red-200' : 'bg-slate-900 text-white shadow-slate-200'
+                }`}
+              >
+                {isLast ? "Let's Play" : "Next Step"}
+                {!isLast && <ChevronRight size={16} />}
+              </button>
+            </div>
           </div>
         </div>
-        
-        {/* Content Scroll Area */}
-        <div className="p-6 space-y-8 overflow-y-auto no-scrollbar">
-          
-          {/* Section: Note Recording */}
-          <section className="space-y-3">
-            <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
-              <Users size={14} className="text-blue-500" />
-              <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">1. Player Notes</h3>
-            </div>
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex gap-4 items-center">
-              <div className="w-16 h-20 shrink-0 bg-white rounded-lg border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm">
-                <img src="/how2use/screen-1.jpg" alt="Notes" className="w-full h-full object-cover" />
-              </div>
-              <p className="text-[10px] text-slate-600 leading-relaxed font-medium">
-                Tap any player in the top <span className="text-slate-900 font-bold">Player Hub</span> to record social reads and role claims in their private notepad.
-              </p>
-            </div>
-          </section>
 
-          {/* Section: Nomination Flow */}
-          <section className="space-y-3">
-            <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
-              <Zap size={14} className="text-yellow-500" />
-              <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">2. The Nomination Flow</h3>
-            </div>
-            <div className="space-y-2">
-              <div className="flex gap-3 items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                <div className="w-12 h-12 shrink-0 bg-white rounded border border-slate-200 overflow-hidden">
-                  <img src="/how2use/screen-2.0.jpg" alt="Slide" className="w-full h-full object-cover" />
-                </div>
-                <p className="text-[10px] text-slate-600 font-medium"><span className="font-bold text-slate-900">Link:</span> Slide from Nominee to Target on the clock.</p>
-              </div>
-              <div className="flex gap-3 items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                <div className="w-12 h-12 shrink-0 bg-white rounded border border-slate-200 overflow-hidden">
-                  <img src="/how2use/screen-2.1.jpg" alt="Verify" className="w-full h-full object-cover" />
-                </div>
-                <p className="text-[10px] text-slate-600 font-medium"><span className="font-bold text-slate-900">Verify:</span> Update info/notes on the pending badge before voting.</p>
-              </div>
-              <div className="flex gap-3 items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                <div className="w-12 h-12 shrink-0 bg-white rounded border border-slate-200 overflow-hidden">
-                  <img src="/how2use/screen-2.2.jpg" alt="Vote" className="w-full h-full object-cover" />
-                </div>
-                <p className="text-[10px] text-slate-600 font-medium"><span className="font-bold text-slate-900">Vote:</span> Enter Voting Mode (center ball) to toggle player votes.</p>
-              </div>
-            </div>
-          </section>
-
-          {/* Section: Clock Interaction */}
-          <section className="space-y-3">
-            <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
-              <Skull size={14} className="text-red-500" />
-              <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">3. Quick Assignment</h3>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-2 flex flex-col items-center">
-                <div className="w-full h-20 bg-white rounded border border-slate-200 overflow-hidden">
-                  <img src="/how2use/screen-3.jpg" alt="Assignment" className="w-full h-full object-cover" />
-                </div>
-                <p className="text-[9px] text-slate-500 leading-snug text-center">Toggle <span className="font-bold text-slate-900">Death/Prop</span> mode, then tap slices to execute or tag.</p>
-              </div>
-              <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-2 flex flex-col justify-center items-center">
-                <MoveRight size={24} className="text-slate-400 mb-1" />
-                <p className="text-[9px] text-slate-500 leading-snug text-center">Swipe <span className="font-bold text-slate-900">Left/Right</span> on the center sphere to travel through days.</p>
-              </div>
-            </div>
-          </section>
-
-          {/* Section: Reviewing */}
-          <section className="space-y-3">
-            <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
-              <Search size={14} className="text-indigo-500" />
-              <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">4. Review & Ledgers</h3>
-            </div>
-            <div className="space-y-2">
-              <div className="flex gap-3 items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                <div className="w-12 h-12 shrink-0 bg-white rounded border border-slate-200 overflow-hidden">
-                  <img src="/how2use/screen-4.jpg" alt="Review" className="w-full h-full object-cover" />
-                </div>
-                <p className="text-[10px] text-slate-600 font-medium">Toggle <span className="font-bold text-slate-900">V/R/G</span> modes to visualize patterns and patterns.</p>
-              </div>
-              <div className="flex gap-3 items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                <div className="flex gap-1 shrink-0">
-                  <div className="w-8 h-8 bg-white rounded border border-slate-200 overflow-hidden">
-                    <img src="/how2use/screen-5.jpg" alt="Ledger 1" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="w-8 h-8 bg-white rounded border border-slate-200 overflow-hidden">
-                    <img src="/how2use/screen-5.1.jpg" alt="Ledger 2" className="w-full h-full object-cover" />
-                  </div>
-                </div>
-                <p className="text-[10px] text-slate-600 font-medium">Open <span className="font-bold text-slate-900">Full Ledger</span> for detailed Player/Vote/Role tables.</p>
-              </div>
-            </div>
-          </section>
-
-          {/* Section: Setup */}
-          <section className="space-y-3">
-            <div className="flex items-center gap-2 pb-1 border-b border-slate-100">
-              <Edit3 size={14} className="text-slate-400" />
-              <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">5. Script Setup</h3>
-            </div>
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex gap-4 items-center">
-              <div className="w-16 h-12 shrink-0 bg-white rounded-lg border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm">
-                <img src="/how2use/screen-6.jpg" alt="Script Setup" className="w-full h-full object-cover" />
-              </div>
-              <p className="text-[10px] text-slate-600 leading-relaxed font-medium">
-                Use <span className="text-slate-900 font-bold">Load Role</span> in the Sidebar to quickly paste and update your script character list.
-              </p>
-            </div>
-          </section>
-
-          <button 
-            onClick={onClose}
-            className="w-full bg-slate-900 hover:bg-slate-800 text-white font-black py-4 rounded-xl text-xs uppercase tracking-widest transition-all active:scale-95 shadow-lg shrink-0 mt-4"
-          >
-            Got it, Let's Play
-          </button>
-        </div>
-        
+        {/* Close Button */}
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
+          className="absolute top-4 right-4 p-2 bg-white/20 backdrop-blur-md hover:bg-white/40 text-slate-900 rounded-full transition-colors border border-white/20"
         >
           <X size={20} />
         </button>
