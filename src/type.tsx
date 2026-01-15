@@ -89,34 +89,37 @@ export const REASON_CYCLE = ['⚔️', '☀️', '🌑'];
 export const STATUS_OPTIONS = ["—", "POSS", "CONF", "NOT"];
 
 export const ROLE_PARSING_PROMPT = `
-Please analyze this Blood on the Clocktower script image and output the role names in the following plain text format. 
+Please analyze this Blood on the Clocktower script image and output the role names. 
 Do not include descriptions or icons, just the names under the category headers. 
 Use English characters for the headers, but keep Role Names in same language as the photo attached.
 find the most suitable icon that represent the role name.
 Alternate lines for each category and each role name.
+Start with \`\`\`bash and End with \`\`\`.
+
 
 Example output format:
-<<<
-Townsfolk:
-[icon for townsfolk Role Name 1][townsfolk Role Name 1]
-[icon for townsfolk Role Name 2][townsfolk Role Name 2]
+\`\`\`bash
+Townsfolk: \n
+[icon for townsfolk Role Name 1][townsfolk Role Name 1] \n
+[icon for townsfolk Role Name 2][townsfolk Role Name 2] \n
+...
+\n
+Outsider: \n
+[icon for outsider Role Name 1][outsider Role Name 1] \n
+[icon for outsider Role Name 2][outsider Role Name 2] \n
+...
+ \n
+Minion: \n
+[icon for minion Role Name 1][minion Role Name 1] \n
+[icon for minion Role Name 2][minion Role Name 2] \n
+...
+ \n
+Demon: \n
+[icon for demon Role Name 1][demon Role Name 1] \n
+[icon for demon Role Name 2][demon Role Name 2] \n
 ...
 
-Outsider:
-[icon for outsider Role Name 1][outsider Role Name 1]
-[icon for outsider Role Name 2][outsider Role Name 2]
-...
-
-Minion:
-[icon for minion Role Name 1][minion Role Name 1]
-[icon for minion Role Name 2][minion Role Name 2]
-...
-
-Demon:
-[icon for demon Role Name 1][demon Role Name 1]
-[icon for demon Role Name 2][demon Role Name 2]
-...
->>>`;
+\`\`\``;
 
 export const createInitialChars = (): CharDict => ({
   Townsfolk: Array(8).fill(null).map(() => ({ name: '', status: '—', note: '' })),
