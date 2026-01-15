@@ -1,48 +1,52 @@
-# Theme Engineering & Visual Layering Guidelines
+# BOTCT-ClockTracker: Theme & Layering Architecture
 
-This document outlines the architectural principles for maintaining a scalable, theme-aware UI in the BOTCT-ClockTracker application.
+This document details how our specific application implements theme-aware design and visual hierarchy.
 
-## 1. Functional Variables (Semantic Naming)
+## 1. Functional Variables (Implemented in `App.tsx`)
 
-Instead of naming variables based on their literal appearance (e.g., `--red-color`), we name them based on their **function** or **purpose**.
+Our theme engine uses a fixed set of semantic variables defined in `src/type.tsx` and applied in the root `App.tsx`.
 
-### Core Concept
-Variables should answer the question: *"What does this element represent?"* rather than *"What color is it?"*
-
-### Implementation Examples
-| Type | Functional Variable | Usage |
+| CSS Variable | App Role | Specific Components |
 | :--- | :--- | :--- |
-| **Structural** | `--bg-color` | The main canvas or backdrop. |
-| **Surface** | `--panel-color` | Secondary containers, cards, or clock slices. |
-| **Action** | `--accent-color` | Primary buttons, active nominations, or focus states. |
-| **Status** | `--muted-color` | Secondary text, historical data, or disabled states. |
-
-### Benefits
-*   **Theme Portability**: A "Dark Theme" can swap a white `--panel-color` for a charcoal one without changing a single line of component logic.
-*   **Predictability**: Developers know exactly which variable to use for a new feature based on its semantic role.
-
----
-
-## 2. Layering Strategy (Visual Hierarchy)
-
-The Vote History Clock and Ledger are data-dense. Layering ensures that information remains legible even when multiple data points overlap.
-
-### The Priority Stack (Z-Order)
-1.  **Behavioral Layer (Top)**: Active gestures, current nomination lines, and hover spotlights. (High opacity, vibrant colors).
-2.  **Contextual Layer (Middle)**: Current game day data, "Dead" status icons, and property tags. (Medium-high opacity).
-3.  **Historical Layer (Bottom)**: Past voting patterns and previous days' rings. (Lower opacity, muted tones).
-4.  **Structural Layer (Base)**: Clock axes, grid lines, and slice borders. (Very low opacity, subtle borders).
-
-### Techniques for Clarity
-*   **Variable Opacity**: Use `rgba` wrappers around functional variables (e.g., `rgba(var(--text-color-rgb), 0.2)`) to create depth without introducing new colors.
-*   **Stroke Weight Differentiation**: Use thicker strokes for "Active" states and hairline strokes for "Structural" backgrounds.
-*   **Shadows & Glows**: Use theme-aware shadows (using `--accent-color`) to lift behavioral elements off the contextual layer.
+| `--bg-color` | Global Backdrop | Main screen background, sidebar overlay. |
+| `--panel-color` | Interaction Surface | Player slices in the clock, detail view cards, ledger rows. |
+| `--header-color` | Identity & Focus | Top navigation, the center ball of the Vote Clock. |
+| `--accent-color` | Critical Action | Active nominations, voting highlights, primary buttons. |
+| `--text-color` | Primary Content | Player notes, role names, numerical data. |
+| `--border-color` | Structural Divider | Clock rings, axis lines, table borders. |
+| `--muted-color` | Contextual History | Past day rings, secondary labels (D1, D2), placeholder text. |
 
 ---
 
-## 3. Applying to New Features
+## 2. Layering Strategy (The Vote History Clock)
 
-When adding features like **"Drunk/Poisoned"** or **"Madness"** indicators:
-1.  **Define the Logic**: Determine if the indicator is *Global* (structural) or *Player-Specific* (contextual).
-2.  **Assign a Functional Variable**: If the state is critical, use a derivative of `--accent-color`. If it is informative, use a derivative of `--muted-color`.
-3.  **Position in the Stack**: Place the new indicator in the **Contextual Layer** so it doesn't interfere with the **Behavioral Layer** (voting gestures) but remains clearly visible over the **Historical Layer** (past patterns).
+The `VoteHistoryClock` is built using a "Top-Down" SVG stack. Higher layers in the code appear "closer" to the user.
+
+### Layer 1: Behavioral (Top)
+*   **Components**: `VoteArrows.tsx`, `ClockCenter.tsx`.
+*   **Visuals**: Bright reds/purples for active nominations. The center ball pulses when in "Voting Mode".
+*   **Logic**: Uses `--accent-color` for high visibility.
+
+### Layer 2: Contextual (Interaction)
+*   **Components**: `PlayerSlices.tsx` (Labels & Tags).
+*   **Visuals**: Player numbers (1-15), Property tags (🔴, 🔮), and Death reason icons (⚔️).
+*   **Logic**: Uses `--text-color` for legibility and specialized status colors (Red/Blue/Green) for assignment modes.
+
+### Layer 3: Historical (Data)
+*   **Components**: `PlayerSlices.tsx` (Rings).
+*   **Visuals**: Concentric rings representing vote counts from previous days.
+*   **Logic**: Uses `rgba()` variants of theme colors with low opacity so multiple days remain visible simultaneously.
+
+### Layer 4: Structural (Base)
+*   **Components**: `ClockFace.tsx`.
+*   **Visuals**: The cross-axis, ring dividers, and day markers (D1, D2).
+*   **Logic**: Uses `--border-color` and `--muted-color` at ~20% opacity to provide a grid without distracting from game data.
+
+---
+
+## 3. Extension Protocol
+
+When adding new features (e.g., "Madness" or "Poison" markers):
+1.  **Placement**: Add them to the **Contextual Layer** (`PlayerSlices.tsx`).
+2.  **Coloring**: Use a theme-aware stroke (e.g., `stroke: var(--accent-color)`) if the state is active, or a fill override if it is a persistent state.
+3.  **Consistency**: Ensure the new element respects the `rotationAngle` defined in `ClockFace.tsx` so it aligns with the player's slice regardless of screen orientation.
