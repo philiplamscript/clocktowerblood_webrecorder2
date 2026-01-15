@@ -38,7 +38,6 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
         const pd = deaths.find(d => d.playerNo === numStr);
         const pData = players.find(p => p.no === num);
         
-        // Use theme variables for core slice colors
         const fill = isVoter ? 'var(--accent-color)' : isCurrent ? 'var(--panel-color)' : pd ? 'var(--bg-color)' : 'var(--panel-color)';
         const stroke = isCurrent ? 'var(--accent-color)' : assignmentMode === 'death' ? '#ef4444' : assignmentMode === 'property' ? '#3b82f6' : 'var(--border-color)';
 
@@ -75,7 +74,7 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
                 <g key={`${num}-${dayNum}`} className="pointer-events-none">
                   <path 
                     d={getSlicePath(i, playerCount, rs, re)} 
-                    fill={vCount !== undefined ? (mode === 'vote' ? 'rgba(var(--accent-color-rgb, 6, 182, 212), 0.4)' : mode === 'allReceive' ? 'rgba(var(--accent-color-rgb, 168, 85, 247), 0.3)' : 'rgba(var(--accent-color-rgb, 59, 130, 246), 0.4)') : diedLater ? 'var(--muted-color)' : 'transparent'}
+                    fill={vCount !== undefined ? `rgba(var(--accent-color-rgb), ${mode === 'allReceive' ? '0.3' : '0.4'})` : diedLater ? 'var(--muted-color)' : 'transparent'}
                     className={diedLater ? 'opacity-10' : ''}
                   />
                   {showDeathIcons && diedNow && (
