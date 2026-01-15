@@ -89,13 +89,13 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[20000] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-xl aspect-[4/5] overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col relative">
+      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-xl max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col relative">
         
-        {/* Top 60%: Images Container (Hidden on first page) */}
+        {/* Top 55%: Images Container (Hidden on first page) */}
         {!isFirst && (
-          <div className="h-[60%] bg-slate-100 flex items-center justify-center p-4 gap-2 overflow-hidden border-b border-slate-200">
+          <div className="flex-none h-[50%] bg-slate-100 flex items-center justify-center p-4 gap-2 overflow-hidden border-b border-slate-200">
             {page.images.map((src, idx) => (
-              <div key={idx} className="flex-1 h-full max-h-[90%] rounded-xl overflow-hidden shadow-lg border border-white/50 bg-white">
+              <div key={idx} className="flex-1 h-full max-h-[95%] rounded-xl overflow-hidden shadow-lg border border-white/50 bg-white">
                 <img src={src} alt={`Step ${idx + 1}`} className="w-full h-full object-contain" />
               </div>
             ))}
@@ -104,31 +104,31 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose }) => {
 
         {/* Welcome Hero - Only on First Page */}
         {isFirst && (
-          <div className="h-[60%] flex flex-col items-center justify-center p-12 text-center bg-slate-900 text-white relative overflow-hidden">
+          <div className="flex-none h-[50%] flex flex-col items-center justify-center p-8 text-center bg-slate-900 text-white relative overflow-hidden">
              <div className="absolute inset-0 opacity-10 pointer-events-none">
                 <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-slate-600 to-transparent"></div>
              </div>
-             <div className="w-32 h-32 bg-red-600 rounded-full flex items-center justify-center mb-8 shadow-2xl animate-pulse">
-                <img src="/The_Minimalist_Wheel.svg" alt="logo" className="w-20 h-20" />
+             <div className="w-24 h-24 bg-red-600 rounded-full flex items-center justify-center mb-6 shadow-2xl animate-pulse">
+                <img src="/The_Minimalist_Wheel.svg" alt="logo" className="w-14 h-14" />
              </div>
-             <h1 className="text-3xl font-black uppercase tracking-tighter italic">ClockTower</h1>
-             <p className="text-[10px] uppercase tracking-[0.4em] font-black text-slate-400 mt-2">Recorder v0.3</p>
+             <h1 className="text-2xl font-black uppercase tracking-tighter italic">ClockTower</h1>
+             <p className="text-[9px] uppercase tracking-[0.4em] font-black text-slate-400 mt-2">Recorder v0.3</p>
           </div>
         )}
 
-        {/* Bottom 40% (or rest of height): Content Area */}
-        <div className={`${isFirst ? 'flex-1' : 'h-[40%]'} p-8 flex flex-col justify-between bg-white relative`}>
+        {/* Bottom Area: Content Section */}
+        <div className="flex-1 p-6 md:p-8 flex flex-col justify-between bg-white relative overflow-y-auto">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-slate-50 rounded-xl">
+              <div className="p-2 bg-slate-50 rounded-xl shrink-0">
                 {page.icon}
               </div>
               <div className="flex items-center gap-3">
-                <h2 className="text-xl font-black text-slate-900 uppercase tracking-tighter italic">
+                <h2 className="text-lg md:text-xl font-black text-slate-900 uppercase tracking-tighter italic">
                   {page.title}
                 </h2>
                 {isFirst && (
-                  <img src="/The_Minimalist_Wheel.svg" alt="logo" className="w-6 h-6 animate-spin-slow" />
+                  <img src="/The_Minimalist_Wheel.svg" alt="logo" className="w-5 h-5 animate-spin-slow" />
                 )}
               </div>
             </div>
@@ -137,7 +137,7 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose }) => {
             </p>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mt-6">
             <div className="flex gap-1.5">
               {pages.map((_, idx) => (
                 <div 
@@ -172,7 +172,7 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose }) => {
         {/* Close Button */}
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 bg-white/20 backdrop-blur-md hover:bg-white/40 text-slate-900 rounded-full transition-colors border border-white/20 z-10"
+          className="absolute top-4 right-4 p-2 bg-black/10 hover:bg-black/20 text-slate-900 rounded-full transition-colors z-10"
         >
           <X size={20} />
         </button>
