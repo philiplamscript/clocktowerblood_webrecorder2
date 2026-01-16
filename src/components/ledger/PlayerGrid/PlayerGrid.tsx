@@ -68,8 +68,8 @@ export const PlayerGrid = ({ players, setPlayers, identityMode = 'number' }: { p
   }, [players, sortConfig]);
 
   const SortIcon = ({ column }: { column: keyof Player }) => {
-    if (sortConfig.key !== column) return <ArrowUpDown size={8} className="ml-1 opacity-20" />;
-    return sortConfig.direction === 'asc' ? <ChevronUp size={8} className="ml-1 text-[var(--accent-color)]" /> : <ChevronDown size={8} className="ml-1 text-[var(--accent-color)]" />;
+    if (sortConfig.key !== column) return <ArrowUpDown size={8} className="ml-1 opacity-80 text-[var(--text-on-bg)]" />;
+    return sortConfig.direction === 'asc' ? <ChevronUp size={8} className="ml-1 text-[var(--text-on-bg)]" /> : <ChevronDown size={8} className="ml-1 text-[var(--text-on-bg)]" />;
   };
 
   const updatePlayer = (no: number, field: keyof Player, value: string) => {
@@ -89,20 +89,20 @@ export const PlayerGrid = ({ players, setPlayers, identityMode = 'number' }: { p
         <thead className="bg-[var(--bg-color)] border-b border-[var(--border-color)] text-[8px] uppercase text-[var(--muted-color)] font-black transition-colors duration-500">
           <tr>
             <th className="px-1 py-1.5 w-16 text-center cursor-pointer hover:bg-black/5 transition-colors" onClick={() => handleSort('no')}>
-              <div className="flex items-center justify-center">{identityMode === 'name' ? 'NAME' : 'ID'} <SortIcon column="no" /></div>
+              <div className="flex items-center justify-center text-[var(--text-on-bg)]">{identityMode === 'name' ? 'NAME' : 'ID'} <SortIcon column="no" /></div>
             </th>
             <th className="px-1 py-1.5 w-8 text-center border-l border-[var(--border-color)] cursor-pointer hover:bg-black/5 transition-colors" onClick={() => handleSort('day')}>
-              <div className="flex flex-col items-center"><Calendar size={10} /><SortIcon column="day" /></div>
+              <div className="flex flex-col items-center text-[var(--text-on-bg)]"><Calendar size={10} /><SortIcon column="day" /></div>
             </th>
-            <th className="px-1 py-1.5 w-8 text-center border-l border-[var(--border-color)]"><Zap size={10} className="mx-auto" /></th>
+            <th className="px-1 py-1.5 w-8 text-center border-l border-[var(--border-color)] text-[var(--text-on-bg)]"><Zap size={10} className="mx-auto" /></th>
             <th className="px-3 py-1.5 border-l border-[var(--border-color)] cursor-pointer hover:bg-black/5 transition-colors" onClick={() => handleSort('inf')}>
-              <div className="flex items-center">INFO <SortIcon column="inf" /></div>
+              <div className="flex items-center text-[var(--text-on-bg)]">INFO <SortIcon column="inf" /></div>
             </th>
             <th className="px-1 py-1.5 w-8 text-center text-[var(--accent-color)] border-l border-[var(--border-color)] cursor-pointer hover:bg-black/5 transition-colors" onClick={() => handleSort('red')}>
-              <div className="flex flex-col items-center"><Skull size={10} /><SortIcon column="red" /></div>
+              <div className="flex flex-col items-center text-[var(--text-on-bg)]"><Skull size={10} /><SortIcon column="red" /></div>
             </th>
             <th className="px-1 py-1.5 w-12 text-center border-l border-[var(--border-color)] cursor-pointer hover:bg-black/5 transition-colors" onClick={() => handleSort('property')}>
-              <div className="flex flex-col items-center"><Tag size={10} /><SortIcon column="property" /></div>
+              <div className="flex flex-col items-center text-[var(--text-on-bg)]"><Tag size={10} /><SortIcon column="property" /></div>
             </th>
           </tr>
         </thead>

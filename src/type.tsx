@@ -187,16 +187,16 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
     id: 'crino',
     name: 'Ice Fairy',
     colors: {
-      bg: "#1A3A5F",
-      panel: "#D0EFFF",
-      header: "#0074D9",
-      accent: "#FF4136",
-      text: "#002B5B",
-      textOnBg: "#D0EFFF",
-      textOnPanel: "#002B5B",
-      textOnHeader: "#ffffff",
-      border: "#A5D8FF",
-      muted: "#5A8BB0"
-    }
+  "bg": "#0B1D2A",
+  "panel": "#D6EFFF",
+  "header": "#3498DB",
+  "accent": "#00E5FF",
+  "text": "#0B1D2A",
+  "textOnBg": "#FFFFFF",
+  "textOnPanel": "#0B1D2A",
+  "textOnHeader": "#FFFFFF",
+  "border": "#85C1E9",
+  "muted": "#5D6D7E"
+}
   }
 };

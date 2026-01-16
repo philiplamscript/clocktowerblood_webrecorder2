@@ -42,18 +42,18 @@ const VoteLedger = ({
       <table className="w-full border-collapse table-fixed min-w-[900px]">
         <thead>
           <tr className="bg-[var(--bg-color)] border-b border-[var(--border-color)] text-[8px] uppercase text-[var(--muted-color)] font-black transition-colors duration-500">
-            <th className="w-6 py-2 text-center border-r border-[var(--border-color)]">
+            <th className="w-6 py-2 text-center border-r border-[var(--border-color)] text-[var(--text-on-bg)]">
               <Trash2 size={10} className="mx-auto opacity-20" />
             </th>
-            <th className="w-6 py-2 border-r border-[var(--border-color)] text-center">D</th>
-            <th className="w-8 py-2 border-r border-[var(--border-color)] text-center text-[var(--muted-color)]"><Megaphone size={12} className="mx-auto" /></th>
-            <th className="w-8 py-2 border-r border-[var(--border-color)] text-center text-[var(--muted-color)]"><Target size={12} className="mx-auto" /></th>
-            <th className="w-10 py-2 border-r border-[var(--border-color)] text-center text-[var(--muted-color)]"><Hand size={12} className="mx-auto" /></th>
-            <th className="w-8 py-2 border-r border-[var(--border-color)] text-center">VCT</th>
+            <th className="w-6 py-2 border-r border-[var(--border-color)] text-center text-[var(--text-on-bg)]">D</th>
+            <th className="w-8 py-2 border-r border-[var(--border-color)] text-center text-[var(--text-on-bg)]"><Megaphone size={12} className="mx-auto" /></th>
+            <th className="w-8 py-2 border-r border-[var(--border-color)] text-center text-[var(--text-on-bg)]"><Target size={12} className="mx-auto" /></th>
+            <th className="w-10 py-2 border-r border-[var(--border-color)] text-center text-[var(--text-on-bg)]"><Hand size={12} className="mx-auto" /></th>
+            <th className="w-8 py-2 border-r border-[var(--border-color)] text-center text-[var(--text-on-bg)]">VCT</th>
             <th className="p-0">
               <div className="flex h-full">
                 {Array.from({ length: playerCount }, (_, i) => i + 1).map(num => (
-                  <div key={num} className="flex-1 border-r border-[var(--border-color)] text-[7px] text-center py-2 text-[var(--muted-color)]">{num}</div>
+                  <div key={num} className="flex-1 border-r border-[var(--border-color)] text-[7px] text-center py-2 text-[var(--muted-color)] text-[var(--text-on-bg)]">{num}</div>
                 ))}
               </div>
             </th>
