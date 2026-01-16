@@ -1,5 +1,7 @@
 // --- TYPES & INTERFACES ---
 
+import { pattern } from "framer-motion/client";
+
 export type ThemeType = 'standard' | 'knights' | 'grimoire' | 'puppet' | 'custom' | string;
 
 export type IdentityMode = 'number' | 'name';
@@ -15,14 +17,17 @@ export interface ThemeColors {
   textOnHeader?: string; // Text for header areas
   border: string;
   muted: string;
-  bgSVG?: string;    // SVG background-image value
-  panelSVG?: string; // SVG background-image value
+}
+export interface ThemePattern {
+  bg?: string;    // SVG background-image value
+  panel?: string; // SVG background-image value
 }
 
 export interface Theme {
   id: ThemeType;
   name: string;
   colors: ThemeColors;
+  patterns?: ThemePattern;
 }
 
 export interface Player {
@@ -157,12 +162,17 @@ const GRID_SVG = `
 `;
 
 
-const NOISE_SVG = `
-<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <filter id="noiseFilter">
-    <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+const parchment_SVG = `
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <filter id="parchment">
+    <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
+    <feDiffuseLighting in="noise" lighting-color="#f2e8c9" surfaceScale="2">
+      <feDistantLight azimuth="45" elevation="60" />
+    </feDiffuseLighting>
   </filter>
-  <rect width="100%" height="100%" filter="url(#noiseFilter)" opacity="0.5"/>
+
+  <rect width="100%" height="100%" fill="#f2e8c9" />
+  <rect width="100%" height="100%" filter="url(#parchment)" opacity="0.7" />
 </svg>
 `;
 
@@ -188,7 +198,10 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       textOnHeader: '#ffffff',
       border: '#e2e8f0',
       muted: '#64748b',
-      bgSVG: GRID_SVG
+
+    },
+    patterns: {
+      bg:GRID_SVG
     }
   },
   knights: {
@@ -205,8 +218,10 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       textOnHeader: '#1a2238',
       border: '#4a5568',
       muted: '#a0aec0',
-      bgSVG: DOT_SVG,
-      panelSVG: DIAMOND_SVG
+    },
+    patterns: {
+      bg:DOT_SVG,
+      panel:DIAMOND_SVG
     }
   },
   grimoire: {
@@ -223,8 +238,10 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       textOnHeader: '#f4ece1',
       border: '#d2b48c',
       muted: '#8c7851',
-      bgSVG: NOISE_SVG,
-      panelSVG: NOISE_SVG
+    },
+    patterns: {
+      bg:parchment_SVG,
+      panel:parchment_SVG
     }
   },
   crino: {
@@ -242,6 +259,9 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       border: "#85C1E9",
       muted: "#5D6D7E",
       bgSVG: DOT_SVG
+    },
+    patterns: {
+      bg:DOT_SVG,
     }
   }
 };

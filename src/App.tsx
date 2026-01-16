@@ -95,7 +95,7 @@ export default function App() {
   };
 
   const themeStyles = useMemo(() => {
-    const c = state.currentTheme.colors;
+    const { colors: c, patterns: p } = state.currentTheme;
     
     return {
       '--bg-color': c.bg,
@@ -109,9 +109,10 @@ export default function App() {
       '--text-on-header': c.textOnHeader || c.bg,
       '--border-color': c.border,
       '--muted-color': c.muted,
-      // 3. The fallback logic is now handled inside createPattern
-      '--bg-pattern': createPattern(c.bgSVG),
-      '--panel-pattern': createPattern(c.panelSVG),
+      
+      // Use Optional Chaining (?.) to prevent crashes if 'patterns' is missing
+      '--bg-pattern': createPattern(p?.bg),
+      '--panel-pattern': createPattern(p?.panel),
     } as React.CSSProperties;
   }, [state.currentTheme]);
 
