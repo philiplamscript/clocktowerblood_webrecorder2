@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { getSlicePath, getPosition, innerRadius, outerRadius } from './utils';
+import { type IdentityMode } from '../../../type';
 
 interface PlayerSlicesProps {
   playerCount: number;
@@ -18,10 +19,11 @@ interface PlayerSlicesProps {
   showProperties?: boolean;
   assignmentMode: string | null;
   onStart: (num: number, e: React.MouseEvent | React.TouchEvent) => void;
+  identityMode?: IdentityMode;
 }
 
 const PlayerSlices: React.FC<PlayerSlicesProps> = ({
-  playerCount, playerNo, isVoting, pendingNomVoters, deaths, players, ringCount, ringWidth, votedAtDay, mode, showDeathIcons, showProperties = true, assignmentMode, onStart
+  playerCount, playerNo, isVoting, pendingNomVoters, deaths, players, ringCount, ringWidth, votedAtDay, mode, showDeathIcons, showProperties = true, assignmentMode, onStart, identityMode = 'number'
 }) => {
   return (
     <>
@@ -51,6 +53,7 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
         };
 
         const properties = pData?.property ? pData.property.split('|').filter(Boolean) : [];
+        const label = identityMode === 'name' && pData?.name ? pData.name : num;
 
         return (
           <g key={num} onMouseDown={(e) => onStart(num, e)} onTouchStart={(e) => onStart(num, e)} className="cursor-pointer group">
@@ -71,15 +74,12 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
               const re = rs + ringWidth;
               const pos = getPosition(num, playerCount, (rs + re) / 2);
               
-              // Determine ring fill for dead/voting states
               let ringFill = 'transparent';
               if (vCount !== undefined) {
                 ringFill = `rgba(var(--accent-color-rgb), ${mode === 'allReceive' ? '0.3' : '0.4'})`;
               } else if (diedNow) {
-                // Highlight the specific day of death with a semi-transparent muted overlay
                 ringFill = 'rgba(var(--accent-color-rgb), 0.1)';
               } else if (diedLater) {
-                // Post-death rings are clearly greyed out
                 ringFill = 'var(--muted-color)';
               }
 
@@ -132,8 +132,9 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
               textAnchor="middle" 
               alignmentBaseline="middle" 
               className={`text-[10px] font-black tracking-tight pointer-events-none transition-all duration-200 ${isVoter ? 'fill-white' : isCurrent ? 'fill-[var(--accent-color)]' : pd ? 'fill-[var(--muted-color)]' : 'fill-[var(--text-color)] opacity-60'}`}
+              style={identityMode === 'name' && label.toString().length > 4 ? { fontSize: '7px' } : {}}
             >
-              {num}
+              {label}
             </text>
           </g>
         );

@@ -12,11 +12,12 @@ import {
 
 import {type Player,
   type SortConfig,
+  type IdentityMode
 } from '../../../type'
 
 // --- COMPONENT 2: PLAYER DATA GRID ---
 
-export const PlayerGrid = ({ players, setPlayers }: { players: Player[], setPlayers: React.Dispatch<React.SetStateAction<Player[]>> }) => {
+export const PlayerGrid = ({ players, setPlayers, identityMode = 'number' }: { players: Player[], setPlayers: React.Dispatch<React.SetStateAction<Player[]>>, identityMode?: IdentityMode }) => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'asc' });
 
   const handleSort = (key: keyof Player) => {
@@ -28,8 +29,6 @@ export const PlayerGrid = ({ players, setPlayers }: { players: Player[], setPlay
   };
 
   const sortedPlayers = useMemo(() => {
-    // We want to show 20 rows total. 
-    // First, we take the existing players and sort them if needed.
     const items = [...players];
     if (sortConfig.key !== null) {
       items.sort((a, b) => {
@@ -50,12 +49,12 @@ export const PlayerGrid = ({ players, setPlayers }: { players: Player[], setPlay
       });
     }
 
-    // Then we pad the array to 20 items for the UI
     const totalRows = 20;
     const paddedItems = [...items];
     for (let i = items.length; i < totalRows; i++) {
       paddedItems.push({ 
         no: i + 1, 
+        name: '',
         inf: '', 
         day: '', 
         reason: '', 
@@ -69,12 +68,11 @@ export const PlayerGrid = ({ players, setPlayers }: { players: Player[], setPlay
   }, [players, sortConfig]);
 
   const SortIcon = ({ column }: { column: keyof Player }) => {
-    if (sortConfig.key !== column) return <ArrowUpDown size={8} className="ml-1 opacity-20" />;
-    return sortConfig.direction === 'asc' ? <ChevronUp size={8} className="ml-1 text-[var(--accent-color)]" /> : <ChevronDown size={8} className="ml-1 text-[var(--accent-color)]" />;
+    if (sortConfig.key !== column) return <ArrowUpDown size={8} className="ml-1 opacity-80 text-[var(--text-on-bg)]" />;
+    return sortConfig.direction === 'asc' ? <ChevronUp size={8} className="ml-1 text-[var(--text-on-bg)]" /> : <ChevronDown size={8} className="ml-1 text-[var(--text-on-bg)]" />;
   };
 
   const updatePlayer = (no: number, field: keyof Player, value: string) => {
-    // Only update if the player actually exists in the state
     if (no <= players.length) {
       setPlayers(prev => prev.map(p => p.no === no ? { ...p, [field]: value } : p));
     }
@@ -90,30 +88,34 @@ export const PlayerGrid = ({ players, setPlayers }: { players: Player[], setPlay
       <table className="w-full text-left border-collapse table-fixed">
         <thead className="bg-[var(--bg-color)] border-b border-[var(--border-color)] text-[8px] uppercase text-[var(--muted-color)] font-black transition-colors duration-500">
           <tr>
-            <th className="px-1 py-1.5 w-7 text-center cursor-pointer hover:bg-black/5 transition-colors" onClick={() => handleSort('no')}>
-              <div className="flex items-center justify-center"># <SortIcon column="no" /></div>
+            <th className="px-1 py-1.5 w-16 text-center cursor-pointer hover:bg-black/5 transition-colors" onClick={() => handleSort('no')}>
+              <div className="flex items-center justify-center text-[var(--text-on-bg)]">{identityMode === 'name' ? 'NAME' : 'ID'} <SortIcon column="no" /></div>
             </th>
             <th className="px-1 py-1.5 w-8 text-center border-l border-[var(--border-color)] cursor-pointer hover:bg-black/5 transition-colors" onClick={() => handleSort('day')}>
-              <div className="flex flex-col items-center"><Calendar size={10} /><SortIcon column="day" /></div>
+              <div className="flex flex-col items-center text-[var(--text-on-bg)]"><Calendar size={10} /><SortIcon column="day" /></div>
             </th>
-            <th className="px-1 py-1.5 w-8 text-center border-l border-[var(--border-color)]"><Zap size={10} className="mx-auto" /></th>
+            <th className="px-1 py-1.5 w-8 text-center border-l border-[var(--border-color)] text-[var(--text-on-bg)]"><Zap size={10} className="mx-auto" /></th>
             <th className="px-3 py-1.5 border-l border-[var(--border-color)] cursor-pointer hover:bg-black/5 transition-colors" onClick={() => handleSort('inf')}>
-              <div className="flex items-center">INFO <SortIcon column="inf" /></div>
+              <div className="flex items-center text-[var(--text-on-bg)]">INFO <SortIcon column="inf" /></div>
             </th>
             <th className="px-1 py-1.5 w-8 text-center text-[var(--accent-color)] border-l border-[var(--border-color)] cursor-pointer hover:bg-black/5 transition-colors" onClick={() => handleSort('red')}>
-              <div className="flex flex-col items-center"><Skull size={10} /><SortIcon column="red" /></div>
+              <div className="flex flex-col items-center text-[var(--text-on-bg)]"><Skull size={10} /><SortIcon column="red" /></div>
             </th>
             <th className="px-1 py-1.5 w-12 text-center border-l border-[var(--border-color)] cursor-pointer hover:bg-black/5 transition-colors" onClick={() => handleSort('property')}>
-              <div className="flex flex-col items-center"><Tag size={10} /><SortIcon column="property" /></div>
+              <div className="flex flex-col items-center text-[var(--text-on-bg)]"><Tag size={10} /><SortIcon column="property" /></div>
             </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-[var(--border-color)]">
           {sortedPlayers.map((p) => {
             const isPlaceholder = (p as any).isPlaceholder;
+            const displayLabel = identityMode === 'name' && p.name ? p.name : p.no;
+
             return (
               <tr key={p.no} className={`align-top transition-colors ${isPlaceholder ? 'opacity-30 grayscale' : 'hover:bg-black/5'}`}>
-                <td className="px-1 py-2 text-center text-[var(--muted-color)] font-mono text-[10px]">{p.no}</td>
+                <td className="px-1 py-2 text-center text-[var(--muted-color)] font-black text-[9px] uppercase tracking-tighter truncate overflow-hidden whitespace-nowrap">
+                  {displayLabel}
+                </td>
                 <td className="border-l border-[var(--border-color)]">
                   <input 
                     disabled={isPlaceholder}

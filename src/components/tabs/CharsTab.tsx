@@ -59,21 +59,21 @@ const CharsTab: React.FC<CharsTabProps> = ({ chars, setChars, playerCount, setPl
       <div className="bg-[var(--header-color)] rounded border border-[var(--border-color)] shadow-2xl overflow-hidden max-w-lg mx-auto transition-colors duration-500">
         <div className="flex items-center gap-2 px-3 py-2 border-b border-[var(--border-color)] bg-black/20">
           <Scroll size={12} className="text-yellow-500" />
-          <span className="text-[9px] font-black text-white/60 uppercase tracking-widest">Script & Player Distribution</span>
+          <span className="text-[9px] font-black text-[var(--text-on-header)] opacity-80 uppercase tracking-widest">Script & Player Distribution</span>
         </div>
         <div className="grid grid-cols-5 divide-x divide-[var(--border-color)]">
           <div className="flex flex-col items-center py-2 bg-black/10">
-            <span className="text-[7px] font-black text-slate-500 mb-1">PLAYERS</span>
-            <RotaryPicker value={playerCount} min={1} max={20} onChange={setPlayerCount} color="text-yellow-500" />
+            <span className="text-[8px] font-black text-[var(--text-on-panel)] mb-1">PLAYERS</span>
+            <RotaryPicker value={playerCount} min={1} max={20} onChange={setPlayerCount} color="text-[var(--text-on-bg)]" />
           </div>
           {[
-            { key: 'townsfolk', label: 'TOWNS', color: 'text-blue-400' },
-            { key: 'outsiders', label: 'OUTS', color: 'text-blue-200' },
-            { key: 'minions', label: 'MINIONS', color: 'text-red-400' },
-            { key: 'demons', label: 'DEMON', color: 'text-red-600' }
+            { key: 'townsfolk', label: 'TOWNS', keycolor: 'text-[var(--text-on-panel)]', color: 'text-[var(--text-on-header)]' },
+            { key: 'outsiders', label: 'OUTS', keycolor: 'text-[var(--text-on-panel)]',color: 'text-[var(--text-on-header)]' },
+            { key: 'minions', label: 'MINIONS', keycolor: 'text-[var(--text-on-panel)]',color: 'text-[var(--text-on-header)]' },
+            { key: 'demons', label: 'DEMON', keycolor: 'text-[var(--text-on-panel)]',color: 'text-[var(--text-on-header)]' }
           ].map(d => (
             <div key={d.key} className="flex flex-col items-center py-2">
-              <span className={`text-[7px] font-black ${d.color} mb-1`}>{d.label}</span>
+              <span className={`text-[8px] font-black ${d.keycolor} mb-1`}>{d.label}</span>
               <RotaryPicker 
                 value={roleDist[d.key as keyof RoleDist]} 
                 min={0} 
@@ -90,10 +90,10 @@ const CharsTab: React.FC<CharsTabProps> = ({ chars, setChars, playerCount, setPl
         {categories.map((f) => (
           <div key={f} className="space-y-1">
             <div className="flex justify-between items-center px-1 mb-1">
-              <h3 className="text-[9px] font-black text-[var(--muted-color)] uppercase tracking-widest">{f}s</h3>
+              <h3 className="text-[9px] font-black text-[var(--text-on-bg)] uppercase tracking-widest">{f}s</h3>
               <button 
                 onClick={() => addRow(f)}
-                className="p-1 hover:bg-black/5 rounded text-[var(--muted-color)] hover:text-[var(--text-color)] transition-colors"
+                className="p-1 hover:bg-black/5 rounded text-[var(--text-on-bg)] hover:text-[var(--muted-color)] transition-colors"
                 title="Add Row"
               >
                 <Plus size={10} />
