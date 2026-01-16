@@ -15,8 +15,8 @@ export interface ThemeColors {
   textOnHeader?: string; // Text for header areas
   border: string;
   muted: string;
-  bgPattern?: string;    // CSS background-image value
-  panelPattern?: string; // CSS background-image value
+  bgSVG?: string;    // SVG background-image value
+  panelSVG?: string; // SVG background-image value
 }
 
 export interface Theme {
@@ -138,12 +138,12 @@ export const createInitialChars = (): CharDict => ({
 
 // --- PATTERN GENERATOR ---
 
-const createPattern = (svg: string) => `url("data:image/svg+xml;utf8,${encodeURIComponent(svg.trim())}")`;
+
 
 const DOT_SVG = `
 <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-  <g fill="#000" fill-opacity="0.05" fill-rule="evenodd">
-    <circle cx="3" cy="3" r="1"/>
+  <g fill="#2011f7" fill-opacity="0.5" fill-rule="evenodd">
+    <circle cx="3" cy="3" r="3"/>
   </g>
 </svg>
 `;
@@ -151,30 +151,27 @@ const DOT_SVG = `
 const GRID_SVG = `
 <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
   <g fill="none" fill-rule="evenodd">
-    <path d="M0 40h40V0H0v40zM1 39V1h38v38H1z" fill="#000" fill-opacity="0.02"/>
+    <path d="M0 40h40V0H0v40zM1 39V1h38v38H1z" fill="#000" fill-opacity="0.1"/>
   </g>
-</svg>
+</svg> 
 `;
+
 
 const NOISE_SVG = `
 <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
   <filter id="noiseFilter">
     <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
   </filter>
-  <rect width="100%" height="100%" filter="url(#noiseFilter)" opacity="0.05"/>
+  <rect width="100%" height="100%" filter="url(#noiseFilter)" opacity="0.5"/>
 </svg>
 `;
 
 const DIAMOND_SVG = `
 <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-  <path d="M0 0h40v40H0V0zm20 20L0 40h40L20 20zM0 0l20 20L40 0H0z" fill="#000" fill-opacity="0.03" fill-rule="evenodd"/>
+  <path d="M0 0h40v40H0V0zm20 20L0 40h40L20 20zM0 0l20 20L40 0H0z" fill="#000" fill-opacity="0.3" fill-rule="evenodd"/>
 </svg>
 `;
 
-const DOT_PATTERN = createPattern(DOT_SVG);
-const GRID_PATTERN = createPattern(GRID_SVG);
-const NOISE_PATTERN = createPattern(NOISE_SVG);
-const DIAMOND_PATTERN = createPattern(DIAMOND_SVG);
 
 export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
   standard: {
@@ -191,7 +188,7 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       textOnHeader: '#ffffff',
       border: '#e2e8f0',
       muted: '#64748b',
-      bgPattern: GRID_PATTERN
+      bgSVG: GRID_SVG
     }
   },
   knights: {
@@ -208,8 +205,8 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       textOnHeader: '#1a2238',
       border: '#4a5568',
       muted: '#a0aec0',
-      bgPattern: DOT_PATTERN,
-      panelPattern: DIAMOND_PATTERN
+      bgSVG: DOT_SVG,
+      panelSVG: DIAMOND_SVG
     }
   },
   grimoire: {
@@ -226,8 +223,8 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       textOnHeader: '#f4ece1',
       border: '#d2b48c',
       muted: '#8c7851',
-      bgPattern: DOT_PATTERN,
-      panelPattern: NOISE_PATTERN
+      bgSVG: NOISE_SVG,
+      panelSVG: NOISE_SVG
     }
   },
   crino: {
@@ -244,7 +241,7 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       textOnHeader: "#FFFFFF",
       border: "#85C1E9",
       muted: "#5D6D7E",
-      bgPattern: createPattern(`<svg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'><circle cx='15' cy='15' r='1' fill='%23fff' fill-opacity='0.1'/></svg>`)
+      bgSVG: DOT_SVG
     }
   }
 };

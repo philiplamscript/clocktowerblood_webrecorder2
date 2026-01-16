@@ -85,9 +85,18 @@ export default function App() {
   };
 
   const fontSizeClass = { small: 'text-[10px]', mid: 'text-xs', large: 'text-sm' }[state.fontSize];
+  const createPattern = (svg?: string) => {
+  // 1. Check if SVG exists and isn't just whitespace
+  if (!svg || !svg.trim()) return 'none';
+  
+  // 2. Encode the SVG. 
+  // Using encodeURIComponent is safer than raw strings for CSS properties.
+  return `url("data:image/svg+xml,${encodeURIComponent(svg.trim())}")`;
+  };
 
   const themeStyles = useMemo(() => {
     const c = state.currentTheme.colors;
+    
     return {
       '--bg-color': c.bg,
       '--panel-color': c.panel,
@@ -100,8 +109,9 @@ export default function App() {
       '--text-on-header': c.textOnHeader || c.bg,
       '--border-color': c.border,
       '--muted-color': c.muted,
-      '--bg-pattern': c.bgPattern || 'none',
-      '--panel-pattern': c.panelPattern || 'none',
+      // 3. The fallback logic is now handled inside createPattern
+      '--bg-pattern': createPattern(c.bgSVG),
+      '--panel-pattern': createPattern(c.panelSVG),
     } as React.CSSProperties;
   }, [state.currentTheme]);
 
