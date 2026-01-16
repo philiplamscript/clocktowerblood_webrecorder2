@@ -93,7 +93,7 @@ const CharsTab: React.FC<CharsTabProps> = ({ chars, setChars, playerCount, setPl
               <h3 className="text-[9px] font-black text-[var(--text-on-bg)] uppercase tracking-widest">{f}s</h3>
               <button 
                 onClick={() => addRow(f)}
-                className="p-1 hover:bg-black/5 rounded text-[var(--muted-color)] hover:text-[var(--text-color)] transition-colors"
+                className="p-1 hover:bg-black/5 rounded text-[var(--text-on-bg)] hover:text-[var(--muted-color)] transition-colors"
                 title="Add Row"
               >
                 <Plus size={10} />
