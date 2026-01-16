@@ -92,6 +92,7 @@ export default function App() {
     return {
       '--bg-color': c.bg,
       '--panel-color': c.panel,
+      '--panel-color-rgb': hexToRgb(c.panel),
       '--header-color': c.header,
       '--accent-color': c.accent,
       '--accent-color-rgb': hexToRgb(c.accent),
@@ -126,7 +127,7 @@ export default function App() {
     >
       {/* Background Pattern Layer */}
       <div 
-        className={`absolute inset-0 pointer-events-none transition-opacity duration-700 ${patternClass}`} 
+        className={`absolute inset-0 pointer-events-none transition-all duration-700 ${patternClass}`} 
         style={{ opacity: state.currentTheme.colors.patternOpacity ?? 0.1 }}
       />
 
@@ -142,7 +143,6 @@ export default function App() {
           onOpenSettings={() => { setShowSettings(true); setSidebarOpen(false); }} 
           onShowHowToUse={openHowToUse} 
           onShowAbout={() => { setShowAbout(true); setSidebarOpen(false); }} 
-          onShowFAQ={() => toast('Check Settings', { icon: '❓' })} 
           onShowDonation={() => setShowAbout(true)} 
         />
         <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} splitView={state.splitView} setSplitView={state.setSplitView} showHub={state.showHub} setShowHub={state.setShowHub} setShowLedger={setShowLedger} />
@@ -221,9 +221,9 @@ export default function App() {
         />
         <FAB showLedger={showLedger} setShowLedger={setShowLedger} />
         
-        <footer className="bg-[var(--panel-color)] border-t border-[var(--border-color)] px-3 py-1 text-[9px] font-bold text-[var(--muted-color)] flex justify-between items-center z-50 transition-colors duration-500">
+        <footer className="bg-transparent border-t border-[var(--border-color)] px-3 py-1 text-[9px] font-bold text-[var(--muted-color)] flex justify-between items-center z-50">
           <span>PLAYERS REGISTERED: {state.players.filter(p => p.inf || p.name).length} / {state.playerCount}</span>
-          <div className="w-32 h-1 bg-[var(--bg-color)] rounded-full overflow-hidden transition-colors duration-500">
+          <div className="w-32 h-1 bg-[var(--border-color)]/20 rounded-full overflow-hidden">
             <motion.div 
               initial={{ width: 0 }}
               animate={{ width: `${(state.players.filter(p => p.inf || p.name).length / state.playerCount) * 100}%` }}

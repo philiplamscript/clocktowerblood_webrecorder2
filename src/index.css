@@ -29,41 +29,44 @@
     display: none;
   }
 
-  /* Background Patterns - Now uses var(--text-color) with low opacity for consistency */
+  /* Enhanced Background Patterns */
   .pattern-dots {
-    background-image: radial-gradient(currentColor 1px, transparent 1px);
-    background-size: 20px 20px;
-    color: var(--text-color);
+    background-image: radial-gradient(var(--text-color) 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
   }
 
   .pattern-grid {
     background-image: 
-      linear-gradient(to right, currentColor 1px, transparent 1px),
-      linear-gradient(to bottom, currentColor 1px, transparent 1px);
+      linear-gradient(to right, var(--text-color) 0.5px, transparent 0.5px),
+      linear-gradient(to bottom, var(--text-color) 0.5px, transparent 0.5px);
     background-size: 40px 40px;
-    color: var(--text-color);
   }
 
   .pattern-parchment {
     background-color: var(--bg-color);
     background-image: 
-      url("https://www.transparenttextures.com/patterns/natural-paper.png"),
-      radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1), transparent);
+      url("https://www.transparenttextures.com/patterns/natural-paper.png");
+    background-blend-mode: multiply;
   }
 
   .pattern-noise {
     background-image: url("https://www.transparenttextures.com/patterns/asfalt-dark.png");
-    color: var(--text-color);
+    background-repeat: repeat;
   }
 
   .pattern-diagonal {
     background: repeating-linear-gradient(
       45deg,
       transparent,
-      transparent 10px,
-      currentColor 10px,
-      currentColor 11px
+      transparent 12px,
+      var(--text-color) 12px,
+      var(--text-color) 13px
     );
-    color: var(--text-color);
+  }
+
+  /* Glassmorphism utility */
+  .glass-panel {
+    @apply backdrop-blur-md bg-opacity-80;
+    background-color: rgba(var(--panel-color-rgb, 255, 255, 255), 0.7);
   }
 }
