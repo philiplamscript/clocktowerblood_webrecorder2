@@ -88,8 +88,8 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
   );
 
   return (
-    <div className="h-full bg-transparent overflow-y-auto p-4 space-y-4 no-scrollbar">
-      <div className="glass-panel rounded-2xl border border-[var(--border-color)] p-4 shadow-xl relative overflow-hidden flex flex-col items-center min-h-[420px] transition-all duration-500">
+    <div className="h-full bg-transparent overflow-y-auto p-4 space-y-4">
+      <div className="bg-[var(--bg-color)] rounded-xl border border-[var(--border-color)] p-4 shadow-sm relative overflow-hidden flex flex-col items-center min-h-[420px]">
         <DetailHeader 
           isVoting={isVoting} filterDay={filterDay} setFilterDay={setFilterDay}
           dayOptions={['ALL', ...Array.from({ length: props.currentDay }, (_, i) => `D${i + 1}`)]}

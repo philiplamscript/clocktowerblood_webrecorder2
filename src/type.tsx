@@ -1,10 +1,8 @@
 // --- TYPES & INTERFACES ---
 
-export type ThemeType = 'standard' | 'knights' | 'grimoire' | 'puppet' | 'crino' | 'custom' | string;
+export type ThemeType = 'standard' | 'knights' | 'grimoire' | 'puppet' | 'custom' | string;
 
 export type IdentityMode = 'number' | 'name';
-
-export type PatternStyle = 'none' | 'dots' | 'grid' | 'parchment' | 'noise' | 'diagonal';
 
 export interface ThemeColors {
   bg: string;
@@ -12,13 +10,11 @@ export interface ThemeColors {
   header: string;
   accent: string;
   text: string;
-  textOnBg?: string;    
-  textOnPanel?: string; 
-  textOnHeader?: string; 
+  textOnBg?: string;    // Text for global background
+  textOnPanel?: string; // Text for cards/ledgers
+  textOnHeader?: string; // Text for header areas
   border: string;
   muted: string;
-  pattern?: PatternStyle;
-  patternOpacity?: number;
 }
 
 export interface Theme {
@@ -138,7 +134,7 @@ export const createInitialChars = (): CharDict => ({
   Demon: Array(8).fill(null).map(() => ({ name: '', status: '—', note: '' })),
 });
 
-export const THEMES: Record<string, Theme> = {
+export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
   standard: {
     id: 'standard',
     name: 'Tracker Standard',
@@ -152,9 +148,7 @@ export const THEMES: Record<string, Theme> = {
       textOnPanel: '#0f172a',
       textOnHeader: '#ffffff',
       border: '#e2e8f0',
-      muted: '#64748b',
-      pattern: 'dots',
-      patternOpacity: 0.5
+      muted: '#64748b'
     }
   },
   knights: {
@@ -170,9 +164,7 @@ export const THEMES: Record<string, Theme> = {
       textOnPanel: '#f7fafc',
       textOnHeader: '#1a2238',
       border: '#4a5568',
-      muted: '#a0aec0',
-      pattern: 'grid',
-      patternOpacity: 0.2
+      muted: '#a0aec0'
     }
   },
   grimoire: {
@@ -188,27 +180,23 @@ export const THEMES: Record<string, Theme> = {
       textOnPanel: '#2d241e',
       textOnHeader: '#f4ece1',
       border: '#d2b48c',
-      muted: '#8c7851',
-      pattern: 'parchment',
-      patternOpacity: 1
+      muted: '#8c7851'
     }
   },
   crino: {
     id: 'crino',
     name: 'Ice Fairy',
     colors: {
-      bg: "#0B1D2A",
-      panel: "#D6EFFF",
-      header: "#3498DB",
-      accent: "#00E5FF",
-      text: "#0B1D2A",
-      textOnBg: "#FFFFFF",
-      textOnPanel: "#0B1D2A",
-      textOnHeader: "#FFFFFF",
-      border: "#85C1E9",
-      muted: "#5D6D7E",
-      pattern: 'diagonal',
-      patternOpacity: 0.3
-    }
+  "bg": "#0B1D2A",
+  "panel": "#D6EFFF",
+  "header": "#3498DB",
+  "accent": "#00E5FF",
+  "text": "#0B1D2A",
+  "textOnBg": "#FFFFFF",
+  "textOnPanel": "#0B1D2A",
+  "textOnHeader": "#FFFFFF",
+  "border": "#85C1E9",
+  "muted": "#5D6D7E"
+}
   }
 };

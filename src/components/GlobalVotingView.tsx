@@ -42,7 +42,7 @@ const GlobalVotingView: React.FC<GlobalVotingViewProps> = ({
   const currentFilterText = filterDay === 'all' ? 'ALL' : `D${filterDay}`;
 
   return (
-    <div className="h-full bg-transparent overflow-hidden flex flex-col">
+    <div className="h-full bg-white overflow-hidden flex flex-col">
       <div className="flex-none bg-slate-900 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Vote size={14} className="text-blue-500" />
@@ -64,7 +64,7 @@ const GlobalVotingView: React.FC<GlobalVotingViewProps> = ({
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        <div className="bg-[var(--panel-color)] rounded-lg border border-[var(--border-color)] p-4 shadow-sm flex flex-col items-center">
+        <div className="bg-slate-50 rounded-lg border p-4 shadow-sm flex flex-col items-center">
           <VoteHistoryClock 
             playerNo={-1} // Global mode, no specific player
             nominations={nominations} 
@@ -89,18 +89,18 @@ const GlobalVotingView: React.FC<GlobalVotingViewProps> = ({
           />
         </div>
 
-        <div className="bg-[var(--panel-color)] rounded-lg border border-[var(--border-color)] p-4 shadow-sm">
+        <div className="bg-slate-50 rounded-lg border p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
-            <FileText size={14} className="text-[var(--muted-color)]" />
-            <span className="text-[10px] font-black text-[var(--text-color)] uppercase tracking-wider">Player Notes Overview</span>
+            <FileText size={14} className="text-slate-600" />
+            <span className="text-[10px] font-black text-slate-700 uppercase tracking-wider">Player Notes Overview</span>
           </div>
           <div className="space-y-2 max-h-96 overflow-y-auto">
             {players.filter(p => p.inf).map(player => (
-              <div key={player.no} className="bg-[var(--bg-color)] border border-[var(--border-color)] rounded p-3 shadow-sm">
+              <div key={player.no} className="bg-white border rounded p-3 shadow-sm">
                 <div className="flex items-center justify-between mb-2">
                   <button 
                     onClick={() => onPlayerClick(player.no)}
-                    className="font-black text-sm text-[var(--accent-color)] hover:opacity-80"
+                    className="font-black text-sm text-blue-600 hover:text-blue-800"
                   >
                     Player {player.no}
                   </button>
@@ -108,11 +108,11 @@ const GlobalVotingView: React.FC<GlobalVotingViewProps> = ({
                     <span className="text-[8px] font-black text-red-500 uppercase">DEAD</span>
                   )}
                 </div>
-                <p className="text-xs text-[var(--text-color)] leading-relaxed">{player.inf}</p>
+                <p className="text-xs text-slate-700 leading-relaxed">{player.inf}</p>
               </div>
             ))}
             {players.filter(p => p.inf).length === 0 && (
-              <p className="text-[var(--muted-color)] text-xs text-center">No player notes yet.</p>
+              <p className="text-slate-500 text-xs text-center">No player notes yet.</p>
             )}
           </div>
         </div>

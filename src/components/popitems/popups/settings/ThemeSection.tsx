@@ -38,8 +38,6 @@ Rules for high legibility:
 5. "accent" should be a bold, distinct color for primary actions.
 6. "border" should be a subtle version of the text or background color.
 7. "muted" is for secondary labels; ensure it's still visible but lower contrast than main text.
-8. "pattern": Choose one from ["none", "dots", "grid", "parchment", "noise", "diagonal"].
-9. "patternOpacity": A value between 0.05 and 0.4 (except parchment which can be 1).
 
 Format:
 {
@@ -52,9 +50,7 @@ Format:
   "textOnPanel": "hex",
   "textOnHeader": "hex",
   "border": "hex",
-  "muted": "hex",
-  "pattern": "string",
-  "patternOpacity": number
+  "muted": "hex"
 }`;
 
   const copyPrompt = () => {
@@ -73,11 +69,6 @@ Format:
         toast.error(`Missing colors: ${missing.join(', ')}`);
         return;
       }
-      
-      // Ensure pattern defaults if missing
-      if (!colors.pattern) colors.pattern = 'none';
-      if (colors.patternOpacity === undefined) colors.patternOpacity = 0.1;
-
       setCustomThemeColors(colors);
       setActiveTheme('custom');
       setShowSaveTheme(true);
