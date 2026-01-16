@@ -18,7 +18,6 @@ import AboutPopup from './components/popitems/popups/AboutPopup';
 import FAB from './components/popitems/FAB';
 import Sidebar from './components/Sidebar';
 
-// Helper to convert hex to RGB for CSS variables (needed for rgba usage in clock)
 const hexToRgb = (hex: string) => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result ? 
@@ -147,13 +146,18 @@ export default function App() {
         setCustomThemeColors={state.setCustomThemeColors}
         savedCustomThemes={state.savedCustomThemes}
         saveCustomTheme={state.saveCustomTheme}
+        deleteCustomTheme={state.deleteCustomTheme}
+        renameCustomTheme={state.renameCustomTheme}
         reorderNotepadTemplates={state.reorderNotepadTemplates}
         reorderPropTemplates={state.reorderPropTemplates}
         defaultNotepad={state.defaultNotepad}
         setDefaultNotepad={state.setDefaultNotepad}
+        aiThemeInput={state.aiThemeInput}
+        setAiThemeInput={state.setAiThemeInput}
+        resetCustomization={state.resetCustomization}
       />
       <AboutPopup isOpen={showAbout} onClose={() => setShowAbout(false)} />
-      <FAB setShowLedger={setShowLedger} />
+      <FAB showLedger={showLedger} setShowLedger={setShowLedger} />
       <div className="bg-[var(--panel-color)] border-t border-[var(--border-color)] px-3 py-1 text-[9px] font-bold text-[var(--muted-color)] flex justify-between items-center z-50">
         <span>PLAYERS REGISTERED: {state.players.filter(p => p.inf).length} / {state.playerCount}</span>
         <div className="w-32 h-1 bg-[var(--bg-color)] rounded-full overflow-hidden">

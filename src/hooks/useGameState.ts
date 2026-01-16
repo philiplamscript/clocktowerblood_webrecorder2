@@ -28,7 +28,6 @@ export const useGameState = () => {
   const [currentDay, setCurrentDay] = useState(() => getStorage('day', 1));
   const [playerCount, setPlayerCount] = useState(() => getStorage('count', 15));
   
-  // We maintain a master list of players (up to 20) to preserve data even when count decreases
   const [players, setPlayers] = useState<Player[]>(() => {
     const saved = getStorage('players', []);
     if (saved.length > 0) return saved;
@@ -58,6 +57,7 @@ export const useGameState = () => {
   const [activeTheme, setActiveTheme] = useState<ThemeType>(() => getStorage('active_theme', 'standard'));
   const [customThemeColors, setCustomThemeColors] = useState<ThemeColors | null>(() => getStorage('custom_theme_colors', null));
   const [savedCustomThemes, setSavedCustomThemes] = useState<Theme[]>(() => getStorage('saved_custom_themes', []));
+  const [aiThemeInput, setAiThemeInput] = useState(() => getStorage('ai_theme_input', ''));
 
   const [notepadTemplates, setNotepadTemplates] = useState<NotepadTemplate[]>(() => getStorage('notepad_templates', [
     { id: 't1', label: 'SOCIAL READ', content: 'Reads: \nTrust: \nSuspicion: ' },
@@ -69,18 +69,16 @@ export const useGameState = () => {
     { id: 'p3', label: 'Glasses', value: '👓' }
   ]));
 
-  // Persistence effect
   useEffect(() => {
     const state = {
       day: currentDay, count: playerCount, players, nominations, deaths, chars, dist: roleDist,
       note, font: fontSize, lang: language, showHub, splitView, notepad_templates: notepadTemplates, 
       prop_templates: propTemplates, active_theme: activeTheme, custom_theme_colors: customThemeColors,
-      saved_custom_themes: savedCustomThemes, default_notepad: defaultNotepad
+      saved_custom_themes: savedCustomThemes, default_notepad: defaultNotepad, ai_theme_input: aiThemeInput
     };
     Object.entries(state).forEach(([key, val]) => localStorage.setItem(`clocktower_${key}`, JSON.stringify(val)));
-  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, language, showHub, splitView, notepadTemplates, propTemplates, activeTheme, customThemeColors, savedCustomThemes, defaultNotepad]);
+  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, language, showHub, splitView, notepadTemplates, propTemplates, activeTheme, customThemeColors, savedCustomThemes, defaultNotepad, aiThemeInput]);
 
-  // Sync deaths to player status
   useEffect(() => {
     setPlayers(prev => prev.map(p => {
       const death = deaths.find(d => parseInt(d.playerNo) === p.no);
@@ -88,7 +86,6 @@ export const useGameState = () => {
     }));
   }, [deaths]);
 
-  // Derived state: only consider players within the current active count
   const activePlayers = useMemo(() => players.slice(0, playerCount), [players, playerCount]);
   const deadPlayers = useMemo(() => activePlayers.filter(p => p.day !== '' || p.red !== '').map(p => p.no), [activePlayers]);
 
@@ -107,7 +104,6 @@ export const useGameState = () => {
       { id: 'default-night', day: 1, playerNo: '', reason: '🌑', note: '', isConfirmed: true }
     ]);
     setCurrentDay(1);
-    
     setChars(prev => {
       const newChars = { ...prev };
       (Object.keys(newChars) as (keyof CharDict)[]).forEach(cat => {
@@ -115,9 +111,22 @@ export const useGameState = () => {
       });
       return newChars;
     });
-    
     setNote('');
     toast.success('Session reset (Roles preserved)');
+  };
+
+  const resetCustomization = () => {
+    setNotepadTemplates([
+      { id: 't1', label: 'SOCIAL READ', content: 'Reads: \nTrust: \nSuspicion: ' },
+      { id: 't2', label: 'WORLD INFO', content: 'Day 1: \nDay 2: \nDay 3: ' }
+    ]);
+    setPropTemplates([
+      { id: 'p1', label: 'RedTeam', value: '🔴' },
+      { id: 'p2', label: 'Crystal', value: '🔮' },
+      { id: 'p3', label: 'Glasses', value: '👓' }
+    ]);
+    setDefaultNotepad('');
+    toast.success('Customizations reset to default');
   };
 
   const updatePlayerInfo = (no: number, text: string) => setPlayers(prev => prev.map(p => p.no === no ? { ...p, inf: text } : p));
@@ -149,6 +158,17 @@ export const useGameState = () => {
     toast.success(`Theme "${name}" saved!`);
   };
 
+  const deleteCustomTheme = (id: string) => {
+    setSavedCustomThemes(prev => prev.filter(t => t.id !== id));
+    if (activeTheme === id) setActiveTheme('standard');
+    toast.success('Theme deleted');
+  };
+
+  const renameCustomTheme = (id: string, newName: string) => {
+    setSavedCustomThemes(prev => prev.map(t => t.id === id ? { ...t, name: newName } : t));
+    toast.success('Theme renamed');
+  };
+
   const reorderNotepadTemplates = (fromIndex: number, toIndex: number) => {
     setNotepadTemplates(prev => {
       const newArr = [...prev];
@@ -169,14 +189,14 @@ export const useGameState = () => {
 
   return {
     currentDay, setCurrentDay, playerCount, setPlayerCount, 
-    players: activePlayers, // Return only active players to the UI
+    players: activePlayers,
     setPlayers,
     nominations, setNominations, deaths, setDeaths, chars, setChars, roleDist, setRoleDist,
     note, setNote, fontSize, setFontSize, language, setLanguage, showHub, setShowHub,
     splitView, setSplitView, notepadTemplates, setNotepadTemplates, propTemplates, setPropTemplates,
-    deadPlayers, reset, updatePlayerInfo, updatePlayerProperty, togglePlayerAlive,
+    deadPlayers, reset, resetCustomization, updatePlayerInfo, updatePlayerProperty, togglePlayerAlive,
     activeTheme, setActiveTheme, customThemeColors, setCustomThemeColors, currentTheme,
-    savedCustomThemes, saveCustomTheme, reorderNotepadTemplates, reorderPropTemplates,
-    defaultNotepad, setDefaultNotepad
+    savedCustomThemes, saveCustomTheme, deleteCustomTheme, renameCustomTheme, reorderNotepadTemplates, reorderPropTemplates,
+    defaultNotepad, setDefaultNotepad, aiThemeInput, setAiThemeInput
   };
 };
