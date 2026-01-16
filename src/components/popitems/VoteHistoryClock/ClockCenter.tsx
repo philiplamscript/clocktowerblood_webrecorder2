@@ -19,11 +19,11 @@ const ClockCenter: React.FC<ClockCenterProps> = ({
   isVoting, pendingNom, assignmentMode, selectedReason, playerNo, currentDay, mode, onStart, swipeOffset = 0
 }) => {
   const getBaseColor = () => {
-    if (isVoting) return '#e11d48'; 
+    if (isVoting) return '#e11d48'; // Keep critical game states high contrast
     if (pendingNom) return '#7c3aed'; 
     if (assignmentMode === 'death') return '#ef4444';
     if (assignmentMode === 'property') return '#3b82f6';
-    return 'var(--header-color)'; 
+    return 'var(--header-color)'; // Use theme header color as the default ball base
   };
 
   const baseColor = getBaseColor();
@@ -41,11 +41,6 @@ const ClockCenter: React.FC<ClockCenterProps> = ({
           <stop offset="100%" stopColor="black" stopOpacity="0.2" />
         </radialGradient>
         
-        <filter id="ballGlow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="4" result="blur" />
-          <feComposite in="SourceGraphic" in2="blur" operator="over" />
-        </filter>
-
         <clipPath id="centerClip">
           <circle cx={cx} cy={cy} r="28" />
         </clipPath>
@@ -62,7 +57,6 @@ const ClockCenter: React.FC<ClockCenterProps> = ({
       <circle 
         cx={cx} cy={cy} r="28" 
         fill={baseColor} 
-        filter={isVoting || pendingNom ? "url(#ballGlow)" : "none"}
         className="transition-colors duration-500 shadow-2xl" 
       />
       

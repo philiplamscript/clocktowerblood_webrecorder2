@@ -31,31 +31,26 @@ const ThemeSection: React.FC<ThemeSectionProps> = ({
 Style: ${style || '[YOUR DESIRED STYLE HERE]'}
 
 Rules for high legibility:
-1. "bg" is the main background hex.
-2. "gradient" (optional) is a CSS linear-gradient string for the background.
-3. "panel" is for cards/clock slices. Use "rgba(r,g,b,a)" for a semi-transparent glass look if suitable.
-4. Role Colors: "roleTown", "roleOutsider", "roleMinion", "roleDemon" (Choose colors that fit the theme aesthetic).
-5. "glassEffect": true (optional) to enable background blurs.
-6. "textOnBg", "textOnPanel", "textOnHeader" for high contrast readability.
+1. "bg" should be different from "panel" to create depth.
+2. "textOnBg" should have high contrast against the "bg" color.
+3. "textOnPanel" should have high contrast against the "panel" color.
+4. "textOnHeader" should have high contrast against "header".
+5. "accent" should be a bold, distinct color for primary actions.
+6. "border" should be a subtle version of the text or background color.
+7. "muted" is for secondary labels; ensure it's still visible but lower contrast than main text.
 
 Format:
 {
   "bg": "hex",
-  "gradient": "css gradient",
-  "panel": "hex or rgba",
+  "panel": "hex",
   "header": "hex",
   "accent": "hex",
-  "text": "hex",
+  "text": "hex (legacy fallback)",
   "textOnBg": "hex",
   "textOnPanel": "hex",
   "textOnHeader": "hex",
   "border": "hex",
-  "muted": "hex",
-  "roleTown": "hex",
-  "roleOutsider": "hex",
-  "roleMinion": "hex",
-  "roleDemon": "hex",
-  "glassEffect": boolean
+  "muted": "hex"
 }`;
 
   const copyPrompt = () => {
