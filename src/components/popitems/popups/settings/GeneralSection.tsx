@@ -1,50 +1,42 @@
 "use client";
 
 import React from 'react';
-import { Type, Globe, RotateCcw, ShieldAlert } from 'lucide-react';
+import { Type, Globe, RotateCcw, ShieldAlert, Hash, User } from 'lucide-react';
+import { type IdentityMode } from '../../../../type';
 
 interface GeneralSectionProps {
   fontSize: 'small' | 'mid' | 'large';
   setFontSize: (size: 'small' | 'mid' | 'large') => void;
   language: string;
   setLanguage: (lang: string) => void;
+  identityMode: IdentityMode;
+  setIdentityMode: (mode: IdentityMode) => void;
   resetCustomization: () => void;
 }
 
-const GeneralSection: React.FC<GeneralSectionProps> = ({ fontSize, setFontSize, language, setLanguage, resetCustomization }) => {
+const GeneralSection: React.FC<GeneralSectionProps> = ({ 
+  fontSize, setFontSize, language, setLanguage, identityMode, setIdentityMode, resetCustomization 
+}) => {
   return (
     <div className="space-y-8">
       <section className="space-y-3">
         <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-          <Type size={14} /> Text Scaling
+          <User size={14} /> Identity Display Mode
         </h3>
+        <p className="text-[10px] text-slate-500 italic">Choose whether the UI identifies players by their seat number or their custom name.</p>
         <div className="flex gap-2">
-          {(['small', 'mid', 'large'] as const).map(size => (
-            <button 
-              key={size}
-              onClick={() => setFontSize(size)}
-              className={`flex-1 py-3 rounded-xl border-2 font-black uppercase text-[10px] transition-all ${fontSize === size ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-slate-100 text-slate-400 hover:bg-slate-50'}`}
-            >
-              {size}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section className="space-y-3">
-        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-          <Globe size={14} /> Preferred Language
-        </h3>
-        <div className="flex gap-2">
-          {['Eng', '簡中', '繁中'].map(lang => (
-            <button 
-              key={lang}
-              onClick={() => setLanguage(lang)}
-              className={`flex-1 py-3 rounded-xl border-2 font-black text-[10px] transition-all ${language === lang ? 'border-red-600 bg-red-50 text-red-600' : 'border-slate-100 text-slate-400 hover:bg-slate-50'}`}
-            >
-              {lang}
-            </button>
-          ))}
+          <button 
+            onClick={() => setIdentityMode('number')}
+            className={`flex-1 py-3 rounded-xl border-2 font-black uppercase text-[10px] transition-all flex items-center justify-center gap-2 ${identityMode === 'number' ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-slate-100 text-slate-400 hover:bg-slate-50'}`}
+          >
+            <Hash size={12} /> Number Base
+          </button>
+          <button 
+            onClick={() => setIdentityMode('name')}
+            className={`flex-1 py-3 rounded-xl border-2 font-black uppercase text-[10px] transition-all flex items-center justify-center gap-2 ${identityMode === 'name' ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-slate-100 text-slate-400 hover:bg-slate-50'}`}
+          >
+            <User size={12} /> Player Name Base
+          </button>
         </div>
       </section>
 

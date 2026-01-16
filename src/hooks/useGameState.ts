@@ -13,6 +13,7 @@ import {
   type ThemeType,
   type ThemeColors,
   type Theme,
+  type IdentityMode,
   createInitialChars,
   THEMES
 } from '../type';
@@ -24,6 +25,7 @@ export const useGameState = () => {
   };
 
   const [defaultNotepad, setDefaultNotepad] = useState(() => getStorage('default_notepad', ''));
+  const [identityMode, setIdentityMode] = useState<IdentityMode>(() => getStorage('identity_mode', 'number'));
 
   const [currentDay, setCurrentDay] = useState(() => getStorage('day', 1));
   const [playerCount, setPlayerCount] = useState(() => getStorage('count', 15));
@@ -33,6 +35,7 @@ export const useGameState = () => {
     if (saved.length > 0) return saved;
     return Array.from({ length: 20 }, (_, i) => ({ 
       no: i + 1, 
+      name: '',
       inf: defaultNotepad, 
       day: '', 
       reason: '', 
@@ -74,10 +77,11 @@ export const useGameState = () => {
       day: currentDay, count: playerCount, players, nominations, deaths, chars, dist: roleDist,
       note, font: fontSize, lang: language, showHub, splitView, notepad_templates: notepadTemplates, 
       prop_templates: propTemplates, active_theme: activeTheme, custom_theme_colors: customThemeColors,
-      saved_custom_themes: savedCustomThemes, default_notepad: defaultNotepad, ai_theme_input: aiThemeInput
+      saved_custom_themes: savedCustomThemes, default_notepad: defaultNotepad, ai_theme_input: aiThemeInput,
+      identity_mode: identityMode
     };
     Object.entries(state).forEach(([key, val]) => localStorage.setItem(`clocktower_${key}`, JSON.stringify(val)));
-  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, language, showHub, splitView, notepadTemplates, propTemplates, activeTheme, customThemeColors, savedCustomThemes, defaultNotepad, aiThemeInput]);
+  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, language, showHub, splitView, notepadTemplates, propTemplates, activeTheme, customThemeColors, savedCustomThemes, defaultNotepad, aiThemeInput, identityMode]);
 
   useEffect(() => {
     setPlayers(prev => prev.map(p => {
@@ -92,6 +96,7 @@ export const useGameState = () => {
   const reset = () => {
     setPlayers(Array.from({ length: 20 }, (_, i) => ({ 
       no: i + 1, 
+      name: '',
       inf: defaultNotepad, 
       day: '', 
       reason: '', 
@@ -130,6 +135,7 @@ export const useGameState = () => {
   };
 
   const updatePlayerInfo = (no: number, text: string) => setPlayers(prev => prev.map(p => p.no === no ? { ...p, inf: text } : p));
+  const updatePlayerName = (no: number, name: string) => setPlayers(prev => prev.map(p => p.no === no ? { ...p, name } : p));
   const updatePlayerProperty = (no: number, text: string) => setPlayers(prev => prev.map(p => p.no === no ? { ...p, property: text } : p));
   
   const togglePlayerAlive = (no: number) => {
@@ -138,6 +144,30 @@ export const useGameState = () => {
     } else {
       setDeaths([...deaths, { id: Math.random().toString(), day: currentDay, playerNo: no.toString(), reason: '⚔️', note: '', isConfirmed: true }]);
     }
+  };
+
+  const reorderPlayers = (fromIndex: number, toIndex: number) => {
+    setPlayers(prev => {
+      const newPlayers = [...prev];
+      const [moved] = newPlayers.splice(fromIndex, 1);
+      newPlayers.splice(toIndex, 0, moved);
+      // Re-assign numbers based on new order to maintain clock positions
+      return newPlayers.map((p, idx) => ({ ...p, no: idx + 1 }));
+    });
+  };
+
+  const addPlayer = () => {
+    if (playerCount >= 20) return;
+    setPlayerCount(prev => prev + 1);
+  };
+
+  const removePlayer = (no: number) => {
+    if (playerCount <= 5) return;
+    setPlayers(prev => {
+      const filtered = prev.filter(p => p.no !== no);
+      return filtered.map((p, idx) => ({ ...p, no: idx + 1 }));
+    });
+    setPlayerCount(prev => prev - 1);
   };
 
   const currentTheme = useMemo(() => {
@@ -194,9 +224,10 @@ export const useGameState = () => {
     nominations, setNominations, deaths, setDeaths, chars, setChars, roleDist, setRoleDist,
     note, setNote, fontSize, setFontSize, language, setLanguage, showHub, setShowHub,
     splitView, setSplitView, notepadTemplates, setNotepadTemplates, propTemplates, setPropTemplates,
-    deadPlayers, reset, resetCustomization, updatePlayerInfo, updatePlayerProperty, togglePlayerAlive,
+    deadPlayers, reset, resetCustomization, updatePlayerInfo, updatePlayerName, updatePlayerProperty, togglePlayerAlive,
     activeTheme, setActiveTheme, customThemeColors, setCustomThemeColors, currentTheme,
     savedCustomThemes, saveCustomTheme, deleteCustomTheme, renameCustomTheme, reorderNotepadTemplates, reorderPropTemplates,
-    defaultNotepad, setDefaultNotepad, aiThemeInput, setAiThemeInput
+    defaultNotepad, setDefaultNotepad, aiThemeInput, setAiThemeInput, identityMode, setIdentityMode,
+    reorderPlayers, addPlayer, removePlayer
   };
 };

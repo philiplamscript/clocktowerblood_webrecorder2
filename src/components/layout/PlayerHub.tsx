@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Plus, Minus } from 'lucide-react';
-import { REASON_CYCLE, type Player, type Death, type PropTemplate } from '../../type';
+import { REASON_CYCLE, type Player, type Death, type PropTemplate, type IdentityMode } from '../../type';
 
 interface PlayerHubProps {
   currentDay: number;
@@ -20,12 +20,13 @@ interface PlayerHubProps {
   propTemplates: PropTemplate[];
   focusPlayerNo: number;
   onPlayerClick: (num: number) => void;
+  identityMode: IdentityMode;
 }
 
 const PlayerHub: React.FC<PlayerHubProps> = ({
   currentDay, setCurrentDay, playerCount, players, deadPlayers, deaths,
   assignmentMode, setAssignmentMode, selectedReason, setSelectedReason,
-  selectedProperty, setSelectedProperty, propTemplates, focusPlayerNo, onPlayerClick
+  selectedProperty, setSelectedProperty, propTemplates, focusPlayerNo, onPlayerClick, identityMode
 }) => {
   const cycleSelectedReason = () => {
     const nextIndex = (REASON_CYCLE.indexOf(selectedReason) + 1) % REASON_CYCLE.length;
@@ -62,9 +63,13 @@ const PlayerHub: React.FC<PlayerHubProps> = ({
             const p = players.find(pl => pl.no === num);
             const isDead = deadPlayers.includes(num);
             const death = deaths.find(d => parseInt(d.playerNo) === num);
+            
+            // Determine display label based on identity mode
+            const label = identityMode === 'name' && p?.name ? p.name : num;
+
             return (
               <button key={num} onClick={() => onPlayerClick(num)} className={`flex-none px-3 py-1 rounded-full text-[10px] font-black transition-all border-2 shadow-sm ${assignmentMode ? 'bg-slate-700 text-slate-300 border-slate-600 hover:bg-slate-600' : num === focusPlayerNo ? 'bg-white text-slate-900 border-red-500 scale-105 z-10' : isDead ? 'bg-slate-900 text-white border-red-900/50' : p?.inf ? 'bg-blue-600 text-white border-blue-400' : p?.property ? 'bg-green-600 text-white border-green-400' : 'bg-slate-700 text-slate-300 border-slate-600'} active:scale-90`}>
-                <span>{num}</span>{isDead && <span className="ml-1 text-[8px] opacity-75">{death?.reason}</span>}
+                <span>{label}</span>{isDead && <span className="ml-1 text-[8px] opacity-75">{death?.reason}</span>}
               </button>
             );
           })}

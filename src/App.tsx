@@ -15,6 +15,7 @@ import ResetConfirmation from './components/popitems/popups/ResetConfirmation';
 import GreetingPopup from './components/popitems/popups/GreetingPopup';
 import SettingsPopup from './components/popitems/popups/SettingsPopup';
 import AboutPopup from './components/popitems/popups/AboutPopup';
+import PlayerRosterPopup from './components/popitems/popups/PlayerRosterPopup';
 import FAB from './components/popitems/FAB';
 import Sidebar from './components/Sidebar';
 
@@ -34,6 +35,7 @@ export default function App() {
   const [showReset, setShowReset] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
+  const [showRoster, setShowRoster] = useState(false);
   const [focusPlayerNo, setFocusPlayerNo] = useState<number>(1);
   const [showRoleSelector, setShowRoleSelector] = useState<{ playerNo: number; roles: { role: string; category: string }[] } | null>(null);
   const [showRoleUpdate, setShowRoleUpdate] = useState(false);
@@ -111,13 +113,24 @@ export default function App() {
     >
       <Toaster position="top-center" reverseOrder={false} />
       <GreetingPopup isOpen={showGreeting} title={greetingTitle} onClose={() => { setShowGreeting(false); localStorage.setItem('clocktower_greeted', 'true'); }} />
-      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} onReset={() => { setShowReset(true); setSidebarOpen(false); }} onLoadRole={() => { setShowRoleUpdate(true); setSidebarOpen(false); }} onShowUpdateLog={() => toast.info('Log: Added Settings system')} onFocusPlayerDetail={() => {}} onOpenSettings={() => { setShowSettings(true); setSidebarOpen(false); }} onShowHowToUse={openHowToUse} onShowAbout={() => { setShowAbout(true); setSidebarOpen(false); }} onShowFAQ={() => toast('Check Settings', { icon: '❓' })} onShowDonation={() => setShowAbout(true)} />
+      <Sidebar 
+        isOpen={sidebarOpen} setIsOpen={setSidebarOpen} 
+        onReset={() => { setShowReset(true); setSidebarOpen(false); }} 
+        onLoadRole={() => { setShowRoleUpdate(true); setSidebarOpen(false); }} 
+        onShowUpdateLog={() => toast.info('Log: Added Settings system')} 
+        onFocusPlayerDetail={() => { setShowRoster(true); setSidebarOpen(false); }} 
+        onOpenSettings={() => { setShowSettings(true); setSidebarOpen(false); }} 
+        onShowHowToUse={openHowToUse} 
+        onShowAbout={() => { setShowAbout(true); setSidebarOpen(false); }} 
+        onShowFAQ={() => toast('Check Settings', { icon: '❓' })} 
+        onShowDonation={() => setShowAbout(true)} 
+      />
       <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} splitView={state.splitView} setSplitView={state.setSplitView} showHub={state.showHub} setShowHub={state.setShowHub} setShowLedger={setShowLedger} />
-      {state.showHub && <PlayerHub currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} deaths={state.deaths} assignmentMode={assignmentMode} setAssignmentMode={setAssignmentMode} selectedReason={selectedReason} setSelectedReason={setSelectedReason} selectedProperty={selectedProperty} setSelectedProperty={setSelectedProperty} propTemplates={state.propTemplates} focusPlayerNo={focusPlayerNo} onPlayerClick={handlePlayerClick} />}
+      {state.showHub && <PlayerHub currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} deaths={state.deaths} assignmentMode={assignmentMode} setAssignmentMode={setAssignmentMode} selectedReason={selectedReason} setSelectedReason={setSelectedReason} selectedProperty={selectedProperty} setSelectedProperty={setSelectedProperty} propTemplates={state.propTemplates} focusPlayerNo={focusPlayerNo} onPlayerClick={handlePlayerClick} identityMode={state.identityMode} />}
       <main className="flex-1 relative">
         <div className={`h-full ${state.splitView ? 'grid grid-cols-2 divide-x border-[var(--border-color)]' : ''}`}>
           <div className="bg-[var(--panel-color)] transition-colors duration-500">
-            <PlayerDetailView playerNo={focusPlayerNo} setPlayerNo={setFocusPlayerNo} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} updatePlayerInfo={state.updatePlayerInfo} updatePlayerProperty={state.updatePlayerProperty} togglePlayerAlive={state.togglePlayerAlive} chars={state.chars} nominations={state.nominations} setNominations={state.setNominations} voteHistoryMode={voteHistoryMode} setVoteHistoryMode={setVoteHistoryMode} setShowRoleSelector={setShowRoleSelector} deaths={state.deaths} setDeaths={state.setDeaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} onPlayerClick={handlePlayerClick} setAssignmentMode={setAssignmentMode} setSelectedReason={setSelectedReason} setSelectedProperty={setSelectedProperty} notepadTemplates={state.notepadTemplates} propTemplates={state.propTemplates} />
+            <PlayerDetailView playerNo={focusPlayerNo} setPlayerNo={setFocusPlayerNo} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} updatePlayerInfo={state.updatePlayerInfo} updatePlayerProperty={state.updatePlayerProperty} togglePlayerAlive={state.togglePlayerAlive} chars={state.chars} nominations={state.nominations} setNominations={state.setNominations} voteHistoryMode={voteHistoryMode} setVoteHistoryMode={setVoteHistoryMode} setShowRoleSelector={setShowRoleSelector} deaths={state.deaths} setDeaths={state.setDeaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} onPlayerClick={handlePlayerClick} setAssignmentMode={setAssignmentMode} setSelectedReason={setSelectedReason} setSelectedProperty={setSelectedProperty} notepadTemplates={state.notepadTemplates} propTemplates={state.propTemplates} identityMode={state.identityMode} />
           </div>
           {state.splitView && (
             <div className="bg-[var(--panel-color)] transition-colors duration-500">
@@ -137,6 +150,8 @@ export default function App() {
         setFontSize={state.setFontSize} 
         language={state.language} 
         setLanguage={state.setLanguage} 
+        identityMode={state.identityMode}
+        setIdentityMode={state.setIdentityMode}
         notepadTemplates={state.notepadTemplates} 
         setNotepadTemplates={state.setNotepadTemplates} 
         propTemplates={state.propTemplates} 
@@ -157,11 +172,21 @@ export default function App() {
         resetCustomization={state.resetCustomization}
       />
       <AboutPopup isOpen={showAbout} onClose={() => setShowAbout(false)} />
+      <PlayerRosterPopup 
+        isOpen={showRoster} 
+        onClose={() => setShowRoster(false)} 
+        players={state.players} 
+        updatePlayerName={state.updatePlayerName} 
+        updatePlayerInfo={state.updatePlayerInfo} 
+        reorderPlayers={state.reorderPlayers} 
+        addPlayer={state.addPlayer} 
+        removePlayer={state.removePlayer} 
+      />
       <FAB showLedger={showLedger} setShowLedger={setShowLedger} />
       <div className="bg-[var(--panel-color)] border-t border-[var(--border-color)] px-3 py-1 text-[9px] font-bold text-[var(--muted-color)] flex justify-between items-center z-50">
-        <span>PLAYERS REGISTERED: {state.players.filter(p => p.inf).length} / {state.playerCount}</span>
+        <span>PLAYERS REGISTERED: {state.players.filter(p => p.inf || p.name).length} / {state.playerCount}</span>
         <div className="w-32 h-1 bg-[var(--bg-color)] rounded-full overflow-hidden">
-          <div className="h-full bg-[var(--accent-color)]" style={{ width: `${(state.players.filter(p => p.inf).length / state.playerCount) * 100}%` }} />
+          <div className="h-full bg-[var(--accent-color)]" style={{ width: `${(state.players.filter(p => p.inf || p.name).length / state.playerCount) * 100}%` }} />
         </div>
       </div>
     </div>

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { X, Palette, FileText, Settings as SettingsIcon } from 'lucide-react';
-import { type NotepadTemplate, type PropTemplate, type ThemeType, type ThemeColors } from '../../../type';
+import { type NotepadTemplate, type PropTemplate, type ThemeType, type ThemeColors, type IdentityMode } from '../../../type';
 
 import ThemeSection from './settings/ThemeSection';
 import CustomizationSection from './settings/CustomizationSection';
@@ -15,6 +15,8 @@ interface SettingsPopupProps {
   setFontSize: (size: 'small' | 'mid' | 'large') => void;
   language: string;
   setLanguage: (lang: string) => void;
+  identityMode: IdentityMode;
+  setIdentityMode: (mode: IdentityMode) => void;
   notepadTemplates: NotepadTemplate[];
   setNotepadTemplates: (templates: NotepadTemplate[]) => void;
   propTemplates: PropTemplate[];
@@ -84,6 +86,7 @@ const SettingsPopup: React.FC<SettingsPopupProps> = (props) => {
             <GeneralSection 
               fontSize={props.fontSize} setFontSize={props.setFontSize}
               language={props.language} setLanguage={props.setLanguage}
+              identityMode={props.identityMode} setIdentityMode={props.setIdentityMode}
               resetCustomization={props.resetCustomization}
             />
           )}

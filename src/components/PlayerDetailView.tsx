@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 
-import { REASON_CYCLE, type NotepadTemplate, type PropTemplate } from '../type';
+import { REASON_CYCLE, type NotepadTemplate, type PropTemplate, type IdentityMode } from '../type';
 import VoteHistoryClock from './popitems/VoteHistoryClock/VoteHistoryClock';
 import DetailHeader from './player-detail/DetailHeader';
 import AssignmentControls from './player-detail/AssignmentControls';
@@ -38,6 +38,7 @@ interface PlayerDetailViewProps {
   setSelectedProperty?: (property: string) => void;
   notepadTemplates?: NotepadTemplate[];
   propTemplates?: PropTemplate[];
+  identityMode?: IdentityMode;
 }
 
 const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
@@ -111,9 +112,9 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
             showProperties={showProperties}
             assignmentMode={props.assignmentMode} selectedReason={props.selectedReason} selectedProperty={props.selectedProperty}
             showArrows={showArrows}
+            identityMode={props.identityMode}
           />
 
-          {/* Floating Assignment Controls in Bottom Left */}
           <div className="absolute bottom-2 left-0 z-10">
             <AssignmentControls 
               assignmentMode={props.assignmentMode ?? null} setAssignmentMode={props.setAssignmentMode ?? (() => {})}

@@ -6,6 +6,7 @@ import PlayerSlices from './PlayerSlices';
 import VoteArrows from './VoteArrows';
 import ClockCenter from './ClockCenter';
 import { cx, cy, innerRadius, outerRadius } from './utils';
+import { type IdentityMode } from '../../../type';
 
 interface VoteHistoryClockProps {
   playerNo: number;
@@ -31,6 +32,7 @@ interface VoteHistoryClockProps {
   selectedReason?: string;
   selectedProperty?: string;
   showArrows?: boolean;
+  identityMode?: IdentityMode;
 }
 
 const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
@@ -73,17 +75,12 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
       if (props.filterDay !== 'all' && day !== props.filterDay) return;
       const voteCount = n.voters ? n.voters.split(',').filter((v: string) => v).length : 0;
 
-      // Global arrows: always include all nominations that have source and target
       if (n.f && n.f !== '-' && n.t && n.t !== '-') {
         const fromNum = parseInt(n.f), toNum = parseInt(n.t);
-        // Determine highlighting type based on current player
         let type: 'to' | 'from' | 'self' = fromNum === toNum ? 'self' : toNum === props.playerNo ? 'from' : fromNum === props.playerNo ? 'to' : 'to';
-        
-        // Push all arrows to arrowData for global display
         arrowData.push({ from: fromNum, to: toNum, day, type });
       }
 
-      // Highlight logic (votedAtDay) remains mode-specific for the rings
       if (props.mode === 'allReceive') {
         if (n.t && n.t !== '-') {
           if (!votedAtDay[n.t]) votedAtDay[n.t] = {};
@@ -186,6 +183,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
           playerCount={props.playerCount} playerNo={props.playerNo} isVoting={props.isVoting} pendingNomVoters={props.pendingNom?.voters ?? []}
           deaths={props.deaths} players={props.players} ringCount={ringCount} ringWidth={ringWidth} votedAtDay={data.votedAtDay} mode={props.mode} 
           showDeathIcons={props.showDeathIcons} showProperties={props.showProperties} assignmentMode={props.assignmentMode ?? null} onStart={handleStart}
+          identityMode={props.identityMode}
         />
         <ClockFace playerCount = {props.playerCount} playerNo = {props.playerNo} ringCount={ringCount} ringWidth={ringWidth} showAxis={props.showAxis ?? true} />
         <VoteArrows 
