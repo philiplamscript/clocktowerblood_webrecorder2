@@ -64,12 +64,14 @@ const NoteSection: React.FC<NoteSectionProps> = ({
           placeholder="Type social reads, role claims..."
           value={currentPlayer?.inf || ''}
           onChange={(e) => updatePlayerInfo(playerNo, e.target.value)}
+          // style={{ backgroundImage: 'var(--panel-pattern)' }}
         />
         <div className="flex flex-col gap-2">
           <button 
             onClick={() => { setShowKeywords(!showKeywords); setShowTemplates(false); }} 
             className={`p-2.5 rounded-xl shadow-sm transition-all active:scale-90 ${showKeywords ? 'bg-[var(--accent-color)] text-white' : 'bg-[var(--panel-color)] border border-[var(--border-color)] text-[var(--muted-color)] hover:text-[var(--accent-color)]'}`}
             title="Insert Role Keyword"
+            
           >
             <Key size={16} />
           </button>
