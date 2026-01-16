@@ -20,6 +20,7 @@ import FAB from './components/popitems/FAB';
 import Sidebar from './components/Sidebar';
 
 const hexToRgb = (hex: string) => {
+  if (!hex) return '0, 0, 0';
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result ? 
     `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : 
@@ -90,6 +91,7 @@ export default function App() {
     const c = state.currentTheme.colors;
     return {
       '--bg-color': c.bg,
+      '--bg-gradient': c.gradient || 'none',
       '--panel-color': c.panel,
       '--header-color': c.header,
       '--accent-color': c.accent,
@@ -100,6 +102,12 @@ export default function App() {
       '--text-on-header': c.textOnHeader || c.bg,
       '--border-color': c.border,
       '--muted-color': c.muted,
+      '--role-town': c.roleTown || '#3b82f6',
+      '--role-outsider': c.roleOutsider || '#818cf8',
+      '--role-minion': c.roleMinion || '#f97316',
+      '--role-demon': c.roleDemon || '#ef4444',
+      '--glass-blur': c.glassEffect ? '12px' : '0px',
+      '--glass-border': c.glassEffect ? 'rgba(255,255,255,0.1)' : c.border
     } as React.CSSProperties;
   }, [state.currentTheme]);
 
@@ -112,15 +120,21 @@ export default function App() {
   return (
     <div 
       style={themeStyles}
-      className={`min-h-screen w-full bg-[var(--bg-color)] flex flex-col font-sans select-none ${fontSizeClass} transition-colors duration-500`}
+      className={`min-h-screen w-full flex flex-col font-sans select-none ${fontSizeClass} transition-all duration-700 bg-[var(--bg-color)]`}
     >
+      {/* Gradient Overlay Background */}
+      <div 
+        className="fixed inset-0 pointer-events-none transition-opacity duration-700"
+        style={{ background: 'var(--bg-gradient)', opacity: state.currentTheme.colors.gradient ? 1 : 0 }}
+      />
+
       <Toaster position="top-center" reverseOrder={false} />
       <GreetingPopup isOpen={showGreeting} title={greetingTitle} onClose={() => { setShowGreeting(false); localStorage.setItem('clocktower_greeted', 'true'); }} />
       <Sidebar 
         isOpen={sidebarOpen} setIsOpen={setSidebarOpen} 
         onReset={() => { setShowReset(true); setSidebarOpen(false); }} 
         onLoadRole={() => { setShowRoleUpdate(true); setSidebarOpen(false); }} 
-        onShowUpdateLog={() => toast.info('Log: Added Settings system')} 
+        onShowUpdateLog={() => toast.info('Log: Added Enriched Themes')} 
         onFocusPlayerDetail={() => { setShowRoster(true); setSidebarOpen(false); }} 
         onOpenSettings={() => { setShowSettings(true); setSidebarOpen(false); }} 
         onShowHowToUse={openHowToUse} 
@@ -128,20 +142,25 @@ export default function App() {
         onShowFAQ={() => toast('Check Settings', { icon: '❓' })} 
         onShowDonation={() => setShowAbout(true)} 
       />
-      <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} splitView={state.splitView} setSplitView={state.setSplitView} showHub={state.showHub} setShowHub={state.setShowHub} setShowLedger={setShowLedger} />
-      {state.showHub && <PlayerHub currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} deaths={state.deaths} assignmentMode={assignmentMode} setAssignmentMode={setAssignmentMode} selectedReason={selectedReason} setSelectedReason={setSelectedReason} selectedProperty={selectedProperty} setSelectedProperty={setSelectedProperty} propTemplates={state.propTemplates} focusPlayerNo={focusPlayerNo} onPlayerClick={handlePlayerClick} identityMode={state.identityMode} />}
-      <main className="flex-1 relative">
-        <div className={`h-full ${state.splitView ? 'grid grid-cols-2 divide-x border-[var(--border-color)]' : ''}`}>
-          <div className="bg-[var(--panel-color)] transition-colors duration-500">
-            <PlayerDetailView playerNo={focusPlayerNo} setPlayerNo={setFocusPlayerNo} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} updatePlayerInfo={state.updatePlayerInfo} updatePlayerProperty={state.updatePlayerProperty} togglePlayerAlive={state.togglePlayerAlive} chars={state.chars} nominations={state.nominations} setNominations={state.setNominations} voteHistoryMode={voteHistoryMode} setVoteHistoryMode={setVoteHistoryMode} setShowRoleSelector={setShowRoleSelector} deaths={state.deaths} setDeaths={state.setDeaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} onPlayerClick={handlePlayerClick} setAssignmentMode={setAssignmentMode} setSelectedReason={setSelectedReason} setSelectedProperty={setSelectedProperty} notepadTemplates={state.notepadTemplates} propTemplates={state.propTemplates} identityMode={state.identityMode} />
-          </div>
-          {state.splitView && (
-            <div className="bg-[var(--panel-color)] transition-colors duration-500">
-              <GlobalVotingView nominations={state.nominations} playerCount={state.playerCount} deadPlayers={state.deadPlayers} players={state.players} deaths={state.deaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} onPlayerClick={handlePlayerClick} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} />
+      
+      <div className="relative z-10 flex flex-col flex-1">
+        <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} splitView={state.splitView} setSplitView={state.setSplitView} showHub={state.showHub} setShowHub={state.setShowHub} setShowLedger={setShowLedger} />
+        {state.showHub && <PlayerHub currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} deaths={state.deaths} assignmentMode={assignmentMode} setAssignmentMode={setAssignmentMode} selectedReason={selectedReason} setSelectedReason={setSelectedReason} selectedProperty={selectedProperty} setSelectedProperty={setSelectedProperty} propTemplates={state.propTemplates} focusPlayerNo={focusPlayerNo} onPlayerClick={handlePlayerClick} identityMode={state.identityMode} />}
+        
+        <main className="flex-1 relative">
+          <div className={`h-full ${state.splitView ? 'grid grid-cols-2 divide-x border-[var(--border-color)]' : ''}`}>
+            <div className={`bg-[var(--panel-color)] backdrop-blur-[var(--glass-blur)] transition-colors duration-500`}>
+              <PlayerDetailView playerNo={focusPlayerNo} setPlayerNo={setFocusPlayerNo} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} updatePlayerInfo={state.updatePlayerInfo} updatePlayerProperty={state.updatePlayerProperty} togglePlayerAlive={state.togglePlayerAlive} chars={state.chars} nominations={state.nominations} setNominations={state.setNominations} voteHistoryMode={voteHistoryMode} setVoteHistoryMode={setVoteHistoryMode} setShowRoleSelector={setShowRoleSelector} deaths={state.deaths} setDeaths={state.setDeaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} onPlayerClick={handlePlayerClick} setAssignmentMode={setAssignmentMode} setSelectedReason={setSelectedReason} setSelectedProperty={setSelectedProperty} notepadTemplates={state.notepadTemplates} propTemplates={state.propTemplates} identityMode={state.identityMode} />
             </div>
-          )}
-        </div>
-      </main>
+            {state.splitView && (
+              <div className="bg-[var(--panel-color)] backdrop-blur-[var(--glass-blur)] transition-colors duration-500">
+                <GlobalVotingView nominations={state.nominations} playerCount={state.playerCount} deadPlayers={state.deadPlayers} players={state.players} deaths={state.deaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} onPlayerClick={handlePlayerClick} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} />
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
+
       <LedgerTabsPopup isOpen={showLedger} onClose={() => setShowLedger(false)} activeTab={activeTab} setActiveTab={setActiveTab} players={state.players} setPlayers={state.setPlayers} nominations={state.nominations} setNominations={state.setNominations} chars={state.chars} setChars={state.setChars} note={state.note} setNote={state.setNote} playerCount={state.playerCount} setPlayerCount={state.setPlayerCount} roleDist={state.roleDist} setRoleDist={state.setRoleDist} deadPlayers={state.deadPlayers} addNomination={() => state.setNominations([...state.nominations, { id: Math.random().toString(), day: state.currentDay, f: '-', t: '-', voters: '', note: '' }])} isDragging={false} setIsDragging={() => {}} dragAction={null} setDragAction={() => {}} lastDraggedPlayer={null} setLastDraggedPlayer={() => {}} identityMode={state.identityMode} />
       <RoleSelectorPopup showRoleSelector={showRoleSelector} setShowRoleSelector={setShowRoleSelector} updatePlayerInfo={state.updatePlayerInfo} players={state.players} categoryBg={{ Townsfolk: 'bg-blue-100 hover:bg-blue-200', Outsider: 'bg-blue-50 hover:bg-blue-100', Minion: 'bg-orange-50 hover:bg-orange-100', Demon: 'bg-red-100 hover:bg-red-200' }} />
       <RoleUpdatePopup showRoleUpdate={showRoleUpdate} setShowRoleUpdate={setShowRoleUpdate} roleUpdateText={roleUpdateText} setRoleUpdateText={setRoleUpdateText} parseRoleUpdate={parseRoleUpdate} />
@@ -186,7 +205,8 @@ export default function App() {
         removePlayer={state.removePlayer} 
       />
       <FAB showLedger={showLedger} setShowLedger={setShowLedger} />
-      <div className="bg-[var(--panel-color)] border-t border-[var(--border-color)] px-3 py-1 text-[9px] font-bold text-[var(--muted-color)] flex justify-between items-center z-50">
+      
+      <div className="relative z-50 bg-[var(--panel-color)] border-t border-[var(--border-color)] px-3 py-1 text-[9px] font-bold text-[var(--muted-color)] flex justify-between items-center">
         <span>PLAYERS REGISTERED: {state.players.filter(p => p.inf || p.name).length} / {state.playerCount}</span>
         <div className="w-32 h-1 bg-[var(--bg-color)] rounded-full overflow-hidden">
           <div className="h-full bg-[var(--accent-color)]" style={{ width: `${(state.players.filter(p => p.inf || p.name).length / state.playerCount) * 100}%` }} />

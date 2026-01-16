@@ -15,7 +15,7 @@ interface CharsTabProps {
 }
 
 const CharsTab: React.FC<CharsTabProps> = ({ chars, setChars, playerCount, setPlayerCount, roleDist, setRoleDist }) => {
-  // Reorder categories to put Townsfolk last
+  // Order categories
   const categories: (keyof CharDict)[] = ['Outsider', 'Minion', 'Demon', 'Townsfolk'];
 
   const toggleStatus = (category: keyof CharDict, index: number) => {
@@ -54,6 +54,16 @@ const CharsTab: React.FC<CharsTabProps> = ({ chars, setChars, playerCount, setPl
     }
   };
 
+  const getCategoryColor = (cat: string) => {
+    switch(cat) {
+      case 'Townsfolk': return 'var(--role-town)';
+      case 'Outsider': return 'var(--role-outsider)';
+      case 'Minion': return 'var(--role-minion)';
+      case 'Demon': return 'var(--role-demon)';
+      default: return 'var(--text-on-bg)';
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="bg-[var(--header-color)] rounded border border-[var(--border-color)] shadow-2xl overflow-hidden max-w-lg mx-auto transition-colors duration-500">
@@ -67,13 +77,13 @@ const CharsTab: React.FC<CharsTabProps> = ({ chars, setChars, playerCount, setPl
             <RotaryPicker value={playerCount} min={1} max={20} onChange={setPlayerCount} color="text-[var(--text-on-bg)]" />
           </div>
           {[
-            { key: 'townsfolk', label: 'TOWNS', keycolor: 'text-[var(--text-on-panel)]', color: 'text-[var(--text-on-header)]' },
-            { key: 'outsiders', label: 'OUTS', keycolor: 'text-[var(--text-on-panel)]',color: 'text-[var(--text-on-header)]' },
-            { key: 'minions', label: 'MINIONS', keycolor: 'text-[var(--text-on-panel)]',color: 'text-[var(--text-on-header)]' },
-            { key: 'demons', label: 'DEMON', keycolor: 'text-[var(--text-on-panel)]',color: 'text-[var(--text-on-header)]' }
+            { key: 'townsfolk', label: 'TOWNS', keycolor: 'text-[var(--role-town)]', color: 'text-[var(--text-on-header)]' },
+            { key: 'outsiders', label: 'OUTS', keycolor: 'text-[var(--role-outsider)]', color: 'text-[var(--text-on-header)]' },
+            { key: 'minions', label: 'MINIONS', keycolor: 'text-[var(--role-minion)]', color: 'text-[var(--text-on-header)]' },
+            { key: 'demons', label: 'DEMON', keycolor: 'text-[var(--role-demon)]', color: 'text-[var(--text-on-header)]' }
           ].map(d => (
             <div key={d.key} className="flex flex-col items-center py-2">
-              <span className={`text-[8px] font-black ${d.keycolor} mb-1`}>{d.label}</span>
+              <span className={`text-[8px] font-black mb-1`} style={{ color: d.keycolor.startsWith('var') ? d.keycolor : undefined }}>{d.label}</span>
               <RotaryPicker 
                 value={roleDist[d.key as keyof RoleDist]} 
                 min={0} 
@@ -90,11 +100,11 @@ const CharsTab: React.FC<CharsTabProps> = ({ chars, setChars, playerCount, setPl
         {categories.map((f) => (
           <div key={f} className="space-y-1">
             <div className="flex justify-between items-center px-1 mb-1">
-              <h3 className="text-[9px] font-black text-[var(--text-on-bg)] uppercase tracking-widest">{f}s</h3>
+              <h3 className="text-[9px] font-black uppercase tracking-widest" style={{ color: getCategoryColor(f) }}>{f}s</h3>
               <button 
                 onClick={() => addRow(f)}
-                className="p-1 hover:bg-black/5 rounded text-[var(--text-on-bg)] hover:text-[var(--muted-color)] transition-colors"
-                title="Add Row"
+                className="p-1 hover:bg-black/5 rounded transition-colors"
+                style={{ color: getCategoryColor(f) }}
               >
                 <Plus size={10} />
               </button>

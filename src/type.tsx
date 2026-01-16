@@ -1,6 +1,8 @@
+"use client";
+
 // --- TYPES & INTERFACES ---
 
-export type ThemeType = 'standard' | 'knights' | 'grimoire' | 'puppet' | 'custom' | string;
+export type ThemeType = 'standard' | 'knights' | 'grimoire' | 'puppet' | 'crino' | 'nebula' | 'custom' | string;
 
 export type IdentityMode = 'number' | 'name';
 
@@ -10,11 +12,18 @@ export interface ThemeColors {
   header: string;
   accent: string;
   text: string;
-  textOnBg?: string;    // Text for global background
-  textOnPanel?: string; // Text for cards/ledgers
-  textOnHeader?: string; // Text for header areas
+  textOnBg?: string;
+  textOnPanel?: string;
+  textOnHeader?: string;
   border: string;
   muted: string;
+  // New Enriched Fields
+  roleTown: string;
+  roleOutsider: string;
+  roleMinion: string;
+  roleDemon: string;
+  gradient?: string; // CSS gradient string
+  glassEffect?: boolean; // Toggle glassmorphism
 }
 
 export interface Theme {
@@ -102,7 +111,6 @@ find the most suitable icon that represent the role name.
 Alternate lines for each category and each role name.
 Start with \`\`\`bash and End with \`\`\`.
 
-
 Example output format:
 \`\`\`bash
 Townsfolk: \n
@@ -124,7 +132,6 @@ Demon: \n
 [icon for demon Role Name 1][demon Role Name 1] \n
 [icon for demon Role Name 2][demon Role Name 2] \n
 ...
-
 \`\`\``;
 
 export const createInitialChars = (): CharDict => ({
@@ -148,12 +155,16 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       textOnPanel: '#0f172a',
       textOnHeader: '#ffffff',
       border: '#e2e8f0',
-      muted: '#64748b'
+      muted: '#64748b',
+      roleTown: '#3b82f6',
+      roleOutsider: '#818cf8',
+      roleMinion: '#f97316',
+      roleDemon: '#ef4444'
     }
   },
   knights: {
     id: 'knights',
-    name: 'Knights of the Round Table',
+    name: 'Knights Order',
     colors: {
       bg: '#1a2238',
       panel: '#2d3748',
@@ -164,7 +175,12 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       textOnPanel: '#f7fafc',
       textOnHeader: '#1a2238',
       border: '#4a5568',
-      muted: '#a0aec0'
+      muted: '#a0aec0',
+      roleTown: '#63b3ed',
+      roleOutsider: '#7f9cf5',
+      roleMinion: '#ed8936',
+      roleDemon: '#e53e3e',
+      gradient: 'linear-gradient(135deg, #1a2238 0%, #2d3748 100%)'
     }
   },
   grimoire: {
@@ -180,23 +196,54 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       textOnPanel: '#2d241e',
       textOnHeader: '#f4ece1',
       border: '#d2b48c',
-      muted: '#8c7851'
+      muted: '#8c7851',
+      roleTown: '#5d6d7e',
+      roleOutsider: '#a67c52',
+      roleMinion: '#92400e',
+      roleDemon: '#7f1d1d'
     }
   },
   crino: {
     id: 'crino',
     name: 'Ice Fairy',
     colors: {
-  "bg": "#0B1D2A",
-  "panel": "#D6EFFF",
-  "header": "#3498DB",
-  "accent": "#00E5FF",
-  "text": "#0B1D2A",
-  "textOnBg": "#FFFFFF",
-  "textOnPanel": "#0B1D2A",
-  "textOnHeader": "#FFFFFF",
-  "border": "#85C1E9",
-  "muted": "#5D6D7E"
-}
+      bg: "#0B1D2A",
+      panel: "#D6EFFF",
+      header: "#3498DB",
+      accent: "#00E5FF",
+      text: "#0B1D2A",
+      textOnBg: "#FFFFFF",
+      textOnPanel: "#0B1D2A",
+      textOnHeader: "#FFFFFF",
+      border: "#85C1E9",
+      muted: "#5D6D7E",
+      roleTown: "#21618C",
+      roleOutsider: "#5DADE2",
+      roleMinion: "#CA6F1E",
+      roleDemon: "#922B21",
+      glassEffect: true
+    }
+  },
+  nebula: {
+    id: 'nebula',
+    name: 'Cosmic Nebula',
+    colors: {
+      bg: "#0f0c29",
+      panel: "rgba(30, 27, 75, 0.7)",
+      header: "#6d28d9",
+      accent: "#ec4899",
+      text: "#ffffff",
+      textOnBg: "#a5b4fc",
+      textOnPanel: "#ffffff",
+      textOnHeader: "#ffffff",
+      border: "rgba(236, 72, 153, 0.3)",
+      muted: "#818cf8",
+      roleTown: "#38bdf8",
+      roleOutsider: "#c084fc",
+      roleMinion: "#fb923c",
+      roleDemon: "#f43f5e",
+      gradient: "linear-gradient(to right, #0f0c29, #302b63, #24243e)",
+      glassEffect: true
+    }
   }
 };
