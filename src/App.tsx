@@ -95,6 +95,9 @@ export default function App() {
       '--accent-color': c.accent,
       '--accent-color-rgb': hexToRgb(c.accent),
       '--text-color': c.text,
+      '--text-on-bg': c.textOnBg || c.text,
+      '--text-on-panel': c.textOnPanel || c.text,
+      '--text-on-header': c.textOnHeader || c.bg,
       '--border-color': c.border,
       '--muted-color': c.muted,
     } as React.CSSProperties;

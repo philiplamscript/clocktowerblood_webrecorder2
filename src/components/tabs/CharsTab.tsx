@@ -59,7 +59,7 @@ const CharsTab: React.FC<CharsTabProps> = ({ chars, setChars, playerCount, setPl
       <div className="bg-[var(--header-color)] rounded border border-[var(--border-color)] shadow-2xl overflow-hidden max-w-lg mx-auto transition-colors duration-500">
         <div className="flex items-center gap-2 px-3 py-2 border-b border-[var(--border-color)] bg-black/20">
           <Scroll size={12} className="text-yellow-500" />
-          <span className="text-[9px] font-black text-white/60 uppercase tracking-widest">Script & Player Distribution</span>
+          <span className="text-[9px] font-black text-[var(--text-on-header)] opacity-80 uppercase tracking-widest">Script & Player Distribution</span>
         </div>
         <div className="grid grid-cols-5 divide-x divide-[var(--border-color)]">
           <div className="flex flex-col items-center py-2 bg-black/10">

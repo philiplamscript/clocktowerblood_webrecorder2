@@ -32,10 +32,12 @@ Style: ${style || '[YOUR DESIRED STYLE HERE]'}
 
 Rules for high legibility:
 1. "bg" should be different from "panel" to create depth.
-2. "panel" is the main surface; "text" must have high contrast against "panel" and "bg".
-3. "header" and "accent" should be bold, distinct colors for primary actions.
-4. "border" should be a subtle version of the text or background color.
-5. "muted" is for secondary labels; ensure it's still visible but lower contrast than "text".
+2. "textOnBg" should have high contrast against the "bg" color.
+3. "textOnPanel" should have high contrast against the "panel" color.
+4. "textOnHeader" should have high contrast against "header".
+5. "accent" should be a bold, distinct color for primary actions.
+6. "border" should be a subtle version of the text or background color.
+7. "muted" is for secondary labels; ensure it's still visible but lower contrast than main text.
 
 Format:
 {
@@ -43,7 +45,10 @@ Format:
   "panel": "hex",
   "header": "hex",
   "accent": "hex",
-  "text": "hex",
+  "text": "hex (legacy fallback)",
+  "textOnBg": "hex",
+  "textOnPanel": "hex",
+  "textOnHeader": "hex",
   "border": "hex",
   "muted": "hex"
 }`;

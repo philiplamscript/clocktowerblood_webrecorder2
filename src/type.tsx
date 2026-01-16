@@ -10,6 +10,9 @@ export interface ThemeColors {
   header: string;
   accent: string;
   text: string;
+  textOnBg?: string;    // Text for global background
+  textOnPanel?: string; // Text for cards/ledgers
+  textOnHeader?: string; // Text for header areas
   border: string;
   muted: string;
 }
@@ -22,7 +25,7 @@ export interface Theme {
 
 export interface Player {
   no: number;
-  name: string; // Added name field
+  name: string; 
   inf: string;
   day: string; 
   reason: string; 
@@ -141,6 +144,9 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       header: '#0f172a',
       accent: '#ef4444',
       text: '#0f172a',
+      textOnBg: '#475569',
+      textOnPanel: '#0f172a',
+      textOnHeader: '#ffffff',
       border: '#e2e8f0',
       muted: '#64748b'
     }
@@ -154,6 +160,9 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       header: '#b7924a',
       accent: '#d4af37',
       text: '#f7fafc',
+      textOnBg: '#f7fafc',
+      textOnPanel: '#f7fafc',
+      textOnHeader: '#1a2238',
       border: '#4a5568',
       muted: '#a0aec0'
     }
@@ -167,6 +176,9 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       header: '#4a3728',
       accent: '#8b4513',
       text: '#2d241e',
+      textOnBg: '#4a3728',
+      textOnPanel: '#2d241e',
+      textOnHeader: '#f4ece1',
       border: '#d2b48c',
       muted: '#8c7851'
     }
@@ -175,13 +187,16 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
     id: 'crino',
     name: 'Ice Fairy',
     colors: {
-      "bg": "#1A3A5F",
-      "panel": "#D0EFFF",
-      "header": "#0074D9",
-      "accent": "#FF4136",
-      "text": "#002B5B",
-      "border": "#A5D8FF",
-      "muted": "#5A8BB0"
+      bg: "#1A3A5F",
+      panel: "#D0EFFF",
+      header: "#0074D9",
+      accent: "#FF4136",
+      text: "#002B5B",
+      textOnBg: "#D0EFFF",
+      textOnPanel: "#002B5B",
+      textOnHeader: "#ffffff",
+      border: "#A5D8FF",
+      muted: "#5A8BB0"
     }
   }
 };
