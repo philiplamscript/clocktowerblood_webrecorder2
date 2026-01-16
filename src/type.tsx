@@ -136,10 +136,45 @@ export const createInitialChars = (): CharDict => ({
   Demon: Array(8).fill(null).map(() => ({ name: '', status: '—', note: '' })),
 });
 
-// Patterns using inline SVG for high performance and no external dependencies
-const DOT_PATTERN = `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000' fill-opacity='0.05' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='1'/%3E%3C/g%3E%3C/svg%3E")`;
-const GRID_PATTERN = `url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJwcmVmaXhfX2EiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTQwIDBIMHY0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJncmF5IiBzdHJva2Utd2lkdGg9Ii41Ii8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI3ByZWZpeF9fYSkiLz48L3N2Zz4=")`;
-const NOISE_PATTERN = `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`;
+// --- PATTERN GENERATOR ---
+
+const createPattern = (svg: string) => `url("data:image/svg+xml;utf8,${encodeURIComponent(svg.trim())}")`;
+
+const DOT_SVG = `
+<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+  <g fill="#000" fill-opacity="0.05" fill-rule="evenodd">
+    <circle cx="3" cy="3" r="1"/>
+  </g>
+</svg>
+`;
+
+const GRID_SVG = `
+<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" fill-rule="evenodd">
+    <path d="M0 40h40V0H0v40zM1 39V1h38v38H1z" fill="#000" fill-opacity="0.02"/>
+  </g>
+</svg>
+`;
+
+const NOISE_SVG = `
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <filter id="noiseFilter">
+    <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+  </filter>
+  <rect width="100%" height="100%" filter="url(#noiseFilter)" opacity="0.05"/>
+</svg>
+`;
+
+const DIAMOND_SVG = `
+<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+  <path d="M0 0h40v40H0V0zm20 20L0 40h40L20 20zM0 0l20 20L40 0H0z" fill="#000" fill-opacity="0.03" fill-rule="evenodd"/>
+</svg>
+`;
+
+const DOT_PATTERN = createPattern(DOT_SVG);
+const GRID_PATTERN = createPattern(GRID_SVG);
+const NOISE_PATTERN = createPattern(NOISE_SVG);
+const DIAMOND_PATTERN = createPattern(DIAMOND_SVG);
 
 export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
   standard: {
@@ -174,7 +209,7 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       border: '#4a5568',
       muted: '#a0aec0',
       bgPattern: DOT_PATTERN,
-      panelPattern: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm20 20L0 40h40L20 20zM0 0l20 20L40 0H0z' fill='%23000' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E")`
+      panelPattern: DIAMOND_PATTERN
     }
   },
   grimoire: {
@@ -191,7 +226,7 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       textOnHeader: '#f4ece1',
       border: '#d2b48c',
       muted: '#8c7851',
-      bgPattern: NOISE_PATTERN, //`url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 86c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm66-3c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm-46-43c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm20-17c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm32 7c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-6-1c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-32-7c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-4 10c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z' fill='%234a3728' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E")`,
+      bgPattern: DOT_PATTERN,
       panelPattern: NOISE_PATTERN
     }
   },
@@ -209,7 +244,7 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       textOnHeader: "#FFFFFF",
       border: "#85C1E9",
       muted: "#5D6D7E",
-      bgPattern: `url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='15' cy='15' r='1' fill='%23fff' fill-opacity='0.1'/%3E%3C/svg%3E")`
+      bgPattern: createPattern(`<svg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'><circle cx='15' cy='15' r='1' fill='%23fff' fill-opacity='0.1'/></svg>`)
     }
   }
 };
