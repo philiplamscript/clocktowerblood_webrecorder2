@@ -137,9 +137,11 @@ export const createInitialChars = (): CharDict => ({
 });
 
 // Patterns using inline SVG for high performance and no external dependencies
+// Using high-contrast strokes with very low opacity to "use" the underlying background color effectively
 const DOT_PATTERN = `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000' fill-opacity='0.05' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='1'/%3E%3C/g%3E%3C/svg%3E")`;
 const GRID_PATTERN = `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M0 40h40V0H0v40zM1 39V1h38v38H1z' fill='%23000' fill-opacity='0.02'/%3E%3C/g%3E%3C/svg%3E")`;
 const NOISE_PATTERN = `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`;
+const HATCH_PATTERN = `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40' fill='none' stroke='%23000' stroke-opacity='0.03' stroke-width='1'/%3E%3C/svg%3E")`;
 
 export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
   standard: {
@@ -156,7 +158,8 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       textOnHeader: '#ffffff',
       border: '#e2e8f0',
       muted: '#64748b',
-      bgPattern: GRID_PATTERN
+      bgPattern: GRID_PATTERN,
+      panelPattern: DOT_PATTERN
     }
   },
   knights: {
@@ -209,7 +212,8 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       textOnHeader: "#FFFFFF",
       border: "#85C1E9",
       muted: "#5D6D7E",
-      bgPattern: `url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='15' cy='15' r='1' fill='%23fff' fill-opacity='0.1'/%3E%3C/svg%3E")`
+      bgPattern: HATCH_PATTERN,
+      panelPattern: DOT_PATTERN
     }
   }
 };
