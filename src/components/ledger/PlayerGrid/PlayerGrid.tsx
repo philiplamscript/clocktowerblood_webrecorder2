@@ -84,8 +84,9 @@ export const PlayerGrid = ({ players, setPlayers, identityMode = 'number' }: { p
   }, []);
 
   return (
-    <div className="bg-[var(--panel-color)] rounded border border-[var(--border-color)] shadow-sm overflow-hidden transition-colors duration-500">
-      <table className="w-full text-left border-collapse table-fixed">
+    <div className="bg-[var(--panel-color)] rounded border border-[var(--border-color)] shadow-sm overflow-hidden transition-colors duration-500 relative">
+      <div className="absolute inset-0 pointer-events-none opacity-20 z-0" style={{ backgroundImage: 'var(--panel-pattern)' }} />
+      <table className="w-full text-left border-collapse table-fixed relative z-10">
         <thead className="bg-[var(--bg-color)] border-b border-[var(--border-color)] text-[8px] uppercase text-[var(--muted-color)] font-black transition-colors duration-500">
           <tr>
             <th className="px-1 py-1.5 w-16 text-center cursor-pointer hover:bg-black/5 transition-colors" onClick={() => handleSort('no')}>

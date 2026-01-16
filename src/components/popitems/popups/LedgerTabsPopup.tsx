@@ -57,8 +57,11 @@ const LedgerTabsPopup: React.FC<LedgerTabsPopupProps> = ({
 
   return (
     <div className="fixed inset-0 z-[10005] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-[var(--bg-color)] rounded-2xl shadow-2xl border border-[var(--border-color)] w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 transition-colors duration-500">
-        <header className="flex-none bg-[var(--header-color)] text-white px-4 py-3 flex justify-between items-center transition-colors duration-500">
+      <div className="bg-[var(--bg-color)] rounded-2xl shadow-2xl border border-[var(--border-color)] w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 transition-colors duration-500 relative">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 pointer-events-none opacity-40 z-0" style={{ backgroundImage: 'var(--bg-pattern)' }} />
+        
+        <header className="flex-none bg-[var(--header-color)] text-white px-4 py-3 flex justify-between items-center transition-colors duration-500 relative z-10">
           <div className="flex items-center gap-2">
             <span className="text-xs font-black uppercase tracking-widest opacity-60">Game Ledger</span>
           </div>
@@ -67,12 +70,13 @@ const LedgerTabsPopup: React.FC<LedgerTabsPopupProps> = ({
           </button>
         </header>
 
-        <nav className="flex-none bg-[var(--panel-color)] border-b border-[var(--border-color)] flex shadow-sm transition-colors duration-500">
+        <nav className="flex-none bg-[var(--panel-color)] border-b border-[var(--border-color)] flex shadow-sm transition-colors duration-500 relative z-10">
+          <div className="absolute inset-0 pointer-events-none opacity-20 z-0" style={{ backgroundImage: 'var(--panel-pattern)' }} />
           {tabs.map((t) => (
             <button 
               key={t.id} 
               onClick={() => setActiveTab(t.id as any)} 
-              className={`flex-1 py-3 flex flex-col items-center gap-1 border-b-2 transition-all ${
+              className={`flex-1 py-3 flex flex-col items-center gap-1 border-b-2 transition-all relative z-10 ${
                 activeTab === t.id 
                   ? 'border-[var(--accent-color)] bg-[var(--accent-color)]/5 text-[var(--accent-color)]' 
                   : 'border-transparent text-[var(--muted-color)] hover:text-[var(--text-color)]'
@@ -83,7 +87,7 @@ const LedgerTabsPopup: React.FC<LedgerTabsPopupProps> = ({
           ))}
         </nav>
 
-        <main className="flex-1 overflow-y-auto p-4">
+        <main className="flex-1 overflow-y-auto p-4 relative z-10">
           <div className="max-w-4xl mx-auto space-y-4">
             {activeTab === 'players' && <PlayersTab players={players} setPlayers={setPlayers} identityMode={identityMode} />}
             {activeTab === 'votes' && (
