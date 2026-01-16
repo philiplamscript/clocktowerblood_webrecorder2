@@ -6,6 +6,7 @@ import PlayersTab from '../../tabs/PlayersTab';
 import VotesTab from '../../tabs/VotesTab';
 import CharsTab from '../../tabs/CharsTab';
 import NotesTab from '../../tabs/NotesTab';
+import { type IdentityMode } from '../../../type';
 
 interface LedgerTabsPopupProps {
   isOpen: boolean;
@@ -32,6 +33,7 @@ interface LedgerTabsPopupProps {
   setDragAction: (v: 'add' | 'remove' | null) => void;
   lastDraggedPlayer: number | null;
   setLastDraggedPlayer: (v: number | null) => void;
+  identityMode?: IdentityMode;
 }
 
 const LedgerTabsPopup: React.FC<LedgerTabsPopupProps> = ({
@@ -41,7 +43,8 @@ const LedgerTabsPopup: React.FC<LedgerTabsPopupProps> = ({
   playerCount, setPlayerCount, roleDist, setRoleDist,
   deadPlayers, addNomination,
   isDragging, setIsDragging, dragAction, setDragAction,
-  lastDraggedPlayer, setLastDraggedPlayer
+  lastDraggedPlayer, setLastDraggedPlayer,
+  identityMode
 }) => {
   if (!isOpen) return null;
 
@@ -82,7 +85,7 @@ const LedgerTabsPopup: React.FC<LedgerTabsPopupProps> = ({
 
         <main className="flex-1 overflow-y-auto p-4">
           <div className="max-w-4xl mx-auto space-y-4">
-            {activeTab === 'players' && <PlayersTab players={players} setPlayers={setPlayers} />}
+            {activeTab === 'players' && <PlayersTab players={players} setPlayers={setPlayers} identityMode={identityMode} />}
             {activeTab === 'votes' && (
               <VotesTab 
                 nominations={nominations} setNominations={setNominations} 

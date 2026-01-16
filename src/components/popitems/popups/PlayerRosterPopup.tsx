@@ -1,7 +1,7 @@
 "use client";
 
-import React from 'react';
-import { X, ChevronUp, ChevronDown, UserPlus, UserMinus, GripVertical } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, UserPlus, UserMinus, GripVertical, CornerDownRight } from 'lucide-react';
 import { type Player } from '../../../type';
 
 interface PlayerRosterPopupProps {
@@ -18,7 +18,16 @@ interface PlayerRosterPopupProps {
 const PlayerRosterPopup: React.FC<PlayerRosterPopupProps> = ({
   isOpen, onClose, players, updatePlayerName, updatePlayerInfo, reorderPlayers, addPlayer, removePlayer
 }) => {
+  const [movingIdx, setMovingIdx] = useState<number | null>(null);
+
   if (!isOpen) return null;
+
+  const handleMoveAction = (targetIdx: number) => {
+    if (movingIdx !== null) {
+      reorderPlayers(movingIdx, targetIdx);
+      setMovingIdx(null);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-[10015] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
@@ -34,12 +43,20 @@ const PlayerRosterPopup: React.FC<PlayerRosterPopupProps> = ({
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
+          <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-2">
+            <p className="text-[9px] text-blue-600 font-bold uppercase tracking-wider text-center">
+              {movingIdx === null 
+                ? "Tap the move handle ⠿ to select a player to move" 
+                : `Moving Player ${players[movingIdx].no}. Tap any "MOVE TO" button below.`}
+            </p>
+          </div>
+
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <table className="w-full border-collapse">
               <thead className="bg-slate-50 border-b border-slate-200 text-[9px] font-black text-slate-400 uppercase">
                 <tr>
-                  <th className="w-8 py-2 text-center">#</th>
-                  <th className="w-8 py-2 text-center">Move</th>
+                  <th className="w-10 py-2 text-center">#</th>
+                  <th className="w-14 py-2 text-center">Move</th>
                   <th className="px-4 py-2 text-left">Player Name</th>
                   <th className="px-4 py-2 text-left">Description</th>
                   <th className="w-10 py-2 text-center">Del</th>
@@ -47,25 +64,32 @@ const PlayerRosterPopup: React.FC<PlayerRosterPopupProps> = ({
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {players.map((p, idx) => (
-                  <tr key={p.no} className="hover:bg-blue-50/30 transition-colors group">
+                  <tr key={p.no} className={`transition-colors group ${movingIdx === idx ? 'bg-blue-600/10' : 'hover:bg-blue-50/30'}`}>
                     <td className="py-3 text-center text-[10px] font-mono text-slate-400 font-bold">{p.no}</td>
-                    <td className="py-3">
-                      <div className="flex flex-col items-center gap-0.5">
+                    <td className="py-3 text-center">
+                      {movingIdx === null ? (
                         <button 
-                          onClick={() => idx > 0 && reorderPlayers(idx, idx - 1)}
-                          disabled={idx === 0}
-                          className="text-slate-300 hover:text-blue-500 disabled:opacity-0 transition-colors"
+                          onClick={() => setMovingIdx(idx)}
+                          className="p-2 text-slate-300 hover:text-blue-600 transition-colors"
+                          title="Select to Move"
                         >
-                          <ChevronUp size={12} />
+                          <GripVertical size={16} />
                         </button>
+                      ) : movingIdx === idx ? (
                         <button 
-                          onClick={() => idx < players.length - 1 && reorderPlayers(idx, idx + 1)}
-                          disabled={idx === players.length - 1}
-                          className="text-slate-300 hover:text-blue-500 disabled:opacity-0 transition-colors"
+                          onClick={() => setMovingIdx(null)}
+                          className="bg-blue-600 text-white text-[8px] font-black px-1.5 py-1 rounded shadow-sm"
                         >
-                          <ChevronDown size={12} />
+                          CANCEL
                         </button>
-                      </div>
+                      ) : (
+                        <button 
+                          onClick={() => handleMoveAction(idx)}
+                          className="flex items-center gap-1 bg-emerald-500 hover:bg-emerald-600 text-white text-[8px] font-black px-2 py-1 rounded shadow-sm transition-all active:scale-90"
+                        >
+                          <CornerDownRight size={10} /> MOVE
+                        </button>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <input 
