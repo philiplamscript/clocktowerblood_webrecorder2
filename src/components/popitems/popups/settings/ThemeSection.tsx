@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Palette, Sparkles, Copy, Check, Save, Wand2, Trash2, Edit2, AlertCircle } from 'lucide-react';
+import { Palette, Sparkles, Copy, Check, Save, Wand2, Trash2, Edit2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { type ThemeType, type ThemeColors, THEMES, THEME_GENERATION_PROMPT } from '../../../../type';
+import { type ThemeType, type ThemeColors, THEMES } from '../../../../type';
 
 interface ThemeSectionProps {
   activeTheme: ThemeType;
@@ -26,33 +26,35 @@ const ThemeSection: React.FC<ThemeSectionProps> = ({
   const [themeName, setThemeName] = useState('');
   const [editingThemeId, setEditingThemeId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
-  
-  // AI Pattern Options
-  const [includeBgPattern, setIncludeBgPattern] = useState(false);
-  const [includePanelPattern, setIncludePanelPattern] = useState(false);
 
-  const getAiPrompt = () => {
-    let patternInstruction = "";
-    let svgRules = "";
-    let patternJsonFields = "";
+  const getAiPrompt = (style: string) => `Generate a JSON object for a Blood on the Clocktower app theme. 
+Style: ${style || '[YOUR DESIRED STYLE HERE]'}
 
-    if (includeBgPattern || includePanelPattern) {
-      patternInstruction = "5. TEXTURE: Generate custom SVG patterns for depth.";
-      svgRules = "- \"bgPattern\": A full CSS url(\"data:image/svg+xml;utf8,...\") containing a subtle tiled SVG.\n- \"panelPattern\": A full CSS url(\"data:image/svg+xml;utf8,...\") containing a subtle texture SVG.";
-      
-      if (includeBgPattern) patternJsonFields += ",\n  \"bgPattern\": \"url(...)\"";
-      if (includePanelPattern) patternJsonFields += ",\n  \"panelPattern\": \"url(...)\"";
-    }
+Rules for high legibility:
+1. "bg" should be different from "panel" to create depth.
+2. "textOnBg" should have high contrast against the "bg" color.
+3. "textOnPanel" should have high contrast against the "panel" color.
+4. "textOnHeader" should have high contrast against "header".
+5. "accent" should be a bold, distinct color for primary actions.
+6. "border" should be a subtle version of the text or background color.
+7. "muted" is for secondary labels; ensure it's still visible but lower contrast than main text.
 
-    return THEME_GENERATION_PROMPT
-      .replace('{style}', desiredStyle || '[YOUR DESIRED STYLE]')
-      .replace('{pattern_instruction}', patternInstruction)
-      .replace('{svg_rules}', svgRules)
-      .replace('{pattern_json_fields}', patternJsonFields);
-  };
+Format:
+{
+  "bg": "hex",
+  "panel": "hex",
+  "header": "hex",
+  "accent": "hex",
+  "text": "hex (legacy fallback)",
+  "textOnBg": "hex",
+  "textOnPanel": "hex",
+  "textOnHeader": "hex",
+  "border": "hex",
+  "muted": "hex"
+}`;
 
   const copyPrompt = () => {
-    navigator.clipboard.writeText(getAiPrompt());
+    navigator.clipboard.writeText(getAiPrompt(desiredStyle));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
     toast.success('AI Prompt copied!');
@@ -83,6 +85,18 @@ const ThemeSection: React.FC<ThemeSectionProps> = ({
       setShowSaveTheme(false);
     } else {
       toast.error('Enter a theme name.');
+    }
+  };
+
+  const handleStartRename = (theme: any) => {
+    setEditingThemeId(theme.id);
+    setEditName(theme.name);
+  };
+
+  const handleFinishRename = () => {
+    if (editingThemeId && editName.trim()) {
+      renameCustomTheme(editingThemeId, editName.trim());
+      setEditingThemeId(null);
     }
   };
 
@@ -122,7 +136,18 @@ const ThemeSection: React.FC<ThemeSectionProps> = ({
                 className={`p-3 rounded-xl border-2 transition-all flex items-center justify-between gap-3 ${activeTheme === theme.id ? 'border-blue-600 bg-blue-50/30' : 'border-slate-100'}`}
               >
                 <button onClick={() => setActiveTheme(theme.id)} className="flex-1 flex flex-col gap-1.5 text-left min-w-0">
-                  <span className="text-[10px] font-black uppercase truncate">{theme.name}</span>
+                  {editingThemeId === theme.id ? (
+                    <input 
+                      autoFocus
+                      className="bg-white border border-blue-300 rounded px-1.5 py-0.5 text-[10px] font-black uppercase w-full outline-none"
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      onBlur={handleFinishRename}
+                      onKeyDown={(e) => e.key === 'Enter' && handleFinishRename()}
+                    />
+                  ) : (
+                    <span className="text-[10px] font-black uppercase truncate">{theme.name}</span>
+                  )}
                   <div className="flex gap-1">
                     <div className="w-3 h-3 rounded-full border border-black/5" style={{ backgroundColor: theme.colors.bg }} />
                     <div className="w-3 h-3 rounded-full border border-black/5" style={{ backgroundColor: theme.colors.header }} />
@@ -130,6 +155,9 @@ const ThemeSection: React.FC<ThemeSectionProps> = ({
                   </div>
                 </button>
                 <div className="flex gap-1 shrink-0">
+                  <button onClick={() => handleStartRename(theme)} className="p-1.5 text-slate-400 hover:text-blue-600 transition-colors">
+                    <Edit2 size={12} />
+                  </button>
                   <button onClick={() => deleteCustomTheme(theme.id)} className="p-1.5 text-slate-400 hover:text-red-600 transition-colors">
                     <Trash2 size={12} />
                   </button>
@@ -144,56 +172,35 @@ const ThemeSection: React.FC<ThemeSectionProps> = ({
         <h3 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest flex items-center gap-2">
           <Sparkles size={14} /> AI Theme Generator
         </h3>
-
-        {(includeBgPattern || includePanelPattern) && (
-          <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 flex gap-3 animate-in fade-in zoom-in-95">
-            <AlertCircle size={16} className="text-amber-600 shrink-0" />
-            <p className="text-[9px] text-amber-800 font-medium leading-relaxed">
-              Generating SVG patterns requires high reasoning. For best results, use <span className="font-black">GPT-4o, Claude 3.5, or Gemini 2.0+</span>.
-            </p>
-          </div>
-        )}
         
         <div className="bg-slate-50 rounded-2xl p-4 space-y-4">
-          <div className="space-y-3">
-            <p className="text-[10px] text-slate-500 italic">1. Select Style & Options</p>
-            <div className="flex flex-col gap-3">
-              <div className="relative">
+          <div className="space-y-2">
+            <p className="text-[10px] text-slate-500 leading-relaxed italic">
+              1. Enter a style and copy the prompt for an AI tool.
+            </p>
+            <div className="flex gap-2">
+              <div className="flex-1 relative">
                 <Wand2 size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input 
                   type="text" 
-                  placeholder="e.g. Haunted Victorian, Neon Cyberpunk..." 
+                  placeholder="e.g. Victorian Gold, Cyberpunk Neon..." 
                   value={desiredStyle}
                   onChange={(e) => setDesiredStyle(e.target.value)}
-                  className="w-full pl-8 pr-3 py-2.5 bg-white border border-slate-200 rounded-xl text-[10px] focus:ring-2 focus:ring-indigo-500/20 outline-none"
+                  className="w-full pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-[10px] focus:ring-2 focus:ring-indigo-500/20 outline-none"
                 />
               </div>
-              
-              <div className="flex flex-wrap gap-2">
-                <button 
-                  onClick={() => setIncludeBgPattern(!includeBgPattern)}
-                  className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase border transition-all ${includeBgPattern ? 'bg-indigo-600 border-indigo-700 text-white shadow-md' : 'bg-white border-slate-200 text-slate-400 hover:border-indigo-300'}`}
-                >
-                  BG Pattern
-                </button>
-                <button 
-                  onClick={() => setIncludePanelPattern(!includePanelPattern)}
-                  className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase border transition-all ${includePanelPattern ? 'bg-indigo-600 border-indigo-700 text-white shadow-md' : 'bg-white border-slate-200 text-slate-400 hover:border-indigo-300'}`}
-                >
-                  Panel Pattern
-                </button>
-              </div>
-
-              <button onClick={copyPrompt} className="w-full h-10 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 text-[10px] font-black uppercase shadow-lg active:scale-95">
-                {copied ? <Check size={14} /> : <Copy size={14} />} {copied ? 'Prompt Copied' : 'Copy Generator Prompt'}
+              <button onClick={copyPrompt} className="px-3 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-all flex items-center gap-2 text-[9px] font-black uppercase">
+                {copied ? <Check size={12} /> : <Copy size={12} />} {copied ? 'Copied' : 'Prompt'}
               </button>
             </div>
           </div>
 
           <div className="space-y-2">
-            <p className="text-[10px] text-slate-500 italic">2. Paste AI Result</p>
+            <p className="text-[10px] text-slate-500 leading-relaxed italic">
+              2. Paste the JSON result from the AI below.
+            </p>
             <textarea 
-              className="w-full h-24 bg-white border border-slate-200 rounded-xl p-3 text-[10px] font-mono focus:ring-2 focus:ring-indigo-500/20 outline-none resize-none"
+              className="w-full h-24 bg-white border border-slate-200 rounded-lg p-3 text-[10px] font-mono focus:ring-2 focus:ring-indigo-500/20 outline-none resize-none"
               placeholder='Paste JSON here...'
               value={aiThemeInput}
               onChange={(e) => setAiThemeInput(e.target.value)}
@@ -203,7 +210,7 @@ const ThemeSection: React.FC<ThemeSectionProps> = ({
           <div className="flex flex-col gap-3">
             <button 
               onClick={applyAiTheme}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl text-[10px] font-black uppercase shadow-md active:scale-95"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-lg text-[10px] font-black uppercase shadow-sm active:scale-95"
             >
               Apply Theme Preview
             </button>
@@ -215,10 +222,10 @@ const ThemeSection: React.FC<ThemeSectionProps> = ({
                   placeholder="Name your theme..." 
                   value={themeName} 
                   onChange={(e) => setThemeName(e.target.value)} 
-                  className="flex-1 px-3 py-2 border border-slate-200 rounded-xl text-[10px] outline-none"
+                  className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-[10px] outline-none"
                 />
-                <button onClick={handleSaveTheme} className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase flex items-center gap-2">
-                  <Save size={14} /> Save
+                <button onClick={handleSaveTheme} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase flex items-center gap-2">
+                  <Save size={12} /> Save
                 </button>
               </div>
             )}
