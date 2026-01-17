@@ -150,7 +150,7 @@ export default function App() {
         <main className="flex-1 relative">
           <div className={`h-full ${state.splitView ? 'grid grid-cols-2 divide-x border-[var(--border-color)]' : ''}`}>
             <div className="bg-[var(--panel-color)] transition-colors duration-500 relative overflow-hidden">
-              <div className="absolute inset-0 pointer-events-none opacity-30 z-0" style={{ backgroundImage: 'var(--panel-pattern)' }} />
+              <div className="absolute inset-0 pointer-events-none opacity-30 z-0" />
               <div className="relative z-10 h-full">
                 <PlayerDetailView playerNo={focusPlayerNo} setPlayerNo={setFocusPlayerNo} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} updatePlayerInfo={state.updatePlayerInfo} updatePlayerProperty={state.updatePlayerProperty} togglePlayerAlive={state.togglePlayerAlive} chars={state.chars} nominations={state.nominations} setNominations={state.setNominations} voteHistoryMode={voteHistoryMode} setVoteHistoryMode={setVoteHistoryMode} setShowRoleSelector={setShowRoleSelector} deaths={state.deaths} setDeaths={state.setDeaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} onPlayerClick={handlePlayerClick} setAssignmentMode={setAssignmentMode} setSelectedReason={setSelectedReason} setSelectedProperty={setSelectedProperty} notepadTemplates={state.notepadTemplates} propTemplates={state.propTemplates} identityMode={state.identityMode} />
               </div>
