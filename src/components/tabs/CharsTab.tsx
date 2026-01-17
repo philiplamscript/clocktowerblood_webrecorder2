@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Scroll, Plus, Trash2 } from 'lucide-react';
+import { Scroll, Plus, Trash2, Sparkles } from 'lucide-react';
 import RotaryPicker from '../pickers/RotaryPicker/RotaryPicker';
 import { STATUS_OPTIONS, type Character, type CharDict, type RoleDist } from '../../type';
 
@@ -12,10 +12,10 @@ interface CharsTabProps {
   setPlayerCount: React.Dispatch<React.SetStateAction<number>>;
   roleDist: RoleDist;
   setRoleDist: React.Dispatch<React.SetStateAction<RoleDist>>;
+  onShowRoleUpdate?: () => void;
 }
 
-const CharsTab: React.FC<CharsTabProps> = ({ chars, setChars, playerCount, setPlayerCount, roleDist, setRoleDist }) => {
-  // Reorder categories to put Townsfolk last
+const CharsTab: React.FC<CharsTabProps> = ({ chars, setChars, playerCount, setPlayerCount, roleDist, setRoleDist, onShowRoleUpdate }) => {
   const categories: (keyof CharDict)[] = ['Outsider', 'Minion', 'Demon', 'Townsfolk'];
 
   const toggleStatus = (category: keyof CharDict, index: number) => {
@@ -56,6 +56,15 @@ const CharsTab: React.FC<CharsTabProps> = ({ chars, setChars, playerCount, setPl
 
   return (
     <div className="space-y-4">
+      <div className="flex justify-center">
+        <button 
+          onClick={onShowRoleUpdate}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg transition-all active:scale-95"
+        >
+          <Sparkles size={14} /> Insert Role List (AI)
+        </button>
+      </div>
+
       <div className="bg-[var(--header-color)] rounded border border-[var(--border-color)] shadow-2xl overflow-hidden max-w-lg mx-auto transition-colors duration-500">
         <div className="flex items-center gap-2 px-3 py-2 border-b border-[var(--border-color)] bg-black/20">
           <Scroll size={12} className="text-yellow-500" />

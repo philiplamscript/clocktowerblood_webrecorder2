@@ -89,47 +89,51 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
 
   return (
     <div className="h-full bg-transparent overflow-y-auto p-4 space-y-4">
-      <div className="bg-[var(--bg-color)] rounded-xl border border-[var(--border-color)] p-4 shadow-sm relative overflow-hidden flex flex-col items-center min-h-[420px]">
-        <DetailHeader 
-          isVoting={isVoting} filterDay={filterDay} setFilterDay={setFilterDay}
-          dayOptions={['ALL', ...Array.from({ length: props.currentDay }, (_, i) => `D${i + 1}`)]}
-          currentFilterText={filterDay === 'all' ? 'ALL' : `D${filterDay}`}
-          showDeathIcons={showDeathIcons} setShowDeathIcons={setShowDeathIcons}
-          showAxis={showAxis} setShowAxis={setShowAxis}
-          showProperties={showProperties} setShowProperties={setShowProperties}
-          voteHistoryMode={props.voteHistoryMode} setVoteHistoryMode={props.setVoteHistoryMode}
-          showArrows={showArrows} setShowArrows={setShowArrows}
-        />
-
-        <div className="relative w-full flex-1 flex flex-col items-center justify-center pt-2">
-          <VoteHistoryClock 
-            playerNo={props.playerNo} nominations={props.nominations} playerCount={props.playerCount} deadPlayers={props.deadPlayers} 
-            mode={props.voteHistoryMode} players={props.players} deaths={props.deaths} filterDay={filterDay}
-            onPlayerClick={props.onPlayerClick ?? (() => {})} pendingNom={pendingNom} isVoting={isVoting}
-            onNominationSlideEnd={(f, t) => setPendingNom({ f, t, voters: [] })}
-            onVoterToggle={handleVoterToggle} onToggleVotingPhase={handleToggleVotingPhase}
-            currentDay={props.currentDay} setCurrentDay={props.setCurrentDay} showDeathIcons={showDeathIcons} showAxis={showAxis}
-            showProperties={showProperties}
-            assignmentMode={props.assignmentMode} selectedReason={props.selectedReason} selectedProperty={props.selectedProperty}
-            showArrows={showArrows}
-            identityMode={props.identityMode}
+      {/* Clock Panel with Background Pattern */}
+      <div className="bg-[var(--bg-color)] rounded-xl border border-[var(--border-color)] p-4 shadow-sm relative overflow-hidden flex flex-col items-center min-h-[420px] transition-colors duration-500">
+        <div className="absolute inset-0 pointer-events-none opacity-100 z-0" style={{ backgroundImage: 'var(--bg-pattern)' }} />
+        <div className="relative z-10 w-full flex flex-col items-center">
+          <DetailHeader 
+            isVoting={isVoting} filterDay={filterDay} setFilterDay={setFilterDay}
+            dayOptions={['ALL', ...Array.from({ length: props.currentDay }, (_, i) => `D${i + 1}`)]}
+            currentFilterText={filterDay === 'all' ? 'ALL' : `D${filterDay}`}
+            showDeathIcons={showDeathIcons} setShowDeathIcons={setShowDeathIcons}
+            showAxis={showAxis} setShowAxis={setShowAxis}
+            showProperties={showProperties} setShowProperties={setShowProperties}
+            voteHistoryMode={props.voteHistoryMode} setVoteHistoryMode={props.setVoteHistoryMode}
+            showArrows={showArrows} setShowArrows={setShowArrows}
           />
 
-          <div className="absolute bottom-2 left-0 z-10">
-            <AssignmentControls 
-              assignmentMode={props.assignmentMode ?? null} setAssignmentMode={props.setAssignmentMode ?? (() => {})}
-              selectedReason={props.selectedReason ?? '⚔️'} setSelectedReason={props.setSelectedReason ?? (() => {})}
-              selectedProperty={props.selectedProperty ?? ''} setSelectedProperty={props.setSelectedProperty ?? (() => {})}
-              propTemplates={props.propTemplates}
+          <div className="relative w-full flex-1 flex flex-col items-center justify-center pt-2">
+            <VoteHistoryClock 
+              playerNo={props.playerNo} nominations={props.nominations} playerCount={props.playerCount} deadPlayers={props.deadPlayers} 
+              mode={props.voteHistoryMode} players={props.players} deaths={props.deaths} filterDay={filterDay}
+              onPlayerClick={props.onPlayerClick ?? (() => {})} pendingNom={pendingNom} isVoting={isVoting}
+              onNominationSlideEnd={(f, t) => setPendingNom({ f, t, voters: [] })}
+              onVoterToggle={handleVoterToggle} onToggleVotingPhase={handleToggleVotingPhase}
+              currentDay={props.currentDay} setCurrentDay={props.setCurrentDay} showDeathIcons={showDeathIcons} showAxis={showAxis}
+              showProperties={showProperties}
+              assignmentMode={props.assignmentMode} selectedReason={props.selectedReason} selectedProperty={props.selectedProperty}
+              showArrows={showArrows}
+              identityMode={props.identityMode}
             />
-          </div>
 
-          {pendingNom && !isVoting && (
-            <div className="absolute bottom-0 bg-[var(--accent-color)] text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase flex items-center gap-2 animate-bounce shadow-lg z-20">
-              {pendingNom.f} ➔ {pendingNom.t}
-              <button onClick={() => setPendingNom(null)} className="ml-1 bg-white/20 hover:bg-white/30 p-1 rounded-md transition-colors"><X size={10} /></button>
+            <div className="absolute bottom-2 left-0 z-10">
+              <AssignmentControls 
+                assignmentMode={props.assignmentMode ?? null} setAssignmentMode={props.setAssignmentMode ?? (() => {})}
+                selectedReason={props.selectedReason ?? '⚔️'} setSelectedReason={props.setSelectedReason ?? (() => {})}
+                selectedProperty={props.selectedProperty ?? ''} setSelectedProperty={props.setSelectedProperty ?? (() => {})}
+                propTemplates={props.propTemplates}
+              />
             </div>
-          )}
+
+            {pendingNom && !isVoting && (
+              <div className="absolute bottom-0 bg-[var(--accent-color)] text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase flex items-center gap-2 animate-bounce shadow-lg z-20">
+                {pendingNom.f} ➔ {pendingNom.t}
+                <button onClick={() => setPendingNom(null)} className="ml-1 bg-white/20 hover:bg-white/30 p-1 rounded-md transition-colors"><X size={10} /></button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

@@ -11,8 +11,6 @@ import {
   type Nomination,
 } from '../../../type'
 
-// --- COMPONENT 3: VOTE LEDGER ---
-
 const VoteLedger = ({ 
   nominations, 
   setNominations,
@@ -42,8 +40,8 @@ const VoteLedger = ({
       <table className="w-full border-collapse table-fixed min-w-[900px]">
         <thead>
           <tr className="bg-[var(--bg-color)] border-b border-[var(--border-color)] text-[8px] uppercase text-[var(--muted-color)] font-black transition-colors duration-500">
-            <th className="w-6 py-2 text-center border-r border-[var(--border-color)] text-[var(--text-on-bg)]">
-              <Trash2 size={10} className="mx-auto opacity-20" />
+            <th className="w-6 py-2 text-center border-r border-[var(--border-color)]">
+              <Trash2 size={10} className="mx-auto opacity-20 text-[var(--text-on-bg)]" />
             </th>
             <th className="w-6 py-2 border-r border-[var(--border-color)] text-center text-[var(--text-on-bg)]">D</th>
             <th className="w-8 py-2 border-r border-[var(--border-color)] text-center text-[var(--text-on-bg)]"><Megaphone size={12} className="mx-auto" /></th>
@@ -53,14 +51,14 @@ const VoteLedger = ({
             <th className="p-0">
               <div className="flex h-full">
                 {Array.from({ length: playerCount }, (_, i) => i + 1).map(num => (
-                  <div key={num} className="flex-1 border-r border-[var(--border-color)] text-[7px] text-center py-2 text-[var(--muted-color)] text-[var(--text-on-bg)]">{num}</div>
+                  <div key={num} className="flex-1 border-r border-[var(--border-color)] text-[7px] text-center py-2 text-[var(--text-on-bg)]">{num}</div>
                 ))}
               </div>
             </th>
-            <th className="w-24 py-2 px-2">NOTES</th>
+            <th className="w-24 py-2 px-2 text-[var(--text-on-bg)]">NOTES</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[var(--border-color)] font-mono text-[var(--text-color)]">
+        <tbody className="divide-y divide-[var(--border-color)] font-mono text-[var(--text-on-panel)]">
           {nominations.map((n: Nomination) => (
             <tr key={n.id} className="h-10 hover:bg-black/5 transition-colors">
               <td className="p-0 text-center border-r border-[var(--border-color)]">
@@ -71,13 +69,13 @@ const VoteLedger = ({
                   <Trash2 size={12} />
                 </button>
               </td>
-              <td className="p-0 border-r border-[var(--border-color)]"><input type="number" className="w-full text-center border-none bg-transparent focus:ring-0 text-[10px] p-0 font-bold text-[var(--text-color)]" value={n.day} onChange={(e) => setNominations(nominations.map((item: any) => item.id === n.id ? { ...item, day: parseInt(e.target.value) || 1 } : item))} /></td>
+              <td className="p-0 border-r border-[var(--border-color)]"><input type="number" className="w-full text-center border-none bg-transparent focus:ring-0 text-[10px] p-0 font-bold text-[var(--text-on-panel)]" value={n.day} onChange={(e) => setNominations(nominations.map((item: any) => item.id === n.id ? { ...item, day: parseInt(e.target.value) || 1 } : item))} /></td>
               
-              <td className="p-0 border-r border-[var(--border-color)]"><input type="text" className="w-full text-center border-none bg-transparent focus:ring-0 text-[10px] p-0 font-bold text-[var(--text-color)]" value={n.f} onChange={(e) => setNominations(nominations.map((item: any) => item.id === n.id ? { ...item, f: e.target.value } : item))} /></td>
+              <td className="p-0 border-r border-[var(--border-color)]"><input type="text" className="w-full text-center border-none bg-transparent focus:ring-0 text-[10px] p-0 font-bold text-[var(--text-on-panel)]" value={n.f} onChange={(e) => setNominations(nominations.map((item: any) => item.id === n.id ? { ...item, f: e.target.value } : item))} /></td>
               
-              <td className="p-0 border-r border-[var(--border-color)]"><input type="text" className="w-full text-center border-none bg-transparent focus:ring-0 text-[10px] p-0 font-bold text-[var(--text-color)]" value={n.t} onChange={(e) => setNominations(nominations.map((item: any) => item.id === n.id ? { ...item, t: e.target.value } : item))} /></td>
+              <td className="p-0 border-r border-[var(--border-color)]"><input type="text" className="w-full text-center border-none bg-transparent focus:ring-0 text-[10px] p-0 font-bold text-[var(--text-on-panel)]" value={n.t} onChange={(e) => setNominations(nominations.map((item: any) => item.id === n.id ? { ...item, t: e.target.value } : item))} /></td>
               
-              <td className="p-0 border-r border-[var(--border-color)]"><input type="text" className="w-full text-center border-none bg-transparent focus:ring-0 text-[10px] p-0 font-bold text-[var(--text-color)]" value={n.voters} onChange={(e) => setNominations(nominations.map((item: any) => item.id === n.id ? { ...item, voters: e.target.value } : item))} /></td>
+              <td className="p-0 border-r border-[var(--border-color)]"><input type="text" className="w-full text-center border-none bg-transparent focus:ring-0 text-[10px] p-0 font-bold text-[var(--text-on-panel)]" value={n.voters} onChange={(e) => setNominations(nominations.map((item: any) => item.id === n.id ? { ...item, voters: e.target.value } : item))} /></td>
               
               <td className="p-0 border-r border-[var(--border-color)] text-center text-[10px] font-black">{n.voters.split(',').filter(v => v !== "").length}</td>
               <td className="p-0">
@@ -111,7 +109,7 @@ const VoteLedger = ({
                   })}
                 </div>
               </td>
-              <td className="p-0 px-2 font-sans"><input placeholder="..." className="w-full border-none bg-transparent focus:ring-0 text-[9px] px-2 h-10 font-sans text-[var(--text-color)]" value={n.note} onChange={(e) => setNominations(nominations.map((item: any) => item.id === n.id ? { ...item, note: e.target.value } : item))} /></td>
+              <td className="p-0 px-2 font-sans"><input placeholder="..." className="w-full border-none bg-transparent focus:ring-0 text-[9px] px-2 h-10 font-sans text-[var(--text-on-panel)]" value={n.note} onChange={(e) => setNominations(nominations.map((item: any) => item.id === n.id ? { ...item, note: e.target.value } : item))} /></td>
             </tr>
           ))}
         </tbody>

@@ -15,8 +15,6 @@ import {type Player,
   type IdentityMode
 } from '../../../type'
 
-// --- COMPONENT 2: PLAYER DATA GRID ---
-
 export const PlayerGrid = ({ players, setPlayers, identityMode = 'number' }: { players: Player[], setPlayers: React.Dispatch<React.SetStateAction<Player[]>>, identityMode?: IdentityMode }) => {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'asc' });
 
@@ -84,9 +82,10 @@ export const PlayerGrid = ({ players, setPlayers, identityMode = 'number' }: { p
   }, []);
 
   return (
-    <div className="bg-[var(--panel-color)] rounded border border-[var(--border-color)] shadow-sm overflow-hidden transition-colors duration-500">
-      <table className="w-full text-left border-collapse table-fixed">
-        <thead className="bg-[var(--bg-color)] border-b border-[var(--border-color)] text-[8px] uppercase text-[var(--muted-color)] font-black transition-colors duration-500">
+    <div className="bg-[var(--panel-color)] rounded border border-[var(--border-color)] shadow-sm overflow-hidden transition-colors duration-500 relative">
+      <div className="absolute inset-0 pointer-events-none opacity-40 z-0" style={{ backgroundImage: 'var(--panel-pattern)' }} />
+      <table className="w-full text-left border-collapse table-fixed relative z-10">
+        <thead className="bg-[var(--bg-color)] border-b border-[var(--border-color)] text-[8px] uppercase font-black transition-colors duration-500">
           <tr>
             <th className="px-1 py-1.5 w-16 text-center cursor-pointer hover:bg-black/5 transition-colors" onClick={() => handleSort('no')}>
               <div className="flex items-center justify-center text-[var(--text-on-bg)]">{identityMode === 'name' ? 'NAME' : 'ID'} <SortIcon column="no" /></div>
@@ -119,7 +118,7 @@ export const PlayerGrid = ({ players, setPlayers, identityMode = 'number' }: { p
                 <td className="border-l border-[var(--border-color)]">
                   <input 
                     disabled={isPlaceholder}
-                    className="w-full text-center bg-transparent border-none p-1 text-[11px] font-mono focus:ring-0 text-[var(--text-color)] disabled:cursor-not-allowed" 
+                    className="w-full text-center bg-transparent border-none p-1 text-[11px] font-mono focus:ring-0 text-[var(--text-on-panel)] disabled:cursor-not-allowed" 
                     value={p.day} 
                     onChange={(e) => updatePlayer(p.no, 'day', e.target.value)} 
                   />
@@ -127,7 +126,7 @@ export const PlayerGrid = ({ players, setPlayers, identityMode = 'number' }: { p
                 <td className="border-l border-[var(--border-color)]">
                   <input 
                     disabled={isPlaceholder}
-                    className="w-full text-center bg-transparent border-none p-1 text-[11px] font-mono focus:ring-0 text-[var(--text-color)] disabled:cursor-not-allowed" 
+                    className="w-full text-center bg-transparent border-none p-1 text-[11px] font-mono focus:ring-0 text-[var(--text-on-panel)] disabled:cursor-not-allowed" 
                     value={p.reason} 
                     onChange={(e) => updatePlayer(p.no, 'reason', e.target.value)} 
                   />
@@ -151,7 +150,7 @@ export const PlayerGrid = ({ players, setPlayers, identityMode = 'number' }: { p
                 <td className="border-l border-[var(--border-color)]">
                   <input 
                     disabled={isPlaceholder}
-                    className="w-full text-center bg-transparent border-none p-1 text-[10px] font-bold text-[var(--text-color)] focus:ring-0 disabled:cursor-not-allowed" 
+                    className="w-full text-center bg-transparent border-none p-1 text-[10px] font-bold text-[var(--text-on-panel)] focus:ring-0 disabled:cursor-not-allowed" 
                     value={p.property} 
                     onChange={(e) => updatePlayer(p.no, 'property', e.target.value)} 
                   />
@@ -178,7 +177,7 @@ const AutoResizeTextarea = ({ value, onChange, adjustHeight, disabled }: { value
     <textarea 
       ref={textareaRef}
       disabled={disabled}
-      className="w-full bg-transparent border-none p-1 text-[11px] leading-tight resize-none min-h-[1.5rem] focus:ring-0 overflow-hidden text-[var(--text-color)] placeholder:opacity-30 disabled:cursor-not-allowed" 
+      className="w-full bg-transparent border-none p-1 text-[11px] leading-tight resize-none min-h-[1.5rem] focus:ring-0 overflow-hidden text-[var(--text-on-panel)] placeholder:opacity-30 disabled:cursor-not-allowed" 
       rows={1} 
       value={value} 
       placeholder={disabled ? "" : "..."} 
