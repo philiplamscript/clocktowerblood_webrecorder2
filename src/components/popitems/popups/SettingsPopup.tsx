@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { X, Palette, FileText, Settings as SettingsIcon } from 'lucide-react';
-import { type NotepadTemplate, type PropTemplate, type ThemeType, type ThemeColors, type IdentityMode } from '../../../type';
+import { type NotepadTemplate, type PropTemplate, type ThemeType, type ThemeColors, type ThemePatterns, type IdentityMode } from '../../../type';
 
 import ThemeSection from './settings/ThemeSection';
 import CustomizationSection from './settings/CustomizationSection';
@@ -24,6 +24,7 @@ interface SettingsPopupProps {
   activeTheme: ThemeType;
   setActiveTheme: (theme: ThemeType) => void;
   setCustomThemeColors: (colors: ThemeColors) => void;
+  setCustomThemePatterns: (patterns: ThemePatterns) => void;
   savedCustomThemes: any[];
   saveCustomTheme: (name: string) => void;
   deleteCustomTheme: (id: string) => void;
@@ -94,6 +95,7 @@ const SettingsPopup: React.FC<SettingsPopupProps> = (props) => {
             <ThemeSection 
               activeTheme={props.activeTheme} setActiveTheme={props.setActiveTheme}
               setCustomThemeColors={props.setCustomThemeColors} 
+              setCustomThemePatterns={props.setCustomThemePatterns}
               savedCustomThemes={props.savedCustomThemes} saveCustomTheme={props.saveCustomTheme}
               deleteCustomTheme={props.deleteCustomTheme} renameCustomTheme={props.renameCustomTheme}
               aiThemeInput={props.aiThemeInput} setAiThemeInput={props.setAiThemeInput}

@@ -3,12 +3,13 @@
 import React, { useState } from 'react';
 import { Palette, Sparkles, Copy, Check, Save, Wand2, Trash2, Edit2, LayoutGrid, Info } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { type ThemeType, type ThemeColors, THEMES } from '../../../../type';
+import { type ThemeType, type ThemeColors, type ThemePatterns, THEMES } from '../../../../type';
 
 interface ThemeSectionProps {
   activeTheme: ThemeType;
   setActiveTheme: (theme: ThemeType) => void;
   setCustomThemeColors: (colors: ThemeColors) => void;
+  setCustomThemePatterns: (patterns: ThemePatterns) => void;
   savedCustomThemes: any[];
   saveCustomTheme: (name: string) => void;
   deleteCustomTheme: (id: string) => void;
@@ -18,7 +19,7 @@ interface ThemeSectionProps {
 }
 
 const ThemeSection: React.FC<ThemeSectionProps> = ({
-  activeTheme, setActiveTheme, setCustomThemeColors, savedCustomThemes, saveCustomTheme, deleteCustomTheme, renameCustomTheme, aiThemeInput, setAiThemeInput
+  activeTheme, setActiveTheme, setCustomThemeColors, setCustomThemePatterns, savedCustomThemes, saveCustomTheme, deleteCustomTheme, renameCustomTheme, aiThemeInput, setAiThemeInput
 }) => {
   const [desiredStyle, setDesiredStyle] = useState('');
   const [patternType, setPatternType] = useState<'none' | 'subtle' | 'decorative'>('subtle');
@@ -84,23 +85,35 @@ OUTPUT ONLY THE JSON OBJECT:
 
   const applyAiTheme = () => {
     try {
-      // Clean the input in case AI wrapped it in markdown
       const cleanedInput = aiThemeInput.replace(/```json|```/g, '').trim();
       const themeData = JSON.parse(cleanedInput);
       
+      let colors: any = {};
+      let patterns: any = {};
+
+      // Handle nested structure if provided
+      if (themeData.colors) {
+        colors = themeData.colors;
+        patterns = themeData.patterns || {};
+      } else {
+        // Flat structure - separate patterns from colors
+        const { patterns: p, ...rest } = themeData;
+        colors = rest;
+        patterns = p || {};
+      }
+
       const required = ['bg', 'panel', 'header', 'accent', 'textOnBg', 'textOnPanel', 'border', 'muted'];
-      const missing = required.filter(k => !themeData[k]);
+      const missing = required.filter(k => !colors[k]);
       
       if (missing.length > 0) {
-        toast.error(`Incomplete JSON. Missing: ${missing.join(', ')}`);
+        toast.error(`Incomplete JSON. Missing color properties: ${missing.join(', ')}`);
         return;
       }
 
-      // If text is missing but we have specific text colors, we're fine
-      if (!themeData.text) themeData.text = themeData.textOnPanel;
+      if (!colors.text) colors.text = colors.textOnPanel;
 
-      // Update the active theme
-      setCustomThemeColors(themeData);
+      setCustomThemeColors(colors);
+      setCustomThemePatterns(patterns);
       setActiveTheme('custom');
       setShowSaveTheme(true);
       toast.success('Theme Applied! Save it below to keep it.');
@@ -133,7 +146,6 @@ OUTPUT ONLY THE JSON OBJECT:
 
   return (
     <div className="space-y-8">
-      {/* Existing Built-in Themes */}
       <section className="space-y-3">
         <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
           <Palette size={14} /> Built-in Themes
@@ -156,7 +168,6 @@ OUTPUT ONLY THE JSON OBJECT:
         </div>
       </section>
 
-      {/* Saved Custom Themes */}
       {savedCustomThemes.length > 0 && (
         <section className="space-y-3">
           <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
@@ -201,7 +212,6 @@ OUTPUT ONLY THE JSON OBJECT:
         </section>
       )}
 
-      {/* AI Theme Generator */}
       <section className="pt-6 border-t border-slate-100 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest flex items-center gap-2">

@@ -12,6 +12,7 @@ import {
   type PropTemplate,
   type ThemeType,
   type ThemeColors,
+  type ThemePatterns,
   type Theme,
   type IdentityMode,
   createInitialChars,
@@ -59,6 +60,7 @@ export const useGameState = () => {
   
   const [activeTheme, setActiveTheme] = useState<ThemeType>(() => getStorage('active_theme', 'standard'));
   const [customThemeColors, setCustomThemeColors] = useState<ThemeColors | null>(() => getStorage('custom_theme_colors', null));
+  const [customThemePatterns, setCustomThemePatterns] = useState<ThemePatterns | null>(() => getStorage('custom_theme_patterns', null));
   const [savedCustomThemes, setSavedCustomThemes] = useState<Theme[]>(() => getStorage('saved_custom_themes', []));
   const [aiThemeInput, setAiThemeInput] = useState(() => getStorage('ai_theme_input', ''));
 
@@ -77,11 +79,12 @@ export const useGameState = () => {
       day: currentDay, count: playerCount, players, nominations, deaths, chars, dist: roleDist,
       note, font: fontSize, lang: language, showHub, splitView, notepad_templates: notepadTemplates, 
       prop_templates: propTemplates, active_theme: activeTheme, custom_theme_colors: customThemeColors,
+      custom_theme_patterns: customThemePatterns,
       saved_custom_themes: savedCustomThemes, default_notepad: defaultNotepad, ai_theme_input: aiThemeInput,
       identity_mode: identityMode
     };
     Object.entries(state).forEach(([key, val]) => localStorage.setItem(`clocktower_${key}`, JSON.stringify(val)));
-  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, language, showHub, splitView, notepadTemplates, propTemplates, activeTheme, customThemeColors, savedCustomThemes, defaultNotepad, aiThemeInput, identityMode]);
+  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, language, showHub, splitView, notepadTemplates, propTemplates, activeTheme, customThemeColors, customThemePatterns, savedCustomThemes, defaultNotepad, aiThemeInput, identityMode]);
 
   useEffect(() => {
     setPlayers(prev => prev.map(p => {
@@ -151,7 +154,6 @@ export const useGameState = () => {
       const newPlayers = [...prev];
       const [moved] = newPlayers.splice(fromIndex, 1);
       newPlayers.splice(toIndex, 0, moved);
-      // Re-assign numbers based on new order to maintain clock positions
       return newPlayers.map((p, idx) => ({ ...p, no: idx + 1 }));
     });
   };
@@ -172,17 +174,17 @@ export const useGameState = () => {
 
   const currentTheme = useMemo(() => {
     if (activeTheme === 'custom' && customThemeColors) {
-      return { id: 'custom' as ThemeType, name: 'AI Custom Theme', colors: customThemeColors };
+      return { id: 'custom' as ThemeType, name: 'AI Custom Theme', colors: customThemeColors, patterns: customThemePatterns || {} };
     }
     const savedTheme = savedCustomThemes.find(t => t.id === activeTheme);
     if (savedTheme) return savedTheme;
     return THEMES[activeTheme as keyof typeof THEMES] || THEMES.standard;
-  }, [activeTheme, customThemeColors, savedCustomThemes]);
+  }, [activeTheme, customThemeColors, customThemePatterns, savedCustomThemes]);
 
   const saveCustomTheme = (name: string) => {
     if (!customThemeColors) return;
     const id = `custom-${Date.now()}`;
-    const newTheme: Theme = { id, name, colors: customThemeColors };
+    const newTheme: Theme = { id, name, colors: customThemeColors, patterns: customThemePatterns || {} };
     setSavedCustomThemes(prev => [...prev, newTheme]);
     setActiveTheme(id);
     toast.success(`Theme "${name}" saved!`);
@@ -225,7 +227,8 @@ export const useGameState = () => {
     note, setNote, fontSize, setFontSize, language, setLanguage, showHub, setShowHub,
     splitView, setSplitView, notepadTemplates, setNotepadTemplates, propTemplates, setPropTemplates,
     deadPlayers, reset, resetCustomization, updatePlayerInfo, updatePlayerName, updatePlayerProperty, togglePlayerAlive,
-    activeTheme, setActiveTheme, customThemeColors, setCustomThemeColors, currentTheme,
+    activeTheme, setActiveTheme, customThemeColors, setCustomThemeColors, customThemePatterns, setCustomThemePatterns,
+    currentTheme,
     savedCustomThemes, saveCustomTheme, deleteCustomTheme, renameCustomTheme, reorderNotepadTemplates, reorderPropTemplates,
     defaultNotepad, setDefaultNotepad, aiThemeInput, setAiThemeInput, identityMode, setIdentityMode,
     reorderPlayers, addPlayer, removePlayer

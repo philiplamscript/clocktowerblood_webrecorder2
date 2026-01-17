@@ -85,13 +85,12 @@ export default function App() {
   };
 
   const fontSizeClass = { small: 'text-[10px]', mid: 'text-xs', large: 'text-sm' }[state.fontSize];
+
   const createPattern = (svg?: string) => {
-  // 1. Check if SVG exists and isn't just whitespace
-  if (!svg || !svg.trim()) return 'none';
-  
-  // 2. Encode the SVG. 
-  // Using encodeURIComponent is safer than raw strings for CSS properties.
-  return `url("data:image/svg+xml,${encodeURIComponent(svg.trim())}")`;
+    if (!svg || !svg.trim()) return 'none';
+    // Remove potential XML declarations and comments that break CSS
+    const cleaned = svg.trim().replace(/<\?xml.*?\?>/g, '').replace(/<!--.*?-->/g, '');
+    return `url("data:image/svg+xml,${encodeURIComponent(cleaned)}")`;
   };
 
   const themeStyles = useMemo(() => {
@@ -110,7 +109,6 @@ export default function App() {
       '--border-color': c.border,
       '--muted-color': c.muted,
       
-      // Use Optional Chaining (?.) to prevent crashes if 'patterns' is missing
       '--bg-pattern': createPattern(p?.bg),
       '--panel-pattern': createPattern(p?.panel),
     } as React.CSSProperties;
@@ -127,7 +125,6 @@ export default function App() {
       style={themeStyles}
       className={`min-h-screen w-full bg-[var(--bg-color)] flex flex-col font-sans select-none ${fontSizeClass} transition-colors duration-500 relative`}
     >
-      {/* Background Pattern Layer */}
       <div className="absolute inset-0 pointer-events-none opacity-50 z-0" style={{ backgroundImage: 'var(--bg-pattern)' }} />
       
       <div className="relative z-10 flex flex-col min-h-screen">
@@ -185,6 +182,7 @@ export default function App() {
           activeTheme={state.activeTheme}
           setActiveTheme={state.setActiveTheme}
           setCustomThemeColors={state.setCustomThemeColors}
+          setCustomThemePatterns={state.setCustomThemePatterns}
           savedCustomThemes={state.savedCustomThemes}
           saveCustomTheme={state.saveCustomTheme}
           deleteCustomTheme={state.deleteCustomTheme}
