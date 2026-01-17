@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Type, Globe, RotateCcw, ShieldAlert, Hash, User } from 'lucide-react';
+import { Type, Globe, RotateCcw, ShieldAlert, Hash, User, FolderOpen } from 'lucide-react';
 import { type IdentityMode } from '../../../../type';
 
 interface GeneralSectionProps {
@@ -12,10 +12,12 @@ interface GeneralSectionProps {
   identityMode: IdentityMode;
   setIdentityMode: (mode: IdentityMode) => void;
   resetCustomization: () => void;
+  exportPath: string;
+  setExportPath: (path: string) => void;
 }
 
 const GeneralSection: React.FC<GeneralSectionProps> = ({ 
-  fontSize, setFontSize, language, setLanguage, identityMode, setIdentityMode, resetCustomization 
+  identityMode, setIdentityMode, resetCustomization, exportPath, setExportPath 
 }) => {
   return (
     <div className="space-y-8">
@@ -37,6 +39,23 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
           >
             <User size={12} /> Player Name Base
           </button>
+        </div>
+      </section>
+
+      <section className="space-y-3 pt-6 border-t border-slate-100">
+        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+          <FolderOpen size={14} /> Backup & Restore Configuration
+        </h3>
+        <p className="text-[10px] text-slate-500 italic">Set a label for your backup files. When restoring, ensure files are named with this prefix.</p>
+        <div className="relative">
+          <FolderOpen size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input 
+            type="text" 
+            value={exportPath}
+            onChange={(e) => setExportPath(e.target.value)}
+            placeholder="Backup folder/prefix name..."
+            className="w-full pl-9 pr-3 py-3 bg-white border border-slate-200 rounded-xl text-[10px] font-black focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+          />
         </div>
       </section>
 

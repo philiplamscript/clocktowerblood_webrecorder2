@@ -27,6 +27,7 @@ export const useGameState = () => {
 
   const [defaultNotepad, setDefaultNotepad] = useState(() => getStorage('default_notepad', ''));
   const [identityMode, setIdentityMode] = useState<IdentityMode>(() => getStorage('identity_mode', 'number'));
+  const [exportPath, setExportPath] = useState(() => getStorage('export_path', 'BOTCT_Backup'));
 
   const [currentDay, setCurrentDay] = useState(() => getStorage('day', 1));
   const [playerCount, setPlayerCount] = useState(() => getStorage('count', 15));
@@ -81,10 +82,10 @@ export const useGameState = () => {
       prop_templates: propTemplates, active_theme: activeTheme, custom_theme_colors: customThemeColors,
       custom_theme_patterns: customThemePatterns,
       saved_custom_themes: savedCustomThemes, default_notepad: defaultNotepad, ai_theme_input: aiThemeInput,
-      identity_mode: identityMode
+      identity_mode: identityMode, export_path: exportPath
     };
     Object.entries(state).forEach(([key, val]) => localStorage.setItem(`clocktower_${key}`, JSON.stringify(val)));
-  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, language, showHub, splitView, notepadTemplates, propTemplates, activeTheme, customThemeColors, customThemePatterns, savedCustomThemes, defaultNotepad, aiThemeInput, identityMode]);
+  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, language, showHub, splitView, notepadTemplates, propTemplates, activeTheme, customThemeColors, customThemePatterns, savedCustomThemes, defaultNotepad, aiThemeInput, identityMode, exportPath]);
 
   useEffect(() => {
     setPlayers(prev => prev.map(p => {
@@ -134,6 +135,7 @@ export const useGameState = () => {
       { id: 'p3', label: 'Glasses', value: '👓' }
     ]);
     setDefaultNotepad('');
+    setExportPath('BOTCT_Backup');
     toast.success('Customizations reset to default');
   };
 
@@ -193,7 +195,6 @@ export const useGameState = () => {
   const updateCustomTheme = (id: string, updatedTheme: Theme) => {
     setSavedCustomThemes(prev => prev.map(t => t.id === id ? updatedTheme : t));
     if (activeTheme === id) {
-      // Force re-render if active
       setActiveTheme(id);
     }
   };
@@ -239,6 +240,6 @@ export const useGameState = () => {
     currentTheme,
     savedCustomThemes, saveCustomTheme, updateCustomTheme, deleteCustomTheme, renameCustomTheme, reorderNotepadTemplates, reorderPropTemplates,
     defaultNotepad, setDefaultNotepad, aiThemeInput, setAiThemeInput, identityMode, setIdentityMode,
-    reorderPlayers, addPlayer, removePlayer
+    reorderPlayers, addPlayer, removePlayer, exportPath, setExportPath
   };
 };

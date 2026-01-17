@@ -98,38 +98,42 @@ export default function App() {
   };
 
   const handleSaveCSV = () => {
+    const prefix = state.exportPath || 'BOTCT';
+    
     // 1. Players Table
     const playersHeader = "no,name,inf,day,reason,red,property\n";
     const playersCSV = playersHeader + state.players.map(p => 
-      `${p.no},"${p.name || ''}","${p.inf || ''}","${p.day || ''}","${p.reason || ''}","${p.red || ''}","${p.property || ''}"`
+      `${p.no},"${(p.name || '').replace(/"/g, '""')}","${(p.inf || '').replace(/"/g, '""')}","${p.day || ''}","${p.reason || ''}","${p.red || ''}","${(p.property || '').replace(/"/g, '""')}"`
     ).join("\n");
-    downloadCSV('players.csv', playersCSV);
+    downloadCSV(`${prefix}_players.csv`, playersCSV);
 
     // 2. Vote Table
     const votesHeader = "day,f,t,voters,note\n";
     const votesCSV = votesHeader + state.nominations.map(n => 
-      `${n.day},"${n.f}","${n.t}","${n.voters}","${n.note || ''}"`
+      `${n.day},"${n.f}","${n.t}","${n.voters}","${(n.note || '').replace(/"/g, '""')}"`
     ).join("\n");
-    downloadCSV('votes.csv', votesCSV);
+    downloadCSV(`${prefix}_votes.csv`, votesCSV);
 
-    // 3. Role Table (Flattened)
+    // 3. Role Table
     const rolesHeader = "category,name,status,note\n";
     let rolesCSV = rolesHeader;
     Object.entries(state.chars).forEach(([category, roles]: [string, any]) => {
       roles.forEach((r: any) => {
         if (r.name) {
-          rolesCSV += `"${category}","${r.name}","${r.status}","${r.note || ''}"\n`;
+          rolesCSV += `"${category}","${r.name.replace(/"/g, '""')}","${r.status}","${(r.note || '').replace(/"/g, '""')}"\n`;
         }
       });
     });
-    downloadCSV('roles.csv', rolesCSV);
+    downloadCSV(`${prefix}_roles.csv`, rolesCSV);
 
-    toast.success('CSV files exported successfully');
+    toast.success('Backup files generated');
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
+
+    let successCount = 0;
 
     Array.from(files).forEach(file => {
       const reader = new FileReader();
@@ -138,13 +142,12 @@ export default function App() {
         const lines = text.split("\n").filter(l => l.trim());
         if (lines.length < 2) return;
 
-        const headers = lines[0].split(",").map(h => h.trim());
         const dataLines = lines.slice(1);
 
         if (file.name.includes('players')) {
           const newPlayers = dataLines.map(line => {
             const parts = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
-            const values = parts.map(p => p.startsWith('"') ? p.slice(1, -1) : p);
+            const values = parts.map(p => p.startsWith('"') ? p.slice(1, -1).replace(/""/g, '"') : p);
             return {
               no: parseInt(values[0]),
               name: values[1] || '',
@@ -164,11 +167,11 @@ export default function App() {
             });
             return updated;
           });
-          toast.success('Players updated from CSV');
+          successCount++;
         } else if (file.name.includes('votes')) {
           const newNoms = dataLines.map(line => {
             const parts = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
-            const values = parts.map(p => p.startsWith('"') ? p.slice(1, -1) : p);
+            const values = parts.map(p => p.startsWith('"') ? p.slice(1, -1).replace(/""/g, '"') : p);
             return {
               id: Math.random().toString(36).substr(2, 9),
               day: parseInt(values[0]) || 1,
@@ -179,26 +182,27 @@ export default function App() {
             };
           });
           state.setNominations(newNoms);
-          toast.success('Votes updated from CSV');
+          successCount++;
         } else if (file.name.includes('roles')) {
           const newChars: any = { Townsfolk: [], Outsider: [], Minion: [], Demon: [] };
           dataLines.forEach(line => {
             const parts = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
-            const values = parts.map(p => p.startsWith('"') ? p.slice(1, -1) : p);
+            const values = parts.map(p => p.startsWith('"') ? p.slice(1, -1).replace(/""/g, '"') : p);
             const cat = values[0] as keyof typeof newChars;
             if (newChars[cat]) {
               newChars[cat].push({ name: values[1], status: values[2], note: values[3] || '' });
             }
           });
-          // Pad categories to 8 items
           Object.keys(newChars).forEach(cat => {
             while (newChars[cat as keyof typeof newChars].length < 8) {
               newChars[cat as keyof typeof newChars].push({ name: '', status: '—', note: '' });
             }
           });
           state.setChars(newChars);
-          toast.success('Roles updated from CSV');
+          successCount++;
         }
+        
+        if (successCount > 0) toast.success(`Restored ${successCount} data categories`);
       };
       reader.readAsText(file);
     });
@@ -257,6 +261,7 @@ export default function App() {
           onChange={handleFileChange} 
           multiple 
           accept=".csv" 
+          {...({ webkitdirectory: "", directory: "" } as any)}
           className="hidden" 
         />
         <Sidebar 
@@ -330,6 +335,8 @@ export default function App() {
           aiThemeInput={state.aiThemeInput}
           setAiThemeInput={state.setAiThemeInput}
           resetCustomization={state.resetCustomization}
+          exportPath={state.exportPath}
+          setExportPath={state.setExportPath}
         />
         <AboutPopup isOpen={showAbout} onClose={() => setShowAbout(false)} />
         <PlayerRosterPopup 
