@@ -51,7 +51,7 @@ const ClockFace: React.FC<ClockFaceProps> = ({playerCount,playerNo, ringCount, r
         const y = cy - radius;
         return (
           <g key={`day-label-${i}`}>
-            {renderUprightText(x, y, `D${i + 1}`, "text-[5px] font-black uppercase tracking-widest fill-[var(--text-on-bg)] opacity-80")}
+            {renderUprightText(x, y, `D${i + 1}`, "text-[5px] font-black uppercase tracking-widest fill-[var(--text-on-panel)] opacity-80")}
           </g>
         );
       })}

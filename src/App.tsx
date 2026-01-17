@@ -124,7 +124,7 @@ export default function App() {
       style={themeStyles}
       className={`min-h-screen w-full bg-[var(--bg-color)] flex flex-col font-sans select-none ${fontSizeClass} transition-colors duration-500 relative`}
     >
-      <div className="absolute inset-0 pointer-events-none opacity-50 z-0" style={{ backgroundImage: 'var(--bg-pattern)' }} />
+      <div className="absolute inset-0 pointer-events-none opacity-100 z-0" style={{ backgroundImage: 'var(--bg-pattern)' }} />
       
       <div className="relative z-10 flex flex-col min-h-screen">
         <Toaster containerStyle={{ zIndex: 99999 }} position="top-center" reverseOrder={false} />

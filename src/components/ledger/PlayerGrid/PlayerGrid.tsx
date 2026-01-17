@@ -83,7 +83,7 @@ export const PlayerGrid = ({ players, setPlayers, identityMode = 'number' }: { p
 
   return (
     <div className="bg-[var(--panel-color)] rounded border border-[var(--border-color)] shadow-sm overflow-hidden transition-colors duration-500 relative">
-      <div className="absolute inset-0 pointer-events-none opacity-20 z-0" style={{ backgroundImage: 'var(--panel-pattern)' }} />
+      <div className="absolute inset-0 pointer-events-none opacity-40 z-0" style={{ backgroundImage: 'var(--panel-pattern)' }} />
       <table className="w-full text-left border-collapse table-fixed relative z-10">
         <thead className="bg-[var(--bg-color)] border-b border-[var(--border-color)] text-[8px] uppercase font-black transition-colors duration-500">
           <tr>

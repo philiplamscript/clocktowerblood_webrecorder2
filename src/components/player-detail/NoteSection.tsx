@@ -60,7 +60,7 @@ const NoteSection: React.FC<NoteSectionProps> = ({
         
       <div className="flex gap-2 items-start">
         <div className="flex-1 relative rounded-lg border border-[var(--border-color)] bg-[var(--panel-color)] overflow-hidden shadow-sm min-h-[120px] transition-colors duration-500">
-          <div className="absolute inset-0 pointer-events-none opacity-20 z-0" style={{ backgroundImage: 'var(--panel-pattern)' }} />
+          <div className="absolute inset-0 pointer-events-none opacity-40 z-0" style={{ backgroundImage: 'var(--panel-pattern)' }} />
           <textarea 
             className="w-full h-full min-h-[120px] bg-transparent text-[var(--text-on-panel)] p-4 text-xs focus:ring-2 focus:ring-[var(--accent-color)]/20 outline-none resize-none font-medium leading-relaxed relative z-10 placeholder:text-[var(--muted-color)]"
             placeholder="Type social reads, role claims..."

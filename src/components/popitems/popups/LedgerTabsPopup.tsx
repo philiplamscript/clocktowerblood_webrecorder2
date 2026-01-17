@@ -60,7 +60,7 @@ const LedgerTabsPopup: React.FC<LedgerTabsPopupProps> = ({
   return (
     <div className="fixed inset-0 z-[10005] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
       <div className="bg-[var(--bg-color)] rounded-2xl shadow-2xl border border-[var(--border-color)] w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 transition-colors duration-500 relative">
-        <div className="absolute inset-0 pointer-events-none opacity-40 z-0" style={{ backgroundImage: 'var(--bg-pattern)' }} />
+        <div className="absolute inset-0 pointer-events-none opacity-100 z-0" style={{ backgroundImage: 'var(--bg-pattern)' }} />
         
         <header className="flex-none bg-[var(--header-color)] text-white px-4 py-3 flex justify-between items-center transition-colors duration-500 relative z-10">
           <div className="flex items-center gap-2">
@@ -72,7 +72,7 @@ const LedgerTabsPopup: React.FC<LedgerTabsPopupProps> = ({
         </header>
 
         <nav className="flex-none bg-[var(--panel-color)] border-b border-[var(--border-color)] flex shadow-sm transition-colors duration-500 relative z-10">
-          <div className="absolute inset-0 pointer-events-none opacity-20 z-0" style={{ backgroundImage: 'var(--panel-pattern)' }} />
+          <div className="absolute inset-0 pointer-events-none opacity-0 z-0" />
           {tabs.map((t) => (
             <button 
               key={t.id} 

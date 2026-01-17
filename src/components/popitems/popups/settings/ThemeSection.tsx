@@ -350,7 +350,8 @@ OUTPUT ONLY THE JSON OBJECT:
             <div className="p-2 bg-blue-50 border border-blue-100 rounded-lg flex items-start gap-2">
               <Info size={14} className="text-blue-600 shrink-0 mt-0.5" />
               <p className="text-[8px] text-blue-800 leading-normal">
-                For further customization, communicate directly with the LLM chatbot to refine colors, patterns, or add specific elements. For complex patterns, search the web for SVG code (e.g., "gothic pattern SVG") and paste the raw SVG into the "patterns" field in the JSON.
+                For further customization, please <del>argue</del> communicate directly with the LLM chatbot to refine colors, patterns, or add specific elements. 
+                For complex patterns, suggest searching from the web for SVG code (e.g., "gothic pattern SVG") and paste the raw SVG into the "patterns" field in the JSON.
               </p>
             </div>
           </div>

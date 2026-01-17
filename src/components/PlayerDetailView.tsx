@@ -91,7 +91,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
     <div className="h-full bg-transparent overflow-y-auto p-4 space-y-4">
       {/* Clock Panel with Background Pattern */}
       <div className="bg-[var(--bg-color)] rounded-xl border border-[var(--border-color)] p-4 shadow-sm relative overflow-hidden flex flex-col items-center min-h-[420px] transition-colors duration-500">
-        <div className="absolute inset-0 pointer-events-none opacity-40 z-0" style={{ backgroundImage: 'var(--bg-pattern)' }} />
+        <div className="absolute inset-0 pointer-events-none opacity-100 z-0" style={{ backgroundImage: 'var(--bg-pattern)' }} />
         <div className="relative z-10 w-full flex flex-col items-center">
           <DetailHeader 
             isVoting={isVoting} filterDay={filterDay} setFilterDay={setFilterDay}

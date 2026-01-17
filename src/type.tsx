@@ -144,15 +144,6 @@ export const createInitialChars = (): CharDict => ({
 // --- PATTERN GENERATOR ---
 
 
-
-const DOT_SVG = `
-<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-  <g fill="#2011f7" fill-opacity="0.5" fill-rule="evenodd">
-    <circle cx="3" cy="3" r="3"/>
-  </g>
-</svg>
-`;
-
 const GRID_SVG = `
 <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
   <g fill="none" fill-rule="evenodd">
@@ -176,12 +167,6 @@ const parchment_SVG = `
 </svg>
 `;
 
-const DIAMOND_SVG = `
-<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-  <path d="M0 0h40v40H0V0zm20 20L0 40h40L20 20zM0 0l20 20L40 0H0z" fill="#000" fill-opacity="0.3" fill-rule="evenodd"/>
-</svg>
-`;
-
 
 export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
   standard: {
@@ -200,9 +185,7 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       muted: '#64748b',
 
     },
-    patterns: {
-      bg:GRID_SVG
-    }
+
   },
   knights: {
     id: 'knights',
@@ -219,10 +202,7 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       border: '#4a5568',
       muted: '#a0aec0',
     },
-    patterns: {
-      bg:DOT_SVG,
-      panel:DIAMOND_SVG
-    }
+
   },
   grimoire: {
     id: 'grimoire',
@@ -258,10 +238,51 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       textOnHeader: "#FFFFFF",
       border: "#85C1E9",
       muted: "#5D6D7E",
-      bgSVG: DOT_SVG
     },
     patterns: {
-      bg:DOT_SVG,
+      bg: "<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'><defs><g id='ice'><path d='M0-20 L4-5 L18-5 L7 3 L11 18 L0 8 L-11 18 L-7 3 L-18-5 L-4-5 Z' fill='#00E5FF' fill-opacity='0.15'/><path d='M0-20 L0 8' stroke='#3498DB' stroke-opacity='0.4' stroke-width='0.5'/></g><g id='snowflake'><g transform='rotate(0)'><use href='#ice'/></g><g transform='rotate(60)'><use href='#ice'/></g><g transform='rotate(120)'><use href='#ice'/></g><g transform='rotate(180)'><use href='#ice'/></g><g transform='rotate(240)'><use href='#ice'/></g><g transform='rotate(300)'><use href='#ice'/></g></g></defs><use href='#snowflake' transform='translate(35,40) scale(0.8)'/><use href='#snowflake' transform='translate(110,100) scale(1.2)'/><use href='#snowflake' transform='translate(120,30) scale(0.5)'/><use href='#snowflake' transform='translate(40,120) scale(0.6)'/></svg>",
+    panel: "<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><g fill='none' stroke='#3498DB' stroke-opacity='0.1' stroke-width='0.5'><g transform='translate(20,20) rotate(15)'><path d='M0-10 L2 0 L10 0 L3 4 L6 12 L0 6 L-6 12 L-3 4 L-10 0 L-2 0 Z'/></g><g transform='translate(70,40) rotate(-20) scale(0.7)'><path d='M0-10 L2 0 L10 0 L3 4 L6 12 L0 6 L-6 12 L-3 4 L-10 0 L-2 0 Z'/></g><g transform='translate(40,80) rotate(45) scale(0.5)'><path d='M0-10 L2 0 L10 0 L3 4 L6 12 L0 6 L-6 12 L-3 4 L-10 0 L-2 0 Z'/></g><circle cx='85' cy='15' r='1' fill='#00E5FF' fill-opacity='0.2'/><circle cx='10' cy='90' r='1.5' fill='#00E5FF' fill-opacity='0.2'/></g></svg>"
     }
-  }
+  },
+  sandbeach: {
+    id: 'sandbeach',
+    name: 'Sand & Beach',
+    colors: {
+    bg: "#C2B280",
+    panel: "#F5F5DC",
+    header: "#2C5E50",
+    accent: "#D2691E",
+    text: "#1A1A1A",
+    textOnBg: "#2F2F2F",
+    textOnPanel: "#1A1A1A",
+    textOnHeader: "#F0EAD6",
+    border: "#A89B74",
+    muted: "#8B7D6B"
+  },
+  patterns: {
+    bg: "<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><g fill='#B4A475' fill-opacity='0.4'><path d='M0 50 Q 25 25 50 50 T 100 50 T 150 50' stroke='#9E8F66' stroke-width='2' fill='none'/><path d='M0 70 Q 25 45 50 70 T 100 70 T 150 70' stroke='#9E8F66' stroke-width='1' fill='none'/><circle cx='20' cy='20' r='2'/><circle cx='80' cy='30' r='1.5'/><circle cx='50' cy='80' r='2'/></g></svg>",
+    panel: "<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><g fill='none' stroke='#D2B48C' stroke-width='0.8' stroke-opacity='0.6'><path d='M30 0 L60 30 L30 60 L0 30 Z'/><path d='M30 10 L50 30 L30 50 L10 30 Z'/><circle cx='30' cy='30' r='3' fill='#D2B48C' fill-opacity='0.3'/><path d='M0 0 L15 15 M45 45 L60 60 M60 0 L45 15 M15 45 L0 60'/></g></svg>"
+    }
+  },
+  gothic: {
+    id: 'gothic',
+    name: 'Gothic',
+    colors: {
+    bg: "#1a0d0d",
+  panel: "#d9cebd",
+  header: "#2b0a0a",
+  accent: "#960018",
+  text: "#2e1f1f",
+  textOnBg: "#f5f1e8",
+  textOnPanel: "#2e1f1f",
+  textOnHeader: "#e2d1b3",
+  border: "#b8a68d",
+  muted: "#7d6e5d",
+  },
+  patterns: {
+    bg: "<svg xmlns='http://www.w3.org/2000/svg' width='80' height='120' viewBox='0 0 80 120'><g stroke='#3d1f1f' stroke-width='1' fill='none' opacity='0.6'><path d='M40 120 V0 M0 60 H80'/><path d='M40 100 Q 40 40 80 40 M40 100 Q 40 40 0 40'/><path d='M40 80 Q 40 20 70 20 M40 80 Q 40 20 10 20'/><path d='M40 0 L50 20 L40 30 L30 20 Z' fill='#3d1f1f'/><circle cx='40' cy='60' r='5'/><path d='M0 100 Q 40 100 40 120 M80 100 Q 40 100 40 120'/><path d='M0 20 Q 40 20 40 0 M80 20 Q 40 20 40 0'/></g></svg>",
+    panel: "<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><g fill='#8c7a65' fill-opacity='0.15'><path d='M60 20 L62 40 L80 42 L62 44 L60 64 L58 44 L40 42 L58 40 Z'/><path d='M0 0 L10 0 L0 10 Z M120 0 L110 0 L120 10 Z M0 120 L10 120 L0 110 Z M120 120 L110 120 L120 110 Z'/></g><path d='M60 0 Q 60 60 120 60 M120 60 Q 60 60 60 120 M60 120 Q 60 60 0 60 M0 60 Q 60 60 60 0' stroke='#8c7a65' stroke-width='0.5' stroke-opacity='0.3' fill='none'/></svg>"
+    // 
+    }
+  },
 };
