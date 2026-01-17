@@ -40,7 +40,6 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
         const pd = deaths.find(d => d.playerNo === numStr);
         const pData = players.find(p => p.no === num);
         
-        // Base fill: Dead players get a background-colored slice to look 'empty'
         const fill = isVoter ? 'var(--accent-color)' : isCurrent ? 'var(--panel-color)' : pd ? 'var(--bg-color)' : 'var(--panel-color)';
         const stroke = isCurrent ? 'var(--accent-color)' : assignmentMode === 'death' ? '#ef4444' : assignmentMode === 'property' ? '#3b82f6' : 'var(--border-color)';
 
@@ -91,7 +90,7 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
                     className={diedLater ? 'opacity-20' : ''}
                   />
                   {showDeathIcons && diedNow && (
-                    <text x={pos.x} y={pos.y} textAnchor="middle" alignmentBaseline="middle" className="text-[10px] opacity-100 fill-[var(--text-color)] drop-shadow-sm">{pd.reason}</text>
+                    <text x={pos.x} y={pos.y} textAnchor="middle" alignmentBaseline="middle" className="text-[10px] opacity-100 fill-[var(--text-on-bg)] drop-shadow-sm">{pd.reason}</text>
                   )}
                   {vCount !== undefined && mode === 'allReceive' && !diedNow && (
                     <text 
@@ -99,7 +98,7 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
                       y={getPosition(num, playerCount, rs + ringWidth * 0.3).y} 
                       textAnchor="middle" 
                       alignmentBaseline="middle" 
-                      className="font-bold fill-[var(--text-color)]" 
+                      className="font-bold fill-[var(--text-on-bg)]" 
                       style={{ fontSize: `${Math.max(7, ringWidth * 0.12)}px` }}
                     >
                       {vCount}
@@ -118,7 +117,7 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
                     y={cornerPos.y + (pIdx * 8)} 
                     textAnchor="middle" 
                     alignmentBaseline="middle" 
-                    className="text-[8px] drop-shadow-sm font-bold fill-[var(--text-color)]"
+                    className="text-[8px] drop-shadow-sm font-bold fill-[var(--text-on-bg)]"
                   >
                     {prop}
                   </text>
@@ -131,7 +130,7 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
               y={getPosition(num, playerCount, (innerRadius + outerRadius) / 2).y} 
               textAnchor="middle" 
               alignmentBaseline="middle" 
-              className={`text-[10px] font-black tracking-tight pointer-events-none transition-all duration-200 ${isVoter ? 'fill-white' : isCurrent ? 'fill-[var(--accent-color)]' : pd ? 'fill-[var(--muted-color)]' : 'fill-[var(--text-color)] opacity-60'}`}
+              className={`text-[10px] font-black tracking-tight pointer-events-none transition-all duration-200 ${isVoter ? 'fill-white' : isCurrent ? 'fill-[var(--accent-color)]' : pd ? 'fill-[var(--muted-color)]' : 'fill-[var(--text-on-bg)] opacity-60'}`}
               style={identityMode === 'name' && label.toString().length > 4 ? { fontSize: '7px' } : {}}
             >
               {label}

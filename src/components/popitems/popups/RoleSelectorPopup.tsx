@@ -21,7 +21,7 @@ const RoleSelectorPopup: React.FC<RoleSelectorPopupProps> = ({
   if (!showRoleSelector) return null;
 
   return (
-    <div className="fixed inset-0 z-[10002] flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-[2px]" onClick={() => setShowRoleSelector(null)}>
+    <div className="fixed inset-0 z-[10011] flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-[2px]" onClick={() => setShowRoleSelector(null)}>
       <div className="bg-white rounded-lg shadow-2xl border border-slate-200 w-full max-w-[400px] max-h-[400px] overflow-hidden animate-in fade-in zoom-in-95 duration-150" onClick={e => e.stopPropagation()}>
         <div className="px-3 py-2 bg-blue-600 flex justify-between items-center">
           <span className="text-white font-black text-[10px] uppercase">Select Role for Player {showRoleSelector.playerNo}</span>

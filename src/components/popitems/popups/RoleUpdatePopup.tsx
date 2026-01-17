@@ -32,7 +32,7 @@ const RoleUpdatePopup: React.FC<RoleUpdatePopupProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[10003] flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-[2px]" onClick={() => setShowRoleUpdate(false)}>
+    <div className="fixed inset-0 z-[10010] flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-[2px]" onClick={() => setShowRoleUpdate(false)}>
       <div className="bg-white rounded-lg shadow-2xl border border-slate-200 w-full max-w-[500px] max-h-[85vh] overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col" onClick={e => e.stopPropagation()}>
         <div className="px-3 py-2 bg-blue-600 flex justify-between items-center">
           <div className="flex items-center gap-2">

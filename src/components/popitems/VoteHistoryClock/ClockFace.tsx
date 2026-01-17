@@ -31,7 +31,6 @@ const ClockFace: React.FC<ClockFaceProps> = ({playerCount,playerNo, ringCount, r
       className="pointer-events-none" 
       transform={`rotate(${rotationAngle}, ${cx}, ${cy})`}
     >
-      {/* Subtle background rings using theme border color */}
       {Array.from({ length: ringCount + 1 }).map((_, i) => (
         <circle 
           key={`ring-${i}`} 
@@ -44,17 +43,15 @@ const ClockFace: React.FC<ClockFaceProps> = ({playerCount,playerNo, ringCount, r
         />
       ))}
       
-      {/* Compass Axis using theme muted color */}
       <line x1={cx} y1={cy - outerRadius - 5} x2={cx} y2={cy + outerRadius + 5} stroke="var(--muted-color)" strokeWidth="0.5" className="opacity-20" />
       
-      {/* Day Indicators using theme text color */}
       {Array.from({ length: ringCount }).map((_, i) => {
         const radius = innerRadius + (i + 0.5) * ringWidth;
         const x = cx + 4;
         const y = cy - radius;
         return (
           <g key={`day-label-${i}`}>
-            {renderUprightText(x, y, `D${i + 1}`, "text-[5px] font-black uppercase tracking-widest fill-[var(--muted-color)] opacity-80")}
+            {renderUprightText(x, y, `D${i + 1}`, "text-[5px] font-black uppercase tracking-widest fill-[var(--text-on-bg)] opacity-80")}
           </g>
         );
       })}
