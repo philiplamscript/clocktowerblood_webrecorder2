@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Key, FilePlus2 } from 'lucide-react';
 import { type NotepadTemplate } from '../../type';
 import KeywordPopup from '../popitems/popups/KeywordPopup';
@@ -59,13 +59,15 @@ const NoteSection: React.FC<NoteSectionProps> = ({
       </div>
         
       <div className="flex gap-2 items-start">
-        <textarea 
-          className="flex-1 min-h-[120px] border border-[var(--border-color)] bg-[var(--panel-color)] text-[var(--text-on-panel)] rounded-lg p-4 text-xs focus:ring-2 focus:ring-[var(--accent-color)]/20 outline-none resize-none font-medium leading-relaxed shadow-sm transition-all placeholder:text-[var(--muted-color)] "
-          placeholder="Type social reads, role claims..."
-          value={currentPlayer?.inf || ''}
-          onChange={(e) => updatePlayerInfo(playerNo, e.target.value)}
-          style={{ backgroundImage: 'var(--panel-pattern)' }}
-        />
+        <div className="flex-1 relative rounded-lg border border-[var(--border-color)] bg-[var(--panel-color)] overflow-hidden shadow-sm min-h-[120px] transition-colors duration-500">
+          <div className="absolute inset-0 pointer-events-none opacity-20 z-0" style={{ backgroundImage: 'var(--panel-pattern)' }} />
+          <textarea 
+            className="w-full h-full min-h-[120px] bg-transparent text-[var(--text-on-panel)] p-4 text-xs focus:ring-2 focus:ring-[var(--accent-color)]/20 outline-none resize-none font-medium leading-relaxed relative z-10 placeholder:text-[var(--muted-color)]"
+            placeholder="Type social reads, role claims..."
+            value={currentPlayer?.inf || ''}
+            onChange={(e) => updatePlayerInfo(playerNo, e.target.value)}
+          />
+        </div>
         <div className="flex flex-col gap-2">
           <button 
             onClick={() => { setShowKeywords(!showKeywords); setShowTemplates(false); }} 
