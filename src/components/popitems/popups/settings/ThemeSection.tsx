@@ -35,6 +35,12 @@ const ThemeSection: React.FC<ThemeSectionProps> = ({
       subtle: "Subtle, repeating SVG patterns for 'bg' and 'panel' that add texture without distracting from the text.",
       decorative: "Intricate, thematic SVG patterns for 'bg' and 'panel' (e.g., damask, gothic filigree, or geometric arrays). Ensure they align with the requested style."
     }[pattern as keyof typeof patternInstructions ];
+//5. Validate that all colors satisfy AA accessibility standards for readability.
+
+    const pattern_prompt = `TECHNICAL REQUIREMENTS in patterns ("<svg>...</svg>"):
+- "bg": Free to design the pattern which on the "bg" color. As Pure bg color apply under those textOnBg, therefore No need to consider textOnBg. use you max high-contrast pattern setup. 
+- "panel": Consider with panel and textOnPanel color as relative pattern would apply to it.`
+
 
     return `ACT AS AN EXPERT UI/UX DESIGNER.
 Generate a Blood on the Clocktower game theme in JSON format.
@@ -46,20 +52,22 @@ CHAIN OF THOUGHT PROCESS:
 1. Analyze the requested style and identify a core color palette.
 2. Select high-contrast text colors for the background, panels, and headers separately.
 3. Define an 'accent' color that pops for interactive elements.
-4. Design ${pattern !== 'none' ? 'matching SVG patterns' : 'a clean look'}.
-5. Validate that all colors satisfy AA accessibility standards for readability.
+4. Design ${pattern !== 'none' ? 'matching SVG patterns in high-contrast to it relative cover color' : 'a clean look'}.
 
-TECHNICAL REQUIREMENTS:
-- "bg": Main screen background color.
+TECHNICAL REQUIREMENTS in colors (#hex):
+- "bg": Main screen background color. Should be different from "panel" to create depth.
 - "panel": Card/Ledger surface color.
 - "header": Identity/Top-bar color.
-- "accent": Primary action color (e.g. red, purple).
-- "textOnBg": Text color for the main background.
-- "textOnPanel": Text color for data rows and cards.
+- "accent": Primary action color (e.g. red, purple). Should be a bold, distinct color for primary actions.
+- "textOnBg": Text color for the main background. Should have high contrast against the "bg" color.
+- "textOnPanel": Text color for data rows and cards. Should have high contrast against the "panel" color.
 - "textOnHeader": Text color for header text.
-- "border": Subtle divider color.
-- "muted": For secondary data labels.
-${pattern !== 'none' ? '- "patterns": \n { "bg": "RAW_SVG_STRING", \n "panel": "RAW_SVG_STRING" \n } \n (Ensure SVGs pattern are high-contrast, fill-opacity around 0.25 to 1)' : ''}
+- "border": Subtle divider color. Should be a subtle version of the text or background color.
+- "muted": For secondary data labels. ensure it's still visible but lower contrast than main text.
+
+${pattern !== 'none' ? pattern_prompt : ''}
+
+
 
 OUTPUT ONLY THE JSON OBJECT:
 {
@@ -76,6 +84,8 @@ OUTPUT ONLY THE JSON OBJECT:
 }`;
   };
 
+
+  
   const copyPrompt = () => {
     navigator.clipboard.writeText(getAiPrompt(desiredStyle, patternType));
     setCopied(true);
