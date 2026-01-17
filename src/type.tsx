@@ -18,7 +18,7 @@ export interface ThemeColors {
   border: string;
   muted: string;
 }
-export interface ThemePattern {
+export interface ThemePatterns {
   bg?: string;    // SVG background-image value
   panel?: string; // SVG background-image value
 }
@@ -27,7 +27,7 @@ export interface Theme {
   id: ThemeType;
   name: string;
   colors: ThemeColors;
-  patterns?: ThemePattern;
+  patterns?: ThemePatterns;
 }
 
 export interface Player {
