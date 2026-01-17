@@ -64,7 +64,7 @@ const NoteSection: React.FC<NoteSectionProps> = ({
           placeholder="Type social reads, role claims..."
           value={currentPlayer?.inf || ''}
           onChange={(e) => updatePlayerInfo(playerNo, e.target.value)}
-          // style={{ backgroundImage: 'var(--panel-pattern)' }}
+          style={{ backgroundImage: 'var(--panel-pattern)' }}
         />
         <div className="flex flex-col gap-2">
           <button 

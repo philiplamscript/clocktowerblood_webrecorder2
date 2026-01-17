@@ -315,7 +315,8 @@ OUTPUT ONLY THE JSON OBJECT:
             </div>
 
             <button onClick={copyPrompt} className="w-full py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 text-[10px] font-black uppercase shadow-lg active:scale-95">
-              {copied ? <Check size={14} /> : <Copy size={14} />} {copied ? 'Prompt Copied!' : 'Copy Designer Prompt'}
+              {copied ? <Check size={14} /> : <Copy size={14} />}
+              {copied ? 'Prompt Copied!' : 'Copy Designer Prompt'}
             </button>
           </div>
 
@@ -345,6 +346,13 @@ OUTPUT ONLY THE JSON OBJECT:
                 </p>
               </div>
             )}
+
+            <div className="p-2 bg-blue-50 border border-blue-100 rounded-lg flex items-start gap-2">
+              <Info size={14} className="text-blue-600 shrink-0 mt-0.5" />
+              <p className="text-[8px] text-blue-800 leading-normal">
+                For further customization, communicate directly with the LLM chatbot to refine colors, patterns, or add specific elements. For complex patterns, search the web for SVG code (e.g., "gothic pattern SVG") and paste the raw SVG into the "patterns" field in the JSON.
+              </p>
+            </div>
           </div>
           
           <div className="flex flex-col gap-3">
