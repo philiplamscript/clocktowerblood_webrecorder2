@@ -11,7 +11,9 @@ import {
   Info,
   MessageSquare,
   Heart,
-  X
+  X,
+  Download,
+  Upload
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -26,12 +28,14 @@ interface SidebarProps {
   onShowAbout: () => void;
   onShowFAQ: () => void;
   onShowDonation: () => void;
+  onSaveCSV: () => void;
+  onLoadCSV: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
   isOpen, setIsOpen, onReset, onLoadRole, onShowUpdateLog, 
   onFocusPlayerDetail, onOpenSettings, onShowHowToUse, 
-  onShowAbout, onShowFAQ, onShowDonation
+  onShowAbout, onShowFAQ, onShowDonation, onSaveCSV, onLoadCSV
 }) => {
   const NavItem = ({ icon: Icon, label, onClick, color = "text-slate-400" }: any) => (
     <button 
@@ -70,9 +74,12 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className="mb-2 px-3 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Management</div>
           <NavItem icon={Edit} label="Load Role" onClick={onLoadRole} color="text-blue-400" />
           <NavItem icon={RotateCcw} label="Reset session" onClick={onReset} color="text-red-500" />
-          {/* <NavItem icon={History} label="Update Log" onClick={onShowUpdateLog} color="text-yellow-500" /> */}
           <NavItem icon={UserCircle} label="Player Detail" onClick={onFocusPlayerDetail} color="text-emerald-500" />
           <NavItem icon={Settings} label="Settings" onClick={onOpenSettings} color="text-slate-400" />
+          
+          <div className="mt-4 mb-2 px-3 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Data Backup</div>
+          <NavItem icon={Download} label="Save CSV (Backup)" onClick={onSaveCSV} color="text-indigo-400" />
+          <NavItem icon={Upload} label="Load CSV (Restore)" onClick={onLoadCSV} color="text-amber-400" />
         </div>
 
         {/* Lower Section */}
@@ -80,7 +87,6 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className="mb-2 px-3 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Information</div>
           <NavItem icon={HelpCircle} label="How to use?" onClick={onShowHowToUse} color="text-indigo-400" />
           <NavItem icon={Info} label="About" onClick={onShowAbout} color="text-slate-400" />
-          {/* <NavItem icon={MessageSquare} label="FAQ" onClick={onShowFAQ} color="text-slate-400" /> */}
           <NavItem icon={Heart} label="Donation" onClick={onShowDonation} color="text-pink-500" />
         </div>
       </aside>

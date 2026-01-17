@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import { useGameState } from './hooks/useGameState';
 
@@ -28,6 +28,7 @@ const hexToRgb = (hex: string) => {
 
 export default function App() {
   const state = useGameState();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState<'players' | 'votes' | 'chars' | 'notes'>('players');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showGreeting, setShowGreeting] = useState(() => !localStorage.getItem('clocktower_greeted'));
@@ -84,6 +85,127 @@ export default function App() {
     toast.success('Roles script updated');
   };
 
+  const downloadCSV = (filename: string, csvContent: string) => {
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleSaveCSV = () => {
+    // 1. Players Table
+    const playersHeader = "no,name,inf,day,reason,red,property\n";
+    const playersCSV = playersHeader + state.players.map(p => 
+      `${p.no},"${p.name || ''}","${p.inf || ''}","${p.day || ''}","${p.reason || ''}","${p.red || ''}","${p.property || ''}"`
+    ).join("\n");
+    downloadCSV('players.csv', playersCSV);
+
+    // 2. Vote Table
+    const votesHeader = "day,f,t,voters,note\n";
+    const votesCSV = votesHeader + state.nominations.map(n => 
+      `${n.day},"${n.f}","${n.t}","${n.voters}","${n.note || ''}"`
+    ).join("\n");
+    downloadCSV('votes.csv', votesCSV);
+
+    // 3. Role Table (Flattened)
+    const rolesHeader = "category,name,status,note\n";
+    let rolesCSV = rolesHeader;
+    Object.entries(state.chars).forEach(([category, roles]: [string, any]) => {
+      roles.forEach((r: any) => {
+        if (r.name) {
+          rolesCSV += `"${category}","${r.name}","${r.status}","${r.note || ''}"\n`;
+        }
+      });
+    });
+    downloadCSV('roles.csv', rolesCSV);
+
+    toast.success('CSV files exported successfully');
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const text = event.target?.result as string;
+        const lines = text.split("\n").filter(l => l.trim());
+        if (lines.length < 2) return;
+
+        const headers = lines[0].split(",").map(h => h.trim());
+        const dataLines = lines.slice(1);
+
+        if (file.name.includes('players')) {
+          const newPlayers = dataLines.map(line => {
+            const parts = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
+            const values = parts.map(p => p.startsWith('"') ? p.slice(1, -1) : p);
+            return {
+              no: parseInt(values[0]),
+              name: values[1] || '',
+              inf: values[2] || '',
+              day: values[3] || '',
+              reason: values[4] || '',
+              red: values[5] || '',
+              property: values[6] || ''
+            };
+          });
+          state.setPlayers(prev => {
+            const updated = [...prev];
+            newPlayers.forEach(np => {
+              if (np.no > 0 && np.no <= updated.length) {
+                updated[np.no - 1] = np as any;
+              }
+            });
+            return updated;
+          });
+          toast.success('Players updated from CSV');
+        } else if (file.name.includes('votes')) {
+          const newNoms = dataLines.map(line => {
+            const parts = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
+            const values = parts.map(p => p.startsWith('"') ? p.slice(1, -1) : p);
+            return {
+              id: Math.random().toString(36).substr(2, 9),
+              day: parseInt(values[0]) || 1,
+              f: values[1] || '-',
+              t: values[2] || '-',
+              voters: values[3] || '',
+              note: values[4] || ''
+            };
+          });
+          state.setNominations(newNoms);
+          toast.success('Votes updated from CSV');
+        } else if (file.name.includes('roles')) {
+          const newChars: any = { Townsfolk: [], Outsider: [], Minion: [], Demon: [] };
+          dataLines.forEach(line => {
+            const parts = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
+            const values = parts.map(p => p.startsWith('"') ? p.slice(1, -1) : p);
+            const cat = values[0] as keyof typeof newChars;
+            if (newChars[cat]) {
+              newChars[cat].push({ name: values[1], status: values[2], note: values[3] || '' });
+            }
+          });
+          // Pad categories to 8 items
+          Object.keys(newChars).forEach(cat => {
+            while (newChars[cat as keyof typeof newChars].length < 8) {
+              newChars[cat as keyof typeof newChars].push({ name: '', status: '—', note: '' });
+            }
+          });
+          state.setChars(newChars);
+          toast.success('Roles updated from CSV');
+        }
+      };
+      reader.readAsText(file);
+    });
+    
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   const fontSizeClass = { small: 'text-[10px]', mid: 'text-xs', large: 'text-sm' }[state.fontSize];
 
   const createPattern = (svg?: string) => {
@@ -129,6 +251,14 @@ export default function App() {
       <div className="relative z-10 flex flex-col min-h-screen">
         <Toaster containerStyle={{ zIndex: 99999 }} position="top-center" reverseOrder={false} />
         <GreetingPopup isOpen={showGreeting} title={greetingTitle} onClose={() => { setShowGreeting(false); localStorage.setItem('clocktower_greeted', 'true'); }} />
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          onChange={handleFileChange} 
+          multiple 
+          accept=".csv" 
+          className="hidden" 
+        />
         <Sidebar 
           isOpen={sidebarOpen} setIsOpen={setSidebarOpen} 
           onReset={() => { setShowReset(true); setSidebarOpen(false); }} 
@@ -144,6 +274,8 @@ export default function App() {
           onShowAbout={() => { setShowAbout(true); setSidebarOpen(false); }} 
           onShowFAQ={() => toast('Check Settings', { icon: '❓' })} 
           onShowDonation={() => setShowAbout(true)} 
+          onSaveCSV={handleSaveCSV}
+          onLoadCSV={() => fileInputRef.current?.click()}
         />
         <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} splitView={state.splitView} setSplitView={state.setSplitView} showHub={state.showHub} setShowHub={state.setShowHub} setShowLedger={setShowLedger} />
         {state.showHub && <PlayerHub currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} deaths={state.deaths} assignmentMode={assignmentMode} setAssignmentMode={setAssignmentMode} selectedReason={selectedReason} setSelectedReason={setSelectedReason} selectedProperty={selectedProperty} setSelectedProperty={setSelectedProperty} propTemplates={state.propTemplates} focusPlayerNo={focusPlayerNo} onPlayerClick={handlePlayerClick} identityMode={state.identityMode} />}
