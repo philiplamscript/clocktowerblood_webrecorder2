@@ -32,15 +32,15 @@ const ThemeSection: React.FC<ThemeSectionProps> = ({
   const getAiPrompt = (style: string, pattern: string) => {
     const patternInstructions = {
       none: "No patterns needed. Focus purely on the color palette.",
-      subtle: "Include subtle, repeating SVG patterns for 'bg' and 'panel' that add texture without distracting from the text. Use low-opacity lines or dots.",
-      decorative: "Include intricate, thematic SVG patterns for 'bg' and 'panel' (e.g., damask, gothic filigree, or geometric arrays). Ensure they align with the requested style."
-    }[pattern as keyof typeof patternInstructions];
+      subtle: "Subtle, repeating SVG patterns for 'bg' and 'panel' that add texture without distracting from the text.",
+      decorative: "Intricate, thematic SVG patterns for 'bg' and 'panel' (e.g., damask, gothic filigree, or geometric arrays). Ensure they align with the requested style."
+    }[pattern as keyof typeof patternInstructions ];
 
     return `ACT AS AN EXPERT UI/UX DESIGNER.
 Generate a Blood on the Clocktower game theme in JSON format.
 
 STYLE: ${style || 'Gothic Horror / Professional Ledger'}
-PATTERN COMPLEXITY: ${pattern.toUpperCase()}
+PATTERN COMPLEXITY: ${patternInstructions}
 
 CHAIN OF THOUGHT PROCESS:
 1. Analyze the requested style and identify a core color palette.
@@ -59,7 +59,7 @@ TECHNICAL REQUIREMENTS:
 - "textOnHeader": Text color for header text.
 - "border": Subtle divider color.
 - "muted": For secondary data labels.
-${pattern !== 'none' ? '- "patterns": { "bg": "RAW_SVG_STRING", "panel": "RAW_SVG_STRING" } (Ensure SVGs use currentColor or low-opacity fills)' : ''}
+${pattern !== 'none' ? '- "patterns": \n { "bg": "RAW_SVG_STRING", \n "panel": "RAW_SVG_STRING" \n } \n (Ensure SVGs pattern are high-contrast, fill-opacity around 0.25 to 1)' : ''}
 
 OUTPUT ONLY THE JSON OBJECT:
 {
@@ -72,7 +72,7 @@ OUTPUT ONLY THE JSON OBJECT:
   "textOnPanel": "hex",
   "textOnHeader": "hex",
   "border": "hex",
-  "muted": "hex"${pattern !== 'none' ? ',\n  "patterns": { "bg": "<svg>...</svg>", "panel": "<svg>...</svg>" }' : ''}
+  "muted": "hex"${pattern !== 'none' ? ',\n  "patterns": { \n "bg": "<svg>...</svg>", \n "panel": "<svg>...</svg>" \n }' : ''}
 }`;
   };
 
