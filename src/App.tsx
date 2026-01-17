@@ -88,7 +88,6 @@ export default function App() {
 
   const createPattern = (svg?: string) => {
     if (!svg || !svg.trim()) return 'none';
-    // Remove potential XML declarations and comments that break CSS
     const cleaned = svg.trim().replace(/<\?xml.*?\?>/g, '').replace(/<!--.*?-->/g, '');
     return `url("data:image/svg+xml,${encodeURIComponent(cleaned)}")`;
   };
@@ -128,12 +127,16 @@ export default function App() {
       <div className="absolute inset-0 pointer-events-none opacity-50 z-0" style={{ backgroundImage: 'var(--bg-pattern)' }} />
       
       <div className="relative z-10 flex flex-col min-h-screen">
-        <Toaster position="top-center" reverseOrder={false} />
+        <Toaster containerStyle={{ zIndex: 99999 }} position="top-center" reverseOrder={false} />
         <GreetingPopup isOpen={showGreeting} title={greetingTitle} onClose={() => { setShowGreeting(false); localStorage.setItem('clocktower_greeted', 'true'); }} />
         <Sidebar 
           isOpen={sidebarOpen} setIsOpen={setSidebarOpen} 
           onReset={() => { setShowReset(true); setSidebarOpen(false); }} 
-          onLoadRole={() => { setShowRoleUpdate(true); setSidebarOpen(false); }} 
+          onLoadRole={() => { 
+            setActiveTab('chars');
+            setShowLedger(true); 
+            setSidebarOpen(false); 
+          }} 
           onShowUpdateLog={() => toast.info('Log: Added Settings system')} 
           onFocusPlayerDetail={() => { setShowRoster(true); setSidebarOpen(false); }} 
           onOpenSettings={() => { setShowSettings(true); setSidebarOpen(false); }} 
@@ -162,7 +165,7 @@ export default function App() {
             )}
           </div>
         </main>
-        <LedgerTabsPopup isOpen={showLedger} onClose={() => setShowLedger(false)} activeTab={activeTab} setActiveTab={setActiveTab} players={state.players} setPlayers={state.setPlayers} nominations={state.nominations} setNominations={state.setNominations} chars={state.chars} setChars={state.setChars} note={state.note} setNote={state.setNote} playerCount={state.playerCount} setPlayerCount={state.setPlayerCount} roleDist={state.roleDist} setRoleDist={state.setRoleDist} deadPlayers={state.deadPlayers} addNomination={() => state.setNominations([...state.nominations, { id: Math.random().toString(), day: state.currentDay, f: '-', t: '-', voters: '', note: '' }])} isDragging={false} setIsDragging={() => {}} dragAction={null} setDragAction={() => {}} lastDraggedPlayer={null} setLastDraggedPlayer={() => {}} identityMode={state.identityMode} />
+        <LedgerTabsPopup isOpen={showLedger} onClose={() => setShowLedger(false)} activeTab={activeTab} setActiveTab={setActiveTab} players={state.players} setPlayers={state.setPlayers} nominations={state.nominations} setNominations={state.setNominations} chars={state.chars} setChars={state.setChars} note={state.note} setNote={state.setNote} playerCount={state.playerCount} setPlayerCount={state.setPlayerCount} roleDist={state.roleDist} setRoleDist={state.setRoleDist} deadPlayers={state.deadPlayers} addNomination={() => state.setNominations([...state.nominations, { id: Math.random().toString(), day: state.currentDay, f: '-', t: '-', voters: '', note: '' }])} isDragging={false} setIsDragging={() => {}} dragAction={null} setDragAction={() => {}} lastDraggedPlayer={null} setLastDraggedPlayer={() => {}} identityMode={state.identityMode} onShowRoleUpdate={() => setShowRoleUpdate(true)} />
         <RoleSelectorPopup showRoleSelector={showRoleSelector} setShowRoleSelector={setShowRoleSelector} updatePlayerInfo={state.updatePlayerInfo} players={state.players} categoryBg={{ Townsfolk: 'bg-blue-100 hover:bg-blue-200', Outsider: 'bg-blue-50 hover:bg-blue-100', Minion: 'bg-orange-50 hover:bg-orange-100', Demon: 'bg-red-100 hover:bg-red-200' }} />
         <RoleUpdatePopup showRoleUpdate={showRoleUpdate} setShowRoleUpdate={setShowRoleUpdate} roleUpdateText={roleUpdateText} setRoleUpdateText={setRoleUpdateText} parseRoleUpdate={parseRoleUpdate} />
         <ResetConfirmation showReset={showReset} setShowReset={setShowReset} reset={state.reset} />
@@ -185,6 +188,7 @@ export default function App() {
           setCustomThemePatterns={state.setCustomThemePatterns}
           savedCustomThemes={state.savedCustomThemes}
           saveCustomTheme={state.saveCustomTheme}
+          updateCustomTheme={state.updateCustomTheme}
           deleteCustomTheme={state.deleteCustomTheme}
           renameCustomTheme={state.renameCustomTheme}
           reorderNotepadTemplates={state.reorderNotepadTemplates}

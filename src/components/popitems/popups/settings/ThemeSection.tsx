@@ -1,17 +1,18 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Palette, Sparkles, Copy, Check, Save, Wand2, Trash2, Edit2, LayoutGrid, Info } from 'lucide-react';
+import { Palette, Sparkles, Copy, Check, Save, Wand2, Trash2, Edit2, LayoutGrid, Info, Code, Save as SaveIcon } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { type ThemeType, type ThemeColors, type ThemePatterns, THEMES } from '../../../../type';
+import { type ThemeType, type ThemeColors, type ThemePatterns, type Theme, THEMES } from '../../../../type';
 
 interface ThemeSectionProps {
   activeTheme: ThemeType;
   setActiveTheme: (theme: ThemeType) => void;
   setCustomThemeColors: (colors: ThemeColors) => void;
   setCustomThemePatterns: (patterns: ThemePatterns) => void;
-  savedCustomThemes: any[];
+  savedCustomThemes: Theme[];
   saveCustomTheme: (name: string) => void;
+  updateCustomTheme: (id: string, theme: Theme) => void;
   deleteCustomTheme: (id: string) => void;
   renameCustomTheme: (id: string, newName: string) => void;
   aiThemeInput: string;
@@ -19,7 +20,7 @@ interface ThemeSectionProps {
 }
 
 const ThemeSection: React.FC<ThemeSectionProps> = ({
-  activeTheme, setActiveTheme, setCustomThemeColors, setCustomThemePatterns, savedCustomThemes, saveCustomTheme, deleteCustomTheme, renameCustomTheme, aiThemeInput, setAiThemeInput
+  activeTheme, setActiveTheme, setCustomThemeColors, setCustomThemePatterns, savedCustomThemes, saveCustomTheme, updateCustomTheme, deleteCustomTheme, renameCustomTheme, aiThemeInput, setAiThemeInput
 }) => {
   const [desiredStyle, setDesiredStyle] = useState('');
   const [patternType, setPatternType] = useState<'none' | 'subtle' | 'decorative'>('subtle');
@@ -28,6 +29,8 @@ const ThemeSection: React.FC<ThemeSectionProps> = ({
   const [themeName, setThemeName] = useState('');
   const [editingThemeId, setEditingThemeId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
+  const [jsonEditorId, setJsonEditorId] = useState<string | null>(null);
+  const [jsonText, setJsonText] = useState('');
 
   const getAiPrompt = (style: string, pattern: string) => {
     const patternInstructions = {
@@ -98,12 +101,10 @@ OUTPUT ONLY THE JSON OBJECT:
       let colors: any = {};
       let patterns: any = {};
 
-      // Handle nested structure if provided
       if (themeData.colors) {
         colors = themeData.colors;
         patterns = themeData.patterns || {};
       } else {
-        // Flat structure - separate patterns from colors
         const { patterns: p, ...rest } = themeData;
         colors = rest;
         patterns = p || {};
@@ -151,6 +152,36 @@ OUTPUT ONLY THE JSON OBJECT:
     }
   };
 
+  const openJsonEditor = (theme: Theme) => {
+    setJsonEditorId(theme.id);
+    const editorData = {
+      colors: theme.colors,
+      patterns: theme.patterns || {}
+    };
+    setJsonText(JSON.stringify(editorData, null, 2));
+  };
+
+  const saveJsonEditor = () => {
+    try {
+      if (!jsonEditorId) return;
+      const updatedData = JSON.parse(jsonText);
+      const original = savedCustomThemes.find(t => t.id === jsonEditorId);
+      if (!original) return;
+
+      const updatedTheme: Theme = {
+        ...original,
+        colors: updatedData.colors || updatedData,
+        patterns: updatedData.patterns || (updatedData.bg ? {} : original.patterns)
+      };
+
+      updateCustomTheme(jsonEditorId, updatedTheme);
+      setJsonEditorId(null);
+      toast.success('Theme JSON updated!');
+    } catch (e) {
+      toast.error('Invalid JSON syntax');
+    }
+  };
+
   return (
     <div className="space-y-8">
       <section className="space-y-3">
@@ -184,35 +215,58 @@ OUTPUT ONLY THE JSON OBJECT:
             {savedCustomThemes.map((theme) => (
               <div 
                 key={theme.id}
-                className={`p-3 rounded-xl border-2 transition-all flex items-center justify-between gap-3 ${activeTheme === theme.id ? 'border-blue-600 bg-blue-50/30' : 'border-slate-100'}`}
+                className={`p-3 rounded-xl border-2 transition-all flex flex-col gap-3 ${activeTheme === theme.id ? 'border-blue-600 bg-blue-50/30' : 'border-slate-100'}`}
               >
-                <button onClick={() => setActiveTheme(theme.id)} className="flex-1 flex flex-col gap-1.5 text-left min-w-0">
-                  {editingThemeId === theme.id ? (
-                    <input 
-                      autoFocus
-                      className="bg-white border border-blue-300 rounded px-1.5 py-0.5 text-[10px] font-black uppercase w-full outline-none"
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
-                      onBlur={handleFinishRename}
-                      onKeyDown={(e) => e.key === 'Enter' && handleFinishRename()}
-                    />
-                  ) : (
-                    <span className="text-[10px] font-black uppercase truncate">{theme.name}</span>
-                  )}
-                  <div className="flex gap-1">
-                    <div className="w-3 h-3 rounded-full border border-black/5" style={{ backgroundColor: theme.colors.bg }} />
-                    <div className="w-3 h-3 rounded-full border border-black/5" style={{ backgroundColor: theme.colors.header }} />
-                    <div className="w-3 h-3 rounded-full border border-black/5" style={{ backgroundColor: theme.colors.accent }} />
+                <div className="flex items-center justify-between gap-3">
+                  <button onClick={() => setActiveTheme(theme.id)} className="flex-1 flex flex-col gap-1.5 text-left min-w-0">
+                    {editingThemeId === theme.id ? (
+                      <input 
+                        autoFocus
+                        className="bg-white border border-blue-300 rounded px-1.5 py-0.5 text-[10px] font-black uppercase w-full outline-none"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        onBlur={handleFinishRename}
+                        onKeyDown={(e) => e.key === 'Enter' && handleFinishRename()}
+                      />
+                    ) : (
+                      <span className="text-[10px] font-black uppercase truncate">{theme.name}</span>
+                    )}
+                    <div className="flex gap-1">
+                      <div className="w-3 h-3 rounded-full border border-black/5" style={{ backgroundColor: theme.colors.bg }} />
+                      <div className="w-3 h-3 rounded-full border border-black/5" style={{ backgroundColor: theme.colors.header }} />
+                      <div className="w-3 h-3 rounded-full border border-black/5" style={{ backgroundColor: theme.colors.accent }} />
+                    </div>
+                  </button>
+                  <div className="flex gap-1 shrink-0">
+                    <button onClick={() => openJsonEditor(theme)} className="p-1.5 text-slate-400 hover:text-indigo-600 transition-colors" title="Edit JSON">
+                      <Code size={12} />
+                    </button>
+                    <button onClick={() => handleStartRename(theme)} className="p-1.5 text-slate-400 hover:text-blue-600 transition-colors">
+                      <Edit2 size={12} />
+                    </button>
+                    <button onClick={() => deleteCustomTheme(theme.id)} className="p-1.5 text-slate-400 hover:text-red-600 transition-colors">
+                      <Trash2 size={12} />
+                    </button>
                   </div>
-                </button>
-                <div className="flex gap-1 shrink-0">
-                  <button onClick={() => handleStartRename(theme)} className="p-1.5 text-slate-400 hover:text-blue-600 transition-colors">
-                    <Edit2 size={12} />
-                  </button>
-                  <button onClick={() => deleteCustomTheme(theme.id)} className="p-1.5 text-slate-400 hover:text-red-600 transition-colors">
-                    <Trash2 size={12} />
-                  </button>
                 </div>
+
+                {jsonEditorId === theme.id && (
+                  <div className="space-y-2 pt-2 border-t border-slate-200">
+                    <textarea 
+                      className="w-full h-48 bg-slate-900 text-emerald-400 p-2 text-[9px] font-mono rounded-lg focus:ring-1 focus:ring-indigo-500 outline-none"
+                      value={jsonText}
+                      onChange={(e) => setJsonText(e.target.value)}
+                    />
+                    <div className="flex gap-2">
+                      <button onClick={saveJsonEditor} className="flex-1 bg-indigo-600 text-white py-1.5 rounded-lg text-[9px] font-black uppercase flex items-center justify-center gap-1.5">
+                        <SaveIcon size={10} /> Update JSON
+                      </button>
+                      <button onClick={() => setJsonEditorId(null)} className="flex-1 bg-slate-200 text-slate-600 py-1.5 rounded-lg text-[9px] font-black uppercase">
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>

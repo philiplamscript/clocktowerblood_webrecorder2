@@ -34,6 +34,7 @@ interface LedgerTabsPopupProps {
   lastDraggedPlayer: number | null;
   setLastDraggedPlayer: (v: number | null) => void;
   identityMode?: IdentityMode;
+  onShowRoleUpdate?: () => void;
 }
 
 const LedgerTabsPopup: React.FC<LedgerTabsPopupProps> = ({
@@ -44,7 +45,8 @@ const LedgerTabsPopup: React.FC<LedgerTabsPopupProps> = ({
   deadPlayers, addNomination,
   isDragging, setIsDragging, dragAction, setDragAction,
   lastDraggedPlayer, setLastDraggedPlayer,
-  identityMode
+  identityMode,
+  onShowRoleUpdate
 }) => {
   if (!isOpen) return null;
 
@@ -58,7 +60,6 @@ const LedgerTabsPopup: React.FC<LedgerTabsPopupProps> = ({
   return (
     <div className="fixed inset-0 z-[10005] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
       <div className="bg-[var(--bg-color)] rounded-2xl shadow-2xl border border-[var(--border-color)] w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 transition-colors duration-500 relative">
-        {/* Background Pattern */}
         <div className="absolute inset-0 pointer-events-none opacity-40 z-0" style={{ backgroundImage: 'var(--bg-pattern)' }} />
         
         <header className="flex-none bg-[var(--header-color)] text-white px-4 py-3 flex justify-between items-center transition-colors duration-500 relative z-10">
@@ -105,6 +106,7 @@ const LedgerTabsPopup: React.FC<LedgerTabsPopupProps> = ({
                 chars={chars} setChars={setChars} 
                 playerCount={playerCount} setPlayerCount={setPlayerCount} 
                 roleDist={roleDist} setRoleDist={setRoleDist} 
+                onShowRoleUpdate={onShowRoleUpdate}
               />
             )}
             {activeTab === 'notes' && <NotesTab note={note} setNote={setNote} />}

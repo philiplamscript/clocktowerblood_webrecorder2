@@ -190,6 +190,14 @@ export const useGameState = () => {
     toast.success(`Theme "${name}" saved!`);
   };
 
+  const updateCustomTheme = (id: string, updatedTheme: Theme) => {
+    setSavedCustomThemes(prev => prev.map(t => t.id === id ? updatedTheme : t));
+    if (activeTheme === id) {
+      // Force re-render if active
+      setActiveTheme(id);
+    }
+  };
+
   const deleteCustomTheme = (id: string) => {
     setSavedCustomThemes(prev => prev.filter(t => t.id !== id));
     if (activeTheme === id) setActiveTheme('standard');
@@ -229,7 +237,7 @@ export const useGameState = () => {
     deadPlayers, reset, resetCustomization, updatePlayerInfo, updatePlayerName, updatePlayerProperty, togglePlayerAlive,
     activeTheme, setActiveTheme, customThemeColors, setCustomThemeColors, customThemePatterns, setCustomThemePatterns,
     currentTheme,
-    savedCustomThemes, saveCustomTheme, deleteCustomTheme, renameCustomTheme, reorderNotepadTemplates, reorderPropTemplates,
+    savedCustomThemes, saveCustomTheme, updateCustomTheme, deleteCustomTheme, renameCustomTheme, reorderNotepadTemplates, reorderPropTemplates,
     defaultNotepad, setDefaultNotepad, aiThemeInput, setAiThemeInput, identityMode, setIdentityMode,
     reorderPlayers, addPlayer, removePlayer
   };
