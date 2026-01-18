@@ -10,7 +10,6 @@ import {
   ChevronDown, 
   Palette, 
   RotateCcw, 
-  ShieldAlert 
 } from 'lucide-react';
 import { 
   type NotepadTemplate, 
@@ -42,11 +41,11 @@ interface CustomizationSectionProps {
   renameCustomTheme: (id: string, newName: string) => void;
   aiThemeInput: string;
   setAiThemeInput: (val: string) => void;
-  resetCustomization: () => void;
+  resetCustomization: (part?: 'theme' | 'notepad' | 'props') => void;
 }
 
 const CustomizationSection: React.FC<CustomizationSectionProps> = (props) => {
-  const [subTab, setSubTab] = useState<'theme' | 'notepad' | 'props' | 'reset'>('theme');
+  const [subTab, setSubTab] = useState<'theme' | 'notepad' | 'props'>('theme');
 
   const addNotepadTemplate = () => {
     const id = Math.random().toString(36).substr(2, 9);
@@ -61,8 +60,7 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = (props) => {
   const tabs = [
     { id: 'theme', icon: Palette, label: 'Themes' },
     { id: 'notepad', icon: FileText, label: 'Notepad' },
-    { id: 'props', icon: Tag, label: 'Props' },
-    { id: 'reset', icon: RotateCcw, label: 'Reset' }
+    { id: 'props', icon: Tag, label: 'Props' }
   ] as const;
 
   return (
@@ -81,15 +79,23 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = (props) => {
 
       <div className="animate-in fade-in duration-300">
         {subTab === 'theme' && (
-          <ThemeSection 
-            activeTheme={props.activeTheme} setActiveTheme={props.setActiveTheme}
-            setCustomThemeColors={props.setCustomThemeColors} 
-            setCustomThemePatterns={props.setCustomThemePatterns}
-            savedCustomThemes={props.savedCustomThemes} saveCustomTheme={props.saveCustomTheme}
-            updateCustomTheme={props.updateCustomTheme}
-            deleteCustomTheme={props.deleteCustomTheme} renameCustomTheme={props.renameCustomTheme}
-            aiThemeInput={props.aiThemeInput} setAiThemeInput={props.setAiThemeInput}
-          />
+          <div className="space-y-6">
+            <ThemeSection 
+              activeTheme={props.activeTheme} setActiveTheme={props.setActiveTheme}
+              setCustomThemeColors={props.setCustomThemeColors} 
+              setCustomThemePatterns={props.setCustomThemePatterns}
+              savedCustomThemes={props.savedCustomThemes} saveCustomTheme={props.saveCustomTheme}
+              updateCustomTheme={props.updateCustomTheme}
+              deleteCustomTheme={props.deleteCustomTheme} renameCustomTheme={props.renameCustomTheme}
+              aiThemeInput={props.aiThemeInput} setAiThemeInput={props.setAiThemeInput}
+            />
+            <button 
+              onClick={() => confirm('Reset all themes to default?') && props.resetCustomization('theme')}
+              className="w-full py-3 border-2 border-dashed border-slate-200 rounded-xl text-[9px] font-black uppercase text-slate-400 hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+            >
+              <RotateCcw size={12} /> Reset Themes
+            </button>
+          </div>
         )}
 
         {subTab === 'notepad' && (
@@ -131,6 +137,12 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = (props) => {
                 </div>
               ))}
             </div>
+            <button 
+              onClick={() => confirm('Reset all notepad templates?') && props.resetCustomization('notepad')}
+              className="w-full py-3 border-2 border-dashed border-slate-200 rounded-xl text-[9px] font-black uppercase text-slate-400 hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+            >
+              <RotateCcw size={12} /> Reset Notepad
+            </button>
           </div>
         )}
 
@@ -171,31 +183,11 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = (props) => {
                 </tbody>
               </table>
             </div>
-          </div>
-        )}
-
-        {subTab === 'reset' && (
-          <div className="space-y-4">
-            <div className="bg-red-50 border border-red-100 rounded-2xl p-4 flex items-start gap-4">
-              <div className="p-2 bg-red-100 rounded-lg text-red-600 shrink-0">
-                <ShieldAlert size={20} />
-              </div>
-              <div className="space-y-1">
-                <h4 className="text-[10px] font-black text-red-900 uppercase">Reset Customizations</h4>
-                <p className="text-[9px] text-red-600 leading-relaxed">
-                  This will reset all Themes, Notepad Templates, and Property Shortcuts back to factory defaults.
-                </p>
-              </div>
-            </div>
             <button 
-              onClick={() => {
-                if (confirm('Are you sure you want to reset all customizations?')) {
-                  props.resetCustomization();
-                }
-              }}
-              className="w-full flex items-center justify-center gap-2 py-4 bg-white border-2 border-red-200 text-red-600 rounded-2xl text-[10px] font-black uppercase hover:bg-red-50 transition-all active:scale-95 shadow-sm"
+              onClick={() => confirm('Reset all property shortcuts?') && props.resetCustomization('props')}
+              className="w-full py-3 border-2 border-dashed border-slate-200 rounded-xl text-[9px] font-black uppercase text-slate-400 hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
             >
-              <RotateCcw size={14} /> Reset to Default
+              <RotateCcw size={12} /> Reset Props
             </button>
           </div>
         )}

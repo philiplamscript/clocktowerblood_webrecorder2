@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Database, Hash, User, Save, CheckCircle2, Trash2, PlayCircle, FolderOpen, ChevronRight } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Database, Hash, User, Save, CheckCircle2, Trash2, PlayCircle, FolderOpen, Download, Upload, FileJson } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { type IdentityMode, type SessionMeta } from '../../../../type';
 
 interface GeneralSectionProps {
@@ -26,6 +27,7 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
 }) => {
   const [newPath, setNewPath] = useState(storagePrefix);
   const [newSessionName, setNewSessionName] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSaveSession = () => {
     if (newSessionName.trim()) {
@@ -34,10 +36,77 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
     }
   };
 
+  const exportAllData = () => {
+    const allData: Record<string, any> = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('ct_') || key.includes('/save/'))) {
+        allData[key] = localStorage.getItem(key);
+      }
+    }
+    
+    const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `clocktracker_backup_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success('Backup exported successfully!');
+  };
+
+  const importData = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target?.result as string);
+        if (confirm('This will overwrite your current data. Continue?')) {
+          Object.entries(data).forEach(([key, val]) => {
+            localStorage.setItem(key, val as string);
+          });
+          toast.success('Data imported! Reloading...');
+          setTimeout(() => window.location.reload(), 1000);
+        }
+      } catch (err) {
+        toast.error('Invalid backup file.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
   const quickPaths = ['main', 'private', 'guest'];
 
   return (
     <div className="space-y-8 sm:space-y-10">
+      {/* Backup & Sync */}
+      <section className="space-y-3">
+        <h3 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest flex items-center gap-2">
+          <FileJson size={14} /> Backup & Sync
+        </h3>
+        <div className="grid grid-cols-2 gap-2">
+          <button 
+            onClick={exportAllData}
+            className="flex flex-col items-center justify-center gap-2 p-4 bg-white border border-slate-200 rounded-2xl hover:bg-slate-50 transition-all group"
+          >
+            <Download size={20} className="text-indigo-500 group-hover:scale-110 transition-transform" />
+            <span className="text-[9px] font-black uppercase">Export All</span>
+          </button>
+          <button 
+            onClick={() => fileInputRef.current?.click()}
+            className="flex flex-col items-center justify-center gap-2 p-4 bg-white border border-slate-200 rounded-2xl hover:bg-slate-50 transition-all group"
+          >
+            <Upload size={20} className="text-emerald-500 group-hover:scale-110 transition-transform" />
+            <span className="text-[9px] font-black uppercase">Import File</span>
+            <input type="file" ref={fileInputRef} onChange={importData} className="hidden" accept=".json" />
+          </button>
+        </div>
+      </section>
+
       {/* UI Settings */}
       <section className="space-y-3">
         <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
@@ -96,9 +165,6 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
             Update Path
           </button>
         </div>
-        <p className="text-[9px] text-slate-400 italic px-1">
-          Current: <span className="font-mono text-slate-600">/{storagePrefix}/save/ct_session_...</span>
-        </p>
       </section>
 
       {/* Session Management */}
