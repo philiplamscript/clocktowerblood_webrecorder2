@@ -158,6 +158,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
       
       {/* Spacer to ensure "plain" panel background at the bottom */}
       <div className="h-16" />
+      <div className="h-16" />
     </div>
   );
 };

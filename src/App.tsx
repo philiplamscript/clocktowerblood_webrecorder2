@@ -218,10 +218,8 @@ export default function App() {
         />
         <FAB showLedger={showLedger} setShowLedger={setShowLedger} />
         <div className="bg-[var(--panel-color)] border-t border-[var(--border-color)] px-3 py-1 text-[9px] font-bold text-[var(--muted-color)] flex justify-between items-center z-50">
-          <span>PLAYERS REGISTERED: {state.players.filter(p => p.inf || p.name).length} / {state.playerCount}</span>
-          <div className="w-32 h-1 bg-[var(--bg-color)] rounded-full overflow-hidden">
-            <div className="h-full bg-[var(--accent-color)]" style={{ width: `${(state.players.filter(p => p.inf || p.name).length / state.playerCount) * 100}%` }} />
-          </div>
+          <div className="h-16" />
+
         </div>
       </div>
     </div>
