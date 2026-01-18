@@ -50,37 +50,37 @@ const SettingsPopup: React.FC<SettingsPopupProps> = (props) => {
   if (!props.isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[10008] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-4xl h-[85vh] md:h-[80vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-[10008] flex items-center justify-center p-2 sm:p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-4xl h-[90vh] md:h-[80vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
         <header className="flex-none bg-slate-900 text-white px-4 py-3 flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-black uppercase tracking-widest text-slate-400">Application Settings</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Settings</span>
           </div>
           <button onClick={props.onClose} className="p-2 hover:bg-slate-800 rounded-full transition-colors">
             <X size={20} />
           </button>
         </header>
 
-        <nav className="flex-none bg-slate-50 border-b border-slate-200 flex px-4 overflow-x-auto no-scrollbar">
+        <nav className="flex-none bg-slate-50 border-b border-slate-200 flex w-full">
           <button 
             onClick={() => setActiveSection('general')}
-            className={`flex items-center gap-2 px-6 py-4 text-[10px] font-black uppercase tracking-widest border-b-2 transition-all whitespace-nowrap ${
+            className={`flex-1 flex items-center justify-center gap-2 py-4 text-[9px] sm:text-[10px] font-black uppercase tracking-widest border-b-2 transition-all ${
               activeSection === 'general' ? 'border-slate-900 text-slate-900 bg-white' : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
-            <SettingsIcon size={14} /> Application
+            <SettingsIcon size={14} /> <span className="hidden xs:inline">Application</span><span className="xs:hidden">App</span>
           </button>
           <button 
             onClick={() => setActiveSection('customization')}
-            className={`flex items-center gap-2 px-6 py-4 text-[10px] font-black uppercase tracking-widest border-b-2 transition-all whitespace-nowrap ${
+            className={`flex-1 flex items-center justify-center gap-2 py-4 text-[9px] sm:text-[10px] font-black uppercase tracking-widest border-b-2 transition-all ${
               activeSection === 'customization' ? 'border-slate-900 text-slate-900 bg-white' : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
-            <FileText size={14} /> Customization
+            <FileText size={14} /> <span className="hidden xs:inline">Customization</span><span className="xs:hidden">Custom</span>
           </button>
         </nav>
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-slate-50/30">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 bg-slate-50/30 no-scrollbar">
           {activeSection === 'general' && (
             <GeneralSection 
               fontSize={props.fontSize} setFontSize={props.setFontSize}
