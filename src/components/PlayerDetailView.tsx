@@ -88,7 +88,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
   );
 
   return (
-    <div className="h-full bg-[var(--panel-color)] overflow-y-auto p-2 space-y-4 transition-colors duration-500">
+    <div className="h-full bg-[var(--panel-color)] overflow-y-auto p-2 space-y-4 pb-24 transition-colors duration-500">
       {/* Clock Panel with Background Pattern */}
       <div className="bg-[var(--bg-color)] rounded-xl border border-[var(--border-color)] p-4 shadow-sm relative overflow-hidden flex flex-col items-center min-h-[420px] transition-colors duration-500">
         <div className="absolute inset-0 pointer-events-none opacity-100 z-0" style={{ backgroundImage: 'var(--bg-pattern)' }} />
@@ -156,6 +156,8 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
         currentPlayer={currentPlayer} updatePlayerProperty={props.updatePlayerProperty}
       />
       
+      {/* Spacer to ensure "plain" panel background at the bottom */}
+      <div className="h-16" />
     </div>
   );
 };
