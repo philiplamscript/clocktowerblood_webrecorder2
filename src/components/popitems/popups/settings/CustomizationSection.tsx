@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   FileText, 
   Plus, 
@@ -9,8 +9,13 @@ import {
   ChevronUp, 
   ChevronDown, 
   Palette, 
-  RotateCcw, 
+  RotateCcw,
+  RefreshCw,
+  Download,
+  Upload,
+  FileJson
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { 
   type NotepadTemplate, 
   type PropTemplate, 
@@ -45,7 +50,8 @@ interface CustomizationSectionProps {
 }
 
 const CustomizationSection: React.FC<CustomizationSectionProps> = (props) => {
-  const [subTab, setSubTab] = useState<'theme' | 'notepad' | 'props'>('theme');
+  const [subTab, setSubTab] = useState<'theme' | 'notepad' | 'props' | 'sync'>('theme');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const addNotepadTemplate = () => {
     const id = Math.random().toString(36).substr(2, 9);
@@ -57,10 +63,56 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = (props) => {
     props.setPropTemplates([...props.propTemplates, { id, label: 'New Prop', value: '🏷️' }]);
   };
 
+  const exportGlobalConfig = () => {
+    const config: Record<string, any> = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('ct_app_config')) {
+        config[key] = localStorage.getItem(key);
+      }
+    }
+    
+    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `clocktracker_config_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success('Global config exported!');
+  };
+
+  const importGlobalConfig = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target?.result as string);
+        if (confirm('This will overwrite your current themes and templates. Continue?')) {
+          Object.entries(data).forEach(([key, val]) => {
+            if (key.startsWith('ct_app_config')) {
+              localStorage.setItem(key, val as string);
+            }
+          });
+          toast.success('Config imported! Reloading...');
+          setTimeout(() => window.location.reload(), 1000);
+        }
+      } catch (err) {
+        toast.error('Invalid config file.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
   const tabs = [
     { id: 'theme', icon: Palette, label: 'Themes' },
     { id: 'notepad', icon: FileText, label: 'Notepad' },
-    { id: 'props', icon: Tag, label: 'Props' }
+    { id: 'props', icon: Tag, label: 'Props' },
+    { id: 'sync', icon: RefreshCw, label: 'Sync' }
   ] as const;
 
   return (
@@ -189,6 +241,36 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = (props) => {
             >
               <RotateCcw size={12} /> Reset Props
             </button>
+          </div>
+        )}
+
+        {subTab === 'sync' && (
+          <div className="space-y-6">
+            <section className="space-y-3">
+              <h3 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest flex items-center gap-2">
+                <FileJson size={14} /> Global Config Backup
+              </h3>
+              <p className="text-[10px] text-slate-500 leading-relaxed italic">
+                Export your custom themes, notepad templates, and property shortcuts. This does not include game sessions.
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                <button 
+                  onClick={exportGlobalConfig}
+                  className="flex flex-col items-center justify-center gap-2 p-4 bg-white border border-slate-200 rounded-2xl hover:bg-slate-50 transition-all group"
+                >
+                  <Download size={20} className="text-indigo-500 group-hover:scale-110 transition-transform" />
+                  <span className="text-[9px] font-black uppercase">Export Config</span>
+                </button>
+                <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex flex-col items-center justify-center gap-2 p-4 bg-white border border-slate-200 rounded-2xl hover:bg-slate-50 transition-all group"
+                >
+                  <Upload size={20} className="text-emerald-500 group-hover:scale-110 transition-transform" />
+                  <span className="text-[9px] font-black uppercase">Import Config</span>
+                  <input type="file" ref={fileInputRef} onChange={importGlobalConfig} className="hidden" accept=".json" />
+                </button>
+              </div>
+            </section>
           </div>
         )}
       </div>

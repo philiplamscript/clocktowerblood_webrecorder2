@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Hash, User, Save, CheckCircle2, Trash2, PlayCircle, Download, Upload, FileJson, Clock } from 'lucide-react';
+import { Hash, User, Save, CheckCircle2, Trash2, PlayCircle, Download, Upload, Clock } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { type IdentityMode, type SessionMeta } from '../../../../type';
 
@@ -28,7 +28,6 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
   const [newSessionName, setNewSessionName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Default session name to current datetime
   useEffect(() => {
     const now = new Date();
     const dateStr = now.toISOString().split('T')[0];
@@ -42,133 +41,108 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
     }
   };
 
-  const exportAllData = () => {
-    const allData: Record<string, any> = {};
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && (key.startsWith('ct_') || key.includes('/save/'))) {
-        allData[key] = localStorage.getItem(key);
-      }
-    }
+  const exportSession = (session: SessionMeta) => {
+    const sessionData: Record<string, any> = {};
+    const keys = ['day', 'count', 'players', 'nominations', 'deaths', 'chars', 'dist', 'note'];
     
-    const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+    // Include the session metadata
+    sessionData['session_meta'] = session;
+    
+    // Include all game data for this session
+    keys.forEach(k => {
+      const val = localStorage.getItem(`main/save/${session.id}/${k}`);
+      if (val) sessionData[k] = val;
+    });
+
+    const blob = new Blob([JSON.stringify(sessionData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `clocktracker_backup_${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `game_record_${session.name.replace(/\s+/g, '_')}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    toast.success('Backup exported successfully!');
+    toast.success('Game record exported!');
   };
 
-  const importData = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const importSession = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
-        const importedData = JSON.parse(event.target?.result as string);
+        const data = JSON.parse(event.target?.result as string);
+        const meta = data.session_meta as SessionMeta;
         
-        // Smart Merge Logic:
-        // 1. Identify sessions in the imported data
-        // 2. Append them to current local storage without overwriting existing ones
-        // 3. Merge the session index
-        
-        const currentSessionsKey = 'main_sessions_index';
-        const existingSessions: SessionMeta[] = JSON.parse(localStorage.getItem(currentSessionsKey) || '[]');
-        
-        Object.entries(importedData).forEach(([key, val]) => {
-          if (key === currentSessionsKey) {
-            const importedSessions: SessionMeta[] = JSON.parse(val as string);
-            // Only add sessions that don't exist yet
-            const mergedSessions = [...existingSessions];
-            importedSessions.forEach(impS => {
-              if (!mergedSessions.find(exS => exS.id === impS.id)) {
-                mergedSessions.push(impS);
-              }
-            });
-            localStorage.setItem(key, JSON.stringify(mergedSessions));
-          } else {
-            // For game data and global configs, we only write if it doesn't exist 
-            // or if it's a specific session data key
-            if (!localStorage.getItem(key) || key.includes('/save/')) {
-              localStorage.setItem(key, val as string);
-            }
+        if (!meta || !meta.id) throw new Error('Invalid session file');
+
+        // Ensure ID uniqueness to avoid overwriting
+        const newId = `imp_${Date.now()}_${meta.id}`;
+        const newMeta = { ...meta, id: newId, storagePrefix: newId, lastSaved: Date.now() };
+
+        // Save game data
+        Object.entries(data).forEach(([key, val]) => {
+          if (key !== 'session_meta') {
+            localStorage.setItem(`main/save/${newId}/${key}`, val as string);
           }
         });
 
-        toast.success('Data merged successfully! Reloading...');
+        // Update session index
+        const sessionsKey = 'main_sessions_index';
+        const existing: SessionMeta[] = JSON.parse(localStorage.getItem(sessionsKey) || '[]');
+        localStorage.setItem(sessionsKey, JSON.stringify([newMeta, ...existing]));
+
+        toast.success('Game record imported! Reloading...');
         setTimeout(() => window.location.reload(), 1000);
       } catch (err) {
-        toast.error('Invalid backup file.');
+        toast.error('Invalid game record file.');
       }
     };
     reader.readAsText(file);
   };
 
-  // Sort sessions: Newest first
   const sortedSessions = [...sessions].sort((a, b) => b.lastSaved - a.lastSaved);
 
   return (
-    <div className="space-y-8 sm:space-y-10">
-      {/* Backup & Sync */}
-      <section className="space-y-3">
-        <h3 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest flex items-center gap-2">
-          <FileJson size={14} /> Backup & Sync
-        </h3>
-        <div className="grid grid-cols-2 gap-2">
-          <button 
-            onClick={exportAllData}
-            className="flex flex-col items-center justify-center gap-2 p-4 bg-white border border-slate-200 rounded-2xl hover:bg-slate-50 transition-all group"
-          >
-            <Download size={20} className="text-indigo-500 group-hover:scale-110 transition-transform" />
-            <span className="text-[9px] font-black uppercase">Export All</span>
-          </button>
-          <button 
-            onClick={() => fileInputRef.current?.click()}
-            className="flex flex-col items-center justify-center gap-2 p-4 bg-white border border-slate-200 rounded-2xl hover:bg-slate-50 transition-all group"
-          >
-            <Upload size={20} className="text-emerald-500 group-hover:scale-110 transition-transform" />
-            <span className="text-[9px] font-black uppercase">Merge Import</span>
-            <input type="file" ref={fileInputRef} onChange={importData} className="hidden" accept=".json" />
-          </button>
-        </div>
-        <p className="text-[8px] text-slate-400 italic px-1">
-          * Import will append new sessions to your list without deleting current ones.
-        </p>
-      </section>
-
-      {/* UI Settings */}
+    <div className="space-y-8">
       <section className="space-y-3">
         <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
           <User size={14} /> Identity Display Mode
         </h3>
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex gap-2">
           <button 
             onClick={() => setIdentityMode('number')}
-            className={`flex-1 py-3 rounded-xl border-2 font-black uppercase text-[9px] sm:text-[10px] transition-all flex items-center justify-center gap-2 ${identityMode === 'number' ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-slate-100 text-slate-400 hover:bg-slate-50'}`}
+            className={`flex-1 py-3 rounded-xl border-2 font-black uppercase text-[10px] transition-all flex items-center justify-center gap-2 ${identityMode === 'number' ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-slate-100 text-slate-400 hover:bg-slate-50'}`}
           >
-            <Hash size={12} /> Number Base
+            <Hash size={12} /> Number
           </button>
           <button 
             onClick={() => setIdentityMode('name')}
-            className={`flex-1 py-3 rounded-xl border-2 font-black uppercase text-[9px] sm:text-[10px] transition-all flex items-center justify-center gap-2 ${identityMode === 'name' ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-slate-100 text-slate-400 hover:bg-slate-50'}`}
+            className={`flex-1 py-3 rounded-xl border-2 font-black uppercase text-[10px] transition-all flex items-center justify-center gap-2 ${identityMode === 'name' ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-slate-100 text-slate-400 hover:bg-slate-50'}`}
           >
-            <User size={12} /> Player Name Base
+            <User size={12} /> Name
           </button>
         </div>
       </section>
 
-      {/* Session Management */}
       <section className="pt-6 border-t border-slate-100 space-y-4">
-        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-          <Save size={14} /> Game Sessions
-        </h3>
-        <div className="bg-white border border-slate-200 rounded-2xl p-3 sm:p-4 space-y-4 shadow-sm">
-          <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex items-center justify-between">
+          <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+            <Save size={14} /> Game Sessions
+          </h3>
+          <button 
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-1.5 bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase hover:bg-emerald-100 transition-colors"
+          >
+            <Upload size={12} /> Import Record
+            <input type="file" ref={fileInputRef} onChange={importSession} className="hidden" accept=".json" />
+          </button>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-4 shadow-sm">
+          <div className="flex gap-2">
             <div className="relative flex-1">
               <Clock size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input 
@@ -183,7 +157,7 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
               onClick={handleSaveSession}
               className="bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-[10px] font-black uppercase flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md"
             >
-              <Save size={14} /> Save Snapshot
+              <Save size={14} /> Snapshot
             </button>
           </div>
 
@@ -200,6 +174,13 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
                   </span>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
+                  <button 
+                    onClick={() => exportSession(session)}
+                    className="p-2 text-slate-400 hover:text-emerald-600 transition-colors"
+                    title="Export Record"
+                  >
+                    <Download size={16} />
+                  </button>
                   <button 
                     onClick={() => loadSession(session)}
                     className="p-2 text-slate-400 hover:text-blue-600 transition-colors"
