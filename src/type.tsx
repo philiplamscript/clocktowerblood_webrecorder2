@@ -95,6 +95,13 @@ export interface PropTemplate {
   value: string;
 }
 
+export interface SessionMeta {
+  id: string;
+  name: string;
+  lastSaved: number;
+  storagePrefix: string;
+}
+
 // --- CONSTANTS ---
 
 export const INITIAL_PLAYERS = 15;
@@ -240,8 +247,8 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       muted: "#5D6D7E",
     },
     patterns: {
-      bg: "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 380 300' width='150'><defs><linearGradient id='crystalGrad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:#00E5FF;stop-opacity:0.4' /><stop offset='50%' style='stop-color:#3498DB;stop-opacity:0.2' /><stop offset='100%' style='stop-color:#0B1D2A;stop-opacity:0.1' /></linearGradient><symbol id='crystal-shard' viewBox='0 0 160 60'><path d='M10,30 L80,5 L150,30 L80,55 Z' fill='url(#crystalGrad)' stroke='#3498DB' stroke-width='1'/><path d='M10,30 L150,30' stroke='#FFFFFF' stroke-width='1' opacity='0.3'/><path d='M80,5 L80,55' stroke='#FFFFFF' stroke-width='1' opacity='0.2'/><path d='M40,15 L60,30 L40,45' fill='none' stroke='#FFFFFF' stroke-width='0.8' opacity='0.3'/><path d='M120,15 L100,30 L120,45' fill='none' stroke='#FFFFFF' stroke-width='0.8' opacity='0.3'/><path d='M80,5 L110,30 L80,55 L50,30 Z' fill='none' stroke='#00E5FF' stroke-width='0.5' opacity='0.2'/><polygon points='80,5 95,15 80,18' fill='white' opacity='0.3' /><polygon points='30,25 50,30 35,35' fill='white' opacity='0.2' /></symbol></defs><g transform='translate(50, 10) rotate(30)'><use href='#crystal-shard' width='160' height='60' /></g><g transform='translate(20, 120)'><use href='#crystal-shard' width='160' height='60' /></g><g transform='translate(50, 230) rotate(-30)'><use href='#crystal-shard' width='160' height='60' /></g><g transform='translate(350, 10) scale(-1, 1) rotate(30)'><use href='#crystal-shard' width='160' height='60' /></g><g transform='translate(380, 120) scale(-1, 1)'><use href='#crystal-shard' width='160' height='60' /></g><g transform='translate(380, 240) scale(-1, 1) rotate(-30)'><use href='#crystal-shard' width='160' height='60' /></g></svg>",
-    panel: "<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><g fill='none' stroke='#3498DB' stroke-opacity='0.1' stroke-width='0.5'><g transform='translate(20,20) rotate(15)'><path d='M0-10 L2 0 L10 0 L3 4 L6 12 L0 6 L-6 12 L-3 4 L-10 0 L-2 0 Z'/></g><g transform='translate(70,40) rotate(-20) scale(0.7)'><path d='M0-10 L2 0 L10 0 L3 4 L6 12 L0 6 L-6 12 L-3 4 L-10 0 L-2 0 Z'/></g><g transform='translate(40,80) rotate(45) scale(0.5)'><path d='M0-10 L2 0 L10 0 L3 4 L6 12 L0 6 L-6 12 L-3 4 L-10 0 L-2 0 Z'/></g><circle cx='85' cy='15' r='1' fill='#00E5FF' fill-opacity='0.2'/><circle cx='10' cy='90' r='1.5' fill='#00E5FF' fill-opacity='0.2'/></g></svg>"
+      bg: "<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'><defs><g id='ice'><path d='M0-20 L4-5 L18-5 L7 3 L11 18 L0 8 L-11 18 L-7 3 L-18-5 L-4-5 Z' fill='#00E5FF' fill-opacity='0.15'/><path d='M0-20 L0 8' stroke='#3498DB' stroke-opacity='0.4' stroke-width='0.5'/></g><g id='snowflake'><g transform='rotate(0)'><use href='#ice'/></g><g transform='rotate(60)'><use href='#ice'/></g><g transform='rotate(120)'><use href='#ice'/></g><g transform='rotate(180)'><use href='#ice'/></g><g transform='rotate(240)'><use href='#ice'/></g><g transform='rotate(300)'><use href='#ice'/></g></g></defs><use href='#snowflake' transform='translate(35,40) scale(0.8)'/><use href='#snowflake' transform='translate(110,100) scale(1.2)'/><use href='#snowflake' transform='translate(120,30) scale(0.5)'/><use href='#snowflake' transform='translate(40,120) scale(0.6)'/></svg>",
+    panel: "<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><g fill='none' stroke='#3498DB' stroke-opacity='0.5' stroke-width='0.5'><g transform='translate(20,20) rotate(15)'><path d='M0-10 L2 0 L10 0 L3 4 L6 12 L0 6 L-6 12 L-3 4 L-10 0 L-2 0 Z'/></g><g transform='translate(70,40) rotate(-20) scale(0.7)'><path d='M0-10 L2 0 L10 0 L3 4 L6 12 L0 6 L-6 12 L-3 4 L-10 0 L-2 0 Z'/></g><g transform='translate(40,80) rotate(45) scale(0.5)'><path d='M0-10 L2 0 L10 0 L3 4 L6 12 L0 6 L-6 12 L-3 4 L-10 0 L-2 0 Z'/></g><circle cx='85' cy='15' r='1' fill='#00E5FF' fill-opacity='0.2'/><circle cx='10' cy='90' r='1.5' fill='#00E5FF' fill-opacity='0.2'/></g></svg>"
     }
   },
   sandbeach: {

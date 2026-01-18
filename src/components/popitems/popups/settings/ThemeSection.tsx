@@ -351,7 +351,7 @@ OUTPUT ONLY THE JSON OBJECT:
               <Info size={14} className="text-blue-600 shrink-0 mt-0.5" />
               <p className="text-[8px] text-blue-800 leading-normal">
                 For further customization, please <del>argue</del> communicate directly with the LLM chatbot to refine colors, patterns, or add specific elements. 
-                For complex patterns, suggest searching from the web for SVG code (e.g., "gothic pattern SVG") and paste the raw SVG into the "patterns" field in the JSON.
+                For complex patterns, suggest provide SVG code, by self-design orsearching from the web, to the LLM chatbot for further customization.
               </p>
             </div>
           </div>
