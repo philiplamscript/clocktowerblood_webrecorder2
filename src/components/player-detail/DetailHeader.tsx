@@ -38,7 +38,7 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
     <div className="w-full flex items-center justify-between gap-2">
       <div className="flex items-center gap-1.5 shrink-0">
         <Vote size={14} className="text-[var(--accent-color)]" />
-        <span className="text-[9px] font-black text-[var(--text-on-panel)] opacity-80 uppercase tracking-tighter">
+        <span className="text-[9px] font-black text-[var(--text-on-bg)] opacity-80 uppercase tracking-tighter">
           {isVoting ? 'Recording' : 'Patterns'}
         </span>
       </div>
