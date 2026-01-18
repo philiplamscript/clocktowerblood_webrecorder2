@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
 import {
   type Player,
@@ -20,199 +20,126 @@ import {
   THEMES
 } from '../type';
 
+const APP_GLOBAL_KEY = 'ct_app_config';
+
 export const useGameState = () => {
-  // 1. Storage Prefix Management
-  const [storagePrefix, setStoragePrefix] = useState(() => {
-    const saved = localStorage.getItem('clocktower_active_prefix');
-    return saved ? JSON.parse(saved) : 'clocktower';
+  // 1. Global Application Config (Persists across all sessions)
+  const [globalPath, setGlobalPath] = useState(() => {
+    const saved = localStorage.getItem(`${APP_GLOBAL_KEY}_path`);
+    return saved ? JSON.parse(saved) : 'main';
   });
 
-  const getStorage = (key: string, fallback: any, prefixOverride?: string) => {
-    const prefix = prefixOverride || storagePrefix;
-    const saved = localStorage.getItem(`${prefix}_${key}`);
+  const [activeSessionId, setActiveSessionId] = useState(() => {
+    const saved = localStorage.getItem(`${globalPath}_active_session`);
+    return saved ? JSON.parse(saved) : 'default';
+  });
+
+  // Global Helpers
+  const getGlobal = (key: string, fallback: any) => {
+    const saved = localStorage.getItem(`${APP_GLOBAL_KEY}_${key}`);
     return saved ? JSON.parse(saved) : fallback;
   };
 
-  // 2. States
-  const [defaultNotepad, setDefaultNotepad] = useState(() => getStorage('default_notepad', ''));
-  const [identityMode, setIdentityMode] = useState<IdentityMode>(() => getStorage('identity_mode', 'number'));
-  const [currentDay, setCurrentDay] = useState(() => getStorage('day', 1));
-  const [playerCount, setPlayerCount] = useState(() => getStorage('count', 15));
-  
-  const [players, setPlayers] = useState<Player[]>(() => {
-    const saved = getStorage('players', []);
-    if (saved.length > 0) return saved;
-    return Array.from({ length: 20 }, (_, i) => ({ 
-      no: i + 1, 
-      name: '',
-      inf: '', 
-      day: '', 
-      reason: '', 
-      red: '', 
-      property: '' 
-    }));
-  });
+  const getSession = (key: string, fallback: any) => {
+    const saved = localStorage.getItem(`${globalPath}/save/${activeSessionId}/${key}`);
+    return saved ? JSON.parse(saved) : fallback;
+  };
 
-  const [nominations, setNominations] = useState<Nomination[]>(() => getStorage('nominations', [{ id: '1', day: 1, f: '-', t: '-', voters: '', note: '' }]));
-  const [deaths, setDeaths] = useState<Death[]>(() => getStorage('deaths', [
-    { id: 'default-execution', day: 1, playerNo: '', reason: '⚔️', note: '', isConfirmed: true },
-    { id: 'default-night', day: 1, playerNo: '', reason: '🌑', note: '', isConfirmed: true }
-  ]));
-  const [chars, setChars] = useState<CharDict>(() => getStorage('chars', createInitialChars()));
-  const [roleDist, setRoleDist] = useState<RoleDist>(() => getStorage('dist', { townsfolk: 9, outsiders: 1, minions: 2, demons: 1 }));
-  const [note, setNote] = useState(() => getStorage('note', ''));
-  const [fontSize, setFontSize] = useState<'small' | 'mid' | 'large'>(() => getStorage('font', 'mid'));
-  const [language, setLanguage] = useState(() => getStorage('lang', 'Eng'));
-  const [showHub, setShowHub] = useState(() => getStorage('showHub', false));
-  const [splitView, setSplitView] = useState(() => getStorage('splitView', false));
-  const [activeTheme, setActiveTheme] = useState<ThemeType>(() => getStorage('active_theme', 'standard'));
-  const [customThemeColors, setCustomThemeColors] = useState<ThemeColors | null>(() => getStorage('custom_theme_colors', null));
-  const [customThemePatterns, setCustomThemePatterns] = useState<ThemePatterns | null>(() => getStorage('custom_theme_patterns', null));
-  const [savedCustomThemes, setSavedCustomThemes] = useState<Theme[]>(() => getStorage('saved_custom_themes', []));
-  const [aiThemeInput, setAiThemeInput] = useState(() => getStorage('ai_theme_input', ''));
-  const [notepadTemplates, setNotepadTemplates] = useState<NotepadTemplate[]>(() => getStorage('notepad_templates', [
+  // 2. Global State (Customizations - Shared across all sessions)
+  const [activeTheme, setActiveTheme] = useState<ThemeType>(() => getGlobal('active_theme', 'standard'));
+  const [customThemeColors, setCustomThemeColors] = useState<ThemeColors | null>(() => getGlobal('custom_theme_colors', null));
+  const [customThemePatterns, setCustomThemePatterns] = useState<ThemePatterns | null>(() => getGlobal('custom_theme_patterns', null));
+  const [savedCustomThemes, setSavedCustomThemes] = useState<Theme[]>(() => getGlobal('saved_custom_themes', []));
+  const [notepadTemplates, setNotepadTemplates] = useState<NotepadTemplate[]>(() => getGlobal('notepad_templates', [
     { id: 't1', label: 'SOCIAL READ', content: 'Reads: \nTrust: \nSuspicion: ' },
     { id: 't2', label: 'WORLD INFO', content: 'Day 1: \nDay 2: \nDay 3: ' }
   ]));
-  const [propTemplates, setPropTemplates] = useState<PropTemplate[]>(() => getStorage('prop_templates', [
+  const [propTemplates, setPropTemplates] = useState<PropTemplate[]>(() => getGlobal('prop_templates', [
     { id: 'p1', label: 'RedTeam', value: '🔴' },
     { id: 'p2', label: 'Crystal', value: '🔮' },
     { id: 'p3', label: 'Glasses', value: '👓' }
   ]));
+  const [defaultNotepad, setDefaultNotepad] = useState(() => getGlobal('default_notepad', ''));
+  const [aiThemeInput, setAiThemeInput] = useState(() => getGlobal('ai_theme_input', ''));
+  const [fontSize, setFontSize] = useState<'small' | 'mid' | 'large'>(() => getGlobal('font', 'mid'));
+  const [language, setLanguage] = useState(() => getGlobal('lang', 'Eng'));
+  const [identityMode, setIdentityMode] = useState<IdentityMode>(() => getGlobal('identity_mode', 'number'));
 
-  // Sessions list is global
+  // 3. Session-Specific Game Data
+  const [currentDay, setCurrentDay] = useState(() => getSession('day', 1));
+  const [playerCount, setPlayerCount] = useState(() => getSession('count', 15));
+  const [players, setPlayers] = useState<Player[]>(() => {
+    const saved = getSession('players', []);
+    if (saved.length > 0) return saved;
+    return Array.from({ length: 20 }, (_, i) => ({ 
+      no: i + 1, name: '', inf: defaultNotepad, day: '', reason: '', red: '', property: '' 
+    }));
+  });
+  const [nominations, setNominations] = useState<Nomination[]>(() => getSession('nominations', [{ id: '1', day: 1, f: '-', t: '-', voters: '', note: '' }]));
+  const [deaths, setDeaths] = useState<Death[]>(() => getSession('deaths', [
+    { id: 'default-execution', day: 1, playerNo: '', reason: '⚔️', note: '', isConfirmed: true },
+    { id: 'default-night', day: 1, playerNo: '', reason: '🌑', note: '', isConfirmed: true }
+  ]));
+  const [chars, setChars] = useState<CharDict>(() => getSession('chars', createInitialChars()));
+  const [roleDist, setRoleDist] = useState<RoleDist>(() => getSession('dist', { townsfolk: 9, outsiders: 1, minions: 2, demons: 1 }));
+  const [note, setNote] = useState(() => getSession('note', ''));
+  const [showHub, setShowHub] = useState(() => getSession('showHub', false));
+  const [splitView, setSplitView] = useState(() => getSession('splitView', false));
+
+  // Sessions Index (Per Global Path)
   const [sessions, setSessions] = useState<SessionMeta[]>(() => {
-    const saved = localStorage.getItem('clocktower_sessions_index');
-    return saved ? JSON.parse(saved) : [{ id: 'clocktower', name: 'Default Session', lastSaved: Date.now(), storagePrefix: 'clocktower' }];
+    const saved = localStorage.getItem(`${globalPath}_sessions_index`);
+    return saved ? JSON.parse(saved) : [{ id: 'default', name: 'Primary Session', lastSaved: Date.now(), storagePrefix: 'default' }];
   });
 
-  // Persistence logic
+  // Global Persistence (Shared settings)
   useEffect(() => {
-    const state = {
-      day: currentDay, count: playerCount, players, nominations, deaths, chars, dist: roleDist,
-      note, font: fontSize, lang: language, showHub, splitView, notepad_templates: notepadTemplates, 
-      prop_templates: propTemplates, active_theme: activeTheme, custom_theme_colors: customThemeColors,
-      custom_theme_patterns: customThemePatterns,
-      saved_custom_themes: savedCustomThemes, default_notepad: defaultNotepad, ai_theme_input: aiThemeInput,
-      identity_mode: identityMode
+    const config = {
+      active_theme: activeTheme, custom_theme_colors: customThemeColors, custom_theme_patterns: customThemePatterns,
+      saved_custom_themes: savedCustomThemes, notepad_templates: notepadTemplates, prop_templates: propTemplates,
+      default_notepad: defaultNotepad, ai_theme_input: aiThemeInput, font: fontSize, lang: language, identity_mode: identityMode
     };
-    Object.entries(state).forEach(([key, val]) => localStorage.setItem(`${storagePrefix}_${key}`, JSON.stringify(val)));
-    localStorage.setItem('clocktower_active_prefix', JSON.stringify(storagePrefix));
-  }, [storagePrefix, currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, language, showHub, splitView, notepadTemplates, propTemplates, activeTheme, customThemeColors, customThemePatterns, savedCustomThemes, defaultNotepad, aiThemeInput, identityMode]);
+    Object.entries(config).forEach(([key, val]) => localStorage.setItem(`${APP_GLOBAL_KEY}_${key}`, JSON.stringify(val)));
+    localStorage.setItem(`${APP_GLOBAL_KEY}_path`, JSON.stringify(globalPath));
+  }, [globalPath, activeTheme, customThemeColors, customThemePatterns, savedCustomThemes, notepadTemplates, propTemplates, defaultNotepad, aiThemeInput, fontSize, language, identityMode]);
 
+  // Session Persistence (Game data)
   useEffect(() => {
-    localStorage.setItem('clocktower_sessions_index', JSON.stringify(sessions));
-  }, [sessions]);
-
-  // Session Management Functions
-  const saveSessionSnapshot = (name: string) => {
-    const id = `session_${Date.now()}`;
-    const newPrefix = `ct_session_${Date.now()}`;
-    
-    // Copy all current storage keys to the new prefix
-    const keys = [
-      'day', 'count', 'players', 'nominations', 'deaths', 'chars', 'dist', 'note', 'font', 
-      'lang', 'showHub', 'splitView', 'notepad_templates', 'prop_templates', 'active_theme', 
-      'custom_theme_colors', 'custom_theme_patterns', 'saved_custom_themes', 'default_notepad', 
-      'ai_theme_input', 'identity_mode'
-    ];
-    
-    keys.forEach(key => {
-      const val = localStorage.getItem(`${storagePrefix}_${key}`);
-      if (val) localStorage.setItem(`${newPrefix}_${key}`, val);
+    const data = {
+      day: currentDay, count: playerCount, players, nominations, deaths, chars, dist: roleDist, note, showHub, splitView
+    };
+    Object.entries(data).forEach(([key, val]) => {
+      localStorage.setItem(`${globalPath}/save/${activeSessionId}/${key}`, JSON.stringify(val));
     });
+    localStorage.setItem(`${globalPath}_active_session`, JSON.stringify(activeSessionId));
+    localStorage.setItem(`${globalPath}_sessions_index`, JSON.stringify(sessions));
+  }, [globalPath, activeSessionId, currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, showHub, splitView, sessions]);
 
-    const newSession: SessionMeta = { id, name, lastSaved: Date.now(), storagePrefix: newPrefix };
-    setSessions(prev => [newSession, ...prev]);
-    toast.success(`Session "${name}" saved!`);
-  };
-
-  const loadSession = (session: SessionMeta) => {
-    setStoragePrefix(session.storagePrefix);
-    // Reload state from new prefix
-    const p = session.storagePrefix;
-    setCurrentDay(getStorage('day', 1, p));
-    setPlayerCount(getStorage('count', 15, p));
-    setPlayers(getStorage('players', [], p));
-    setNominations(getStorage('nominations', [], p));
-    setDeaths(getStorage('deaths', [], p));
-    setChars(getStorage('chars', createInitialChars(), p));
-    setRoleDist(getStorage('dist', {}, p));
-    setNote(getStorage('note', '', p));
-    setFontSize(getStorage('font', 'mid', p));
-    setLanguage(getStorage('lang', 'Eng', p));
-    setShowHub(getStorage('showHub', false, p));
-    setSplitView(getStorage('splitView', false, p));
-    setActiveTheme(getStorage('active_theme', 'standard', p));
-    setCustomThemeColors(getStorage('custom_theme_colors', null, p));
-    setCustomThemePatterns(getStorage('custom_theme_patterns', null, p));
-    setSavedCustomThemes(getStorage('saved_custom_themes', [], p));
-    setDefaultNotepad(getStorage('default_notepad', '', p));
-    setAiThemeInput(getStorage('ai_theme_input', '', p));
-    setIdentityMode(getStorage('identity_mode', 'number', p));
-    setNotepadTemplates(getStorage('notepad_templates', [], p));
-    setPropTemplates(getStorage('prop_templates', [], p));
-    
-    toast.success(`Loaded session: ${session.name}`);
-  };
-
-  const deleteSession = (id: string) => {
-    const session = sessions.find(s => s.id === id);
-    if (!session) return;
-    if (session.storagePrefix === storagePrefix) {
-      toast.error("Cannot delete the active session.");
-      return;
-    }
-    
-    setSessions(prev => prev.filter(s => s.id !== id));
-    // Optionally clear localstorage for that prefix
-    const keys = ['day', 'count', 'players', 'nominations', 'deaths', 'chars', 'dist', 'note', 'font', 'lang', 'showHub', 'splitView', 'notepad_templates', 'prop_templates', 'active_theme', 'custom_theme_colors', 'custom_theme_patterns', 'saved_custom_themes', 'default_notepad', 'ai_theme_input', 'identity_mode'];
-    keys.forEach(k => localStorage.removeItem(`${session.storagePrefix}_${k}`));
-    toast.success('Session deleted.');
-  };
-
-  const switchStoragePath = (newPath: string) => {
-    if (!newPath.trim()) return;
-    setStoragePrefix(newPath.trim());
-    window.location.reload(); // Force reload to ensure all state is cleanly picked up from the new prefix
-  };
-
-  // Sync players with deaths
-  useEffect(() => {
-    setPlayers(prev => prev.map(p => {
-      const death = deaths.find(d => parseInt(d.playerNo) === p.no);
-      return death ? { ...p, day: death.day.toString(), reason: death.reason } : { ...p, day: '', reason: '' };
-    }));
-  }, [deaths]);
-
+  // Derived Data
   const activePlayers = useMemo(() => players.slice(0, playerCount), [players, playerCount]);
   const deadPlayers = useMemo(() => activePlayers.filter(p => p.day !== '' || p.red !== '').map(p => p.no), [activePlayers]);
 
+  const currentTheme = useMemo(() => {
+    if (activeTheme === 'custom' && customThemeColors) {
+      return { id: 'custom', name: 'Custom AI Theme', colors: customThemeColors, patterns: customThemePatterns || {} } as Theme;
+    }
+    const saved = savedCustomThemes.find(t => t.id === activeTheme);
+    if (saved) return saved;
+    return THEMES[activeTheme as keyof typeof THEMES] || THEMES.standard;
+  }, [activeTheme, customThemeColors, customThemePatterns, savedCustomThemes]);
+
+  // Handlers
   const reset = () => {
-    setPlayers(Array.from({ length: 20 }, (_, i) => ({ 
-      no: i + 1, 
-      name: '',
-      inf: defaultNotepad, 
-      day: '', 
-      reason: '', 
-      red: '', 
-      property: '' 
-    })));
-    setNominations([{ id: Math.random().toString(), day: 1, f: '-', t: '-', voters: '', note: '' }]);
+    setPlayers(Array.from({ length: 20 }, (_, i) => ({ no: i + 1, name: '', inf: defaultNotepad, day: '', reason: '', red: '', property: '' })));
+    setNominations([{ id: '1', day: 1, f: '-', t: '-', voters: '', note: '' }]);
     setDeaths([
       { id: 'default-execution', day: 1, playerNo: '', reason: '⚔️', note: '', isConfirmed: true },
       { id: 'default-night', day: 1, playerNo: '', reason: '🌑', note: '', isConfirmed: true }
     ]);
+    setChars(createInitialChars());
     setCurrentDay(1);
-    setChars(prev => {
-      const newChars = { ...prev };
-      (Object.keys(newChars) as (keyof CharDict)[]).forEach(cat => {
-        newChars[cat] = newChars[cat].map(c => ({ ...c, status: '—', note: '' }));
-      });
-      return newChars;
-    });
     setNote('');
-    toast.success('Session reset (Roles preserved)');
+    toast.success('Session Reset Complete');
   };
 
   const resetCustomization = () => {
@@ -226,113 +153,93 @@ export const useGameState = () => {
       { id: 'p3', label: 'Glasses', value: '👓' }
     ]);
     setDefaultNotepad('');
-    toast.success('Customizations reset to default');
+    setActiveTheme('standard');
+    toast.success('Customizations restored to default');
   };
 
-  const updatePlayerInfo = (no: number, text: string) => setPlayers(prev => prev.map(p => p.no === no ? { ...p, inf: text } : p));
+  const updatePlayerInfo = (no: number, inf: string) => setPlayers(prev => prev.map(p => p.no === no ? { ...p, inf } : p));
+  const updatePlayerProperty = (no: number, property: string) => setPlayers(prev => prev.map(p => p.no === no ? { ...p, property } : p));
   const updatePlayerName = (no: number, name: string) => setPlayers(prev => prev.map(p => p.no === no ? { ...p, name } : p));
-  const updatePlayerProperty = (no: number, text: string) => setPlayers(prev => prev.map(p => p.no === no ? { ...p, property: text } : p));
-  
-  const togglePlayerAlive = (no: number) => {
-    if (deadPlayers.includes(no)) {
-      setDeaths(deaths.filter(d => parseInt(d.playerNo) !== no));
-    } else {
-      setDeaths([...deaths, { id: Math.random().toString(), day: currentDay, playerNo: no.toString(), reason: '⚔️', note: '', isConfirmed: true }]);
+  const togglePlayerAlive = (no: number) => setPlayers(prev => prev.map(p => {
+    if (p.no === no) {
+      const isDead = p.day !== '';
+      return { ...p, day: isDead ? '' : currentDay.toString(), reason: isDead ? '' : '⚔️', red: isDead ? '' : 'DEAD' };
     }
+    return p;
+  }));
+
+  const reorderPlayers = (from: number, to: number) => {
+    const newPlayers = [...players];
+    const [moved] = newPlayers.splice(from, 1);
+    newPlayers.splice(to, 0, moved);
+    setPlayers(newPlayers.map((p, i) => ({ ...p, no: i + 1 })));
   };
 
-  const reorderPlayers = (fromIndex: number, toIndex: number) => {
-    setPlayers(prev => {
-      const newPlayers = [...prev];
-      const [moved] = newPlayers.splice(fromIndex, 1);
-      newPlayers.splice(toIndex, 0, moved);
-      return newPlayers.map((p, idx) => ({ ...p, no: idx + 1 }));
-    });
-  };
-
-  const addPlayer = () => {
-    if (playerCount >= 20) return;
-    setPlayerCount(prev => prev + 1);
-  };
-
+  const addPlayer = () => setPlayers([...players, { no: players.length + 1, name: '', inf: defaultNotepad, day: '', reason: '', red: '', property: '' }]);
   const removePlayer = (no: number) => {
-    if (playerCount <= 5) return;
-    setPlayers(prev => {
-      const filtered = prev.filter(p => p.no !== no);
-      return filtered.map((p, idx) => ({ ...p, no: idx + 1 }));
-    });
-    setPlayerCount(prev => prev - 1);
+    const filtered = players.filter(p => p.no !== no);
+    setPlayers(filtered.map((p, i) => ({ ...p, no: i + 1 })));
   };
 
-  const currentTheme = useMemo(() => {
-    if (activeTheme === 'custom' && customThemeColors) {
-      return { id: 'custom' as ThemeType, name: 'AI Custom Theme', colors: customThemeColors, patterns: customThemePatterns || {} };
-    }
-    const savedTheme = savedCustomThemes.find(t => t.id === activeTheme);
-    if (savedTheme) return savedTheme;
-    return THEMES[activeTheme as keyof typeof THEMES] || THEMES.standard;
-  }, [activeTheme, customThemeColors, customThemePatterns, savedCustomThemes]);
+  // Session Management
+  const saveSessionSnapshot = (name: string) => {
+    const id = `ct_session_${Math.random().toString(36).substr(2, 9)}`;
+    const newSession = { id, name, lastSaved: Date.now(), storagePrefix: id };
+    setSessions([...sessions, newSession]);
+    setActiveSessionId(id);
+    toast.success(`Snapshot "${name}" saved!`);
+  };
+
+  const loadSession = (session: SessionMeta) => {
+    setActiveSessionId(session.id);
+    toast.success(`Switched to "${session.name}"`);
+  };
+
+  const deleteSession = (id: string) => {
+    if (id === 'default') return;
+    setSessions(sessions.filter(s => s.id !== id));
+    if (activeSessionId === id) setActiveSessionId('default');
+    
+    // Cleanup localStorage
+    const keys = ['day', 'count', 'players', 'nominations', 'deaths', 'chars', 'dist', 'note'];
+    keys.forEach(k => localStorage.removeItem(`${globalPath}/save/${id}/${k}`));
+  };
 
   const saveCustomTheme = (name: string) => {
     if (!customThemeColors) return;
-    const id = `custom-${Date.now()}`;
+    const id = `theme_${Date.now()}`;
     const newTheme: Theme = { id, name, colors: customThemeColors, patterns: customThemePatterns || {} };
-    setSavedCustomThemes(prev => [...prev, newTheme]);
+    setSavedCustomThemes([...savedCustomThemes, newTheme]);
     setActiveTheme(id);
     toast.success(`Theme "${name}" saved!`);
   };
 
-  const updateCustomTheme = (id: string, updatedTheme: Theme) => {
-    setSavedCustomThemes(prev => prev.map(t => t.id === id ? updatedTheme : t));
-    if (activeTheme === id) {
-      // Force re-render if active
-      setActiveTheme(id);
-    }
-  };
-
-  const deleteCustomTheme = (id: string) => {
-    setSavedCustomThemes(prev => prev.filter(t => t.id !== id));
-    if (activeTheme === id) setActiveTheme('standard');
-    toast.success('Theme deleted');
-  };
-
-  const renameCustomTheme = (id: string, newName: string) => {
-    setSavedCustomThemes(prev => prev.map(t => t.id === id ? { ...t, name: newName } : t));
-    toast.success('Theme renamed');
-  };
-
-  const reorderNotepadTemplates = (fromIndex: number, toIndex: number) => {
-    setNotepadTemplates(prev => {
-      const newArr = [...prev];
-      const [moved] = newArr.splice(fromIndex, 1);
-      newArr.splice(toIndex, 0, moved);
-      return newArr;
-    });
-  };
-
-  const reorderPropTemplates = (fromIndex: number, toIndex: number) => {
-    setPropTemplates(prev => {
-      const newArr = [...prev];
-      const [moved] = newArr.splice(fromIndex, 1);
-      newArr.splice(toIndex, 0, moved);
-      return newArr;
-    });
-  };
-
   return {
-    storagePrefix, switchStoragePath,
-    sessions, saveSessionSnapshot, loadSession, deleteSession,
-    currentDay, setCurrentDay, playerCount, setPlayerCount, 
-    players: activePlayers,
-    setPlayers,
+    globalPath, setGlobalPath, switchStoragePath: setGlobalPath,
+    activeSessionId, sessions, saveSessionSnapshot, loadSession, deleteSession,
+    currentDay, setCurrentDay, playerCount, setPlayerCount, players, setPlayers,
     nominations, setNominations, deaths, setDeaths, chars, setChars, roleDist, setRoleDist,
-    note, setNote, fontSize, setFontSize, language, setLanguage, showHub, setShowHub,
-    splitView, setSplitView, notepadTemplates, setNotepadTemplates, propTemplates, setPropTemplates,
-    deadPlayers, reset, resetCustomization, updatePlayerInfo, updatePlayerName, updatePlayerProperty, togglePlayerAlive,
+    note, setNote, showHub, setShowHub, splitView, setSplitView, deadPlayers, activePlayers,
     activeTheme, setActiveTheme, customThemeColors, setCustomThemeColors, customThemePatterns, setCustomThemePatterns,
-    currentTheme,
-    savedCustomThemes, saveCustomTheme, updateCustomTheme, deleteCustomTheme, renameCustomTheme, reorderNotepadTemplates, reorderPropTemplates,
-    defaultNotepad, setDefaultNotepad, aiThemeInput, setAiThemeInput, identityMode, setIdentityMode,
-    reorderPlayers, addPlayer, removePlayer
+    savedCustomThemes, setSavedCustomThemes, saveCustomTheme,
+    updateCustomTheme: (id: string, theme: Theme) => setSavedCustomThemes(savedCustomThemes.map(t => t.id === id ? theme : t)),
+    renameCustomTheme: (id: string, name: string) => setSavedCustomThemes(savedCustomThemes.map(t => t.id === id ? { ...t, name } : t)),
+    notepadTemplates, setNotepadTemplates, propTemplates, setPropTemplates,
+    reorderNotepadTemplates: (from: number, to: number) => {
+      const copy = [...notepadTemplates];
+      const [moved] = copy.splice(from, 1);
+      copy.splice(to, 0, moved);
+      setNotepadTemplates(copy);
+    },
+    reorderPropTemplates: (from: number, to: number) => {
+      const copy = [...propTemplates];
+      const [moved] = copy.splice(from, 1);
+      copy.splice(to, 0, moved);
+      setPropTemplates(copy);
+    },
+    defaultNotepad, setDefaultNotepad, aiThemeInput, setAiThemeInput, resetCustomization,
+    fontSize, setFontSize, language, setLanguage, identityMode, setIdentityMode,
+    updatePlayerInfo, updatePlayerProperty, updatePlayerName, togglePlayerAlive, reset,
+    reorderPlayers, addPlayer, removePlayer, currentTheme
   };
 };

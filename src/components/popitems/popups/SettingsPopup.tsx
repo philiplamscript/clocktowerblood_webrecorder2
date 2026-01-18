@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useState } from 'react';
-import { X, Palette, FileText, Settings as SettingsIcon } from 'lucide-react';
+import { X, FileText, Settings as SettingsIcon } from 'lucide-react';
 import { type NotepadTemplate, type PropTemplate, type ThemeType, type ThemeColors, type ThemePatterns, type Theme, type IdentityMode, type SessionMeta } from '../../../type';
 
-import ThemeSection from './settings/ThemeSection';
 import CustomizationSection from './settings/CustomizationSection';
 import GeneralSection from './settings/GeneralSection';
 
@@ -46,7 +45,7 @@ interface SettingsPopupProps {
 }
 
 const SettingsPopup: React.FC<SettingsPopupProps> = (props) => {
-  const [activeSection, setActiveSection] = useState<'general' | 'theme' | 'customization'>('general');
+  const [activeSection, setActiveSection] = useState<'general' | 'customization'>('general');
 
   if (!props.isOpen) return null;
 
@@ -69,15 +68,7 @@ const SettingsPopup: React.FC<SettingsPopupProps> = (props) => {
               activeSection === 'general' ? 'border-slate-900 text-slate-900 bg-white' : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
-            <SettingsIcon size={14} /> General
-          </button>
-          <button 
-            onClick={() => setActiveSection('theme')}
-            className={`flex items-center gap-2 px-6 py-4 text-[10px] font-black uppercase tracking-widest border-b-2 transition-all whitespace-nowrap ${
-              activeSection === 'theme' ? 'border-slate-900 text-slate-900 bg-white' : 'border-transparent text-slate-500 hover:text-slate-700'
-            }`}
-          >
-            <Palette size={14} /> Themes
+            <SettingsIcon size={14} /> Application
           </button>
           <button 
             onClick={() => setActiveSection('customization')}
@@ -104,8 +95,12 @@ const SettingsPopup: React.FC<SettingsPopupProps> = (props) => {
               deleteSession={props.deleteSession}
             />
           )}
-          {activeSection === 'theme' && (
-            <ThemeSection 
+          {activeSection === 'customization' && (
+            <CustomizationSection 
+              notepadTemplates={props.notepadTemplates} setNotepadTemplates={props.setNotepadTemplates}
+              propTemplates={props.propTemplates} setPropTemplates={props.setPropTemplates}
+              reorderNotepadTemplates={props.reorderNotepadTemplates} reorderPropTemplates={props.reorderPropTemplates}
+              defaultNotepad={props.defaultNotepad} setDefaultNotepad={props.setDefaultNotepad}
               activeTheme={props.activeTheme} setActiveTheme={props.setActiveTheme}
               setCustomThemeColors={props.setCustomThemeColors} 
               setCustomThemePatterns={props.setCustomThemePatterns}
@@ -113,14 +108,7 @@ const SettingsPopup: React.FC<SettingsPopupProps> = (props) => {
               updateCustomTheme={props.updateCustomTheme}
               deleteCustomTheme={props.deleteCustomTheme} renameCustomTheme={props.renameCustomTheme}
               aiThemeInput={props.aiThemeInput} setAiThemeInput={props.setAiThemeInput}
-            />
-          )}
-          {activeSection === 'customization' && (
-            <CustomizationSection 
-              notepadTemplates={props.notepadTemplates} setNotepadTemplates={props.setNotepadTemplates}
-              propTemplates={props.propTemplates} setPropTemplates={props.setPropTemplates}
-              reorderNotepadTemplates={props.reorderNotepadTemplates} reorderPropTemplates={props.reorderPropTemplates}
-              defaultNotepad={props.defaultNotepad} setDefaultNotepad={props.setDefaultNotepad}
+              resetCustomization={props.resetCustomization}
             />
           )}
         </main>
