@@ -44,12 +44,17 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
 
   const exportAllData = () => {
     const allData: Record<string, any> = {};
+    // We export everything starting with ct_ (configs) and the save paths
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && (key.startsWith('ct_') || key.includes('/save/'))) {
         allData[key] = localStorage.getItem(key);
       }
     }
+    
+    // Also explicitly include the session index for the current path
+    const sessionIndexKey = `main_sessions_index`;
+    allData[sessionIndexKey] = localStorage.getItem(sessionIndexKey);
     
     const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -71,36 +76,37 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
     reader.onload = (event) => {
       try {
         const importedData = JSON.parse(event.target?.result as string);
+        const sessionIndexKey = `main_sessions_index`;
         
-        // Smart Merge Logic:
-        // 1. Identify sessions in the imported data
-        // 2. Append them to current local storage without overwriting existing ones
-        // 3. Merge the session index
+        // 1. Handle the Session Index Merge
+        const currentSessions: SessionMeta[] = JSON.parse(localStorage.getItem(sessionIndexKey) || '[]');
+        const importedSessions: SessionMeta[] = importedData[sessionIndexKey] ? JSON.parse(importedData[sessionIndexKey]) : [];
         
-        const currentSessionsKey = 'main_sessions_index';
-        const existingSessions: SessionMeta[] = JSON.parse(localStorage.getItem(currentSessionsKey) || '[]');
+        // Create a map of existing IDs to avoid duplicates
+        const existingIds = new Set(currentSessions.map(s => s.id));
+        const mergedSessions = [...currentSessions];
         
+        importedSessions.forEach(s => {
+          if (!existingIds.has(s.id)) {
+            mergedSessions.push(s);
+          }
+        });
+        
+        // 2. Save all imported keys EXCEPT the session index (which we merged)
         Object.entries(importedData).forEach(([key, val]) => {
-          if (key === currentSessionsKey) {
-            const importedSessions: SessionMeta[] = JSON.parse(val as string);
-            // Only add sessions that don't exist yet
-            const mergedSessions = [...existingSessions];
-            importedSessions.forEach(impS => {
-              if (!mergedSessions.find(exS => exS.id === impS.id)) {
-                mergedSessions.push(impS);
-              }
-            });
-            localStorage.setItem(key, JSON.stringify(mergedSessions));
-          } else {
-            // For game data and global configs, we only write if it doesn't exist 
-            // or if it's a specific session data key
+          if (key !== sessionIndexKey) {
+            // Only write if it doesn't exist or if it's specific session data
+            // This prevents overwriting your current global settings if they already exist
             if (!localStorage.getItem(key) || key.includes('/save/')) {
               localStorage.setItem(key, val as string);
             }
           }
         });
+        
+        // 3. Save the merged index
+        localStorage.setItem(sessionIndexKey, JSON.stringify(mergedSessions));
 
-        toast.success('Data merged successfully! Reloading...');
+        toast.success('Sessions merged successfully! Reloading...');
         setTimeout(() => window.location.reload(), 1000);
       } catch (err) {
         toast.error('Invalid backup file.');
@@ -109,12 +115,10 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
     reader.readAsText(file);
   };
 
-  // Sort sessions: Newest first
   const sortedSessions = [...sessions].sort((a, b) => b.lastSaved - a.lastSaved);
 
   return (
     <div className="space-y-8 sm:space-y-10">
-      {/* Backup & Sync */}
       <section className="space-y-3">
         <h3 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest flex items-center gap-2">
           <FileJson size={14} /> Backup & Sync
@@ -137,11 +141,10 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
           </button>
         </div>
         <p className="text-[8px] text-slate-400 italic px-1">
-          * Import will append new sessions to your list without deleting current ones.
+          * Merge Import adds new sessions from the file to your current list without deleting anything.
         </p>
       </section>
 
-      {/* UI Settings */}
       <section className="space-y-3">
         <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
           <User size={14} /> Identity Display Mode
@@ -162,7 +165,6 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
         </div>
       </section>
 
-      {/* Session Management */}
       <section className="pt-6 border-t border-slate-100 space-y-4">
         <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
           <Save size={14} /> Game Sessions
