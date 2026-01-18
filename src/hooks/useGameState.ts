@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { toast } from 'react-hot-toast';
 import {
   type Player,
@@ -39,10 +39,10 @@ export const useGameState = () => {
     return saved ? JSON.parse(saved) : fallback;
   };
 
-  const getSession = (key: string, fallback: any) => {
-    const saved = localStorage.getItem(`${globalPath}/save/${activeSessionId}/${key}`);
+  const getSessionValue = useCallback((sessionId: string, key: string, fallback: any) => {
+    const saved = localStorage.getItem(`${globalPath}/save/${sessionId}/${key}`);
     return saved ? JSON.parse(saved) : fallback;
-  };
+  }, [globalPath]);
 
   // 2. Global State (Customizations)
   const [activeTheme, setActiveTheme] = useState<ThemeType>(() => getGlobal('active_theme', 'standard'));
@@ -65,30 +65,56 @@ export const useGameState = () => {
   const [identityMode, setIdentityMode] = useState<IdentityMode>(() => getGlobal('identity_mode', 'number'));
 
   // 3. Session-Specific Game Data
-  const [currentDay, setCurrentDay] = useState(() => getSession('day', 1));
-  const [playerCount, setPlayerCount] = useState(() => getSession('count', 15));
+  const [currentDay, setCurrentDay] = useState(() => getSessionValue(activeSessionId, 'day', 1));
+  const [playerCount, setPlayerCount] = useState(() => getSessionValue(activeSessionId, 'count', 15));
   const [players, setPlayers] = useState<Player[]>(() => {
-    const saved = getSession('players', []);
+    const saved = getSessionValue(activeSessionId, 'players', []);
     if (saved.length > 0) return saved;
     return Array.from({ length: 20 }, (_, i) => ({ 
       no: i + 1, name: '', inf: defaultNotepad, day: '', reason: '', red: '', property: '' 
     }));
   });
-  const [nominations, setNominations] = useState<Nomination[]>(() => getSession('nominations', [{ id: '1', day: 1, f: '-', t: '-', voters: '', note: '' }]));
-  const [deaths, setDeaths] = useState<Death[]>(() => getSession('deaths', [
+  const [nominations, setNominations] = useState<Nomination[]>(() => getSessionValue(activeSessionId, 'nominations', [{ id: '1', day: 1, f: '-', t: '-', voters: '', note: '' }]));
+  const [deaths, setDeaths] = useState<Death[]>(() => getSessionValue(activeSessionId, 'deaths', [
     { id: 'default-execution', day: 1, playerNo: '', reason: '⚔️', note: '', isConfirmed: true },
     { id: 'default-night', day: 1, playerNo: '', reason: '🌑', note: '', isConfirmed: true }
   ]));
-  const [chars, setChars] = useState<CharDict>(() => getSession('chars', createInitialChars()));
-  const [roleDist, setRoleDist] = useState<RoleDist>(() => getSession('dist', { townsfolk: 9, outsiders: 1, minions: 2, demons: 1 }));
-  const [note, setNote] = useState(() => getSession('note', ''));
-  const [showHub, setShowHub] = useState(() => getSession('showHub', false));
-  const [splitView, setSplitView] = useState(() => getSession('splitView', false));
+  const [chars, setChars] = useState<CharDict>(() => getSessionValue(activeSessionId, 'chars', createInitialChars()));
+  const [roleDist, setRoleDist] = useState<RoleDist>(() => getSessionValue(activeSessionId, 'dist', { townsfolk: 9, outsiders: 1, minions: 2, demons: 1 }));
+  const [note, setNote] = useState(() => getSessionValue(activeSessionId, 'note', ''));
+  const [showHub, setShowHub] = useState(() => getSessionValue(activeSessionId, 'showHub', false));
+  const [splitView, setSplitView] = useState(() => getSessionValue(activeSessionId, 'splitView', false));
 
   const [sessions, setSessions] = useState<SessionMeta[]>(() => {
     const saved = localStorage.getItem(`${globalPath}_sessions_index`);
     return saved ? JSON.parse(saved) : [{ id: 'default', name: 'Primary Session', lastSaved: Date.now(), storagePrefix: 'default' }];
   });
+
+  // Effect to handle session switching (reloading data into state)
+  useEffect(() => {
+    setCurrentDay(getSessionValue(activeSessionId, 'day', 1));
+    setPlayerCount(getSessionValue(activeSessionId, 'count', 15));
+    
+    const savedPlayers = getSessionValue(activeSessionId, 'players', []);
+    if (savedPlayers.length > 0) {
+      setPlayers(savedPlayers);
+    } else {
+      setPlayers(Array.from({ length: 20 }, (_, i) => ({ 
+        no: i + 1, name: '', inf: defaultNotepad, day: '', reason: '', red: '', property: '' 
+      })));
+    }
+    
+    setNominations(getSessionValue(activeSessionId, 'nominations', [{ id: '1', day: 1, f: '-', t: '-', voters: '', note: '' }]));
+    setDeaths(getSessionValue(activeSessionId, 'deaths', [
+      { id: 'default-execution', day: 1, playerNo: '', reason: '⚔️', note: '', isConfirmed: true },
+      { id: 'default-night', day: 1, playerNo: '', reason: '🌑', note: '', isConfirmed: true }
+    ]));
+    setChars(getSessionValue(activeSessionId, 'chars', createInitialChars()));
+    setRoleDist(getSessionValue(activeSessionId, 'dist', { townsfolk: 9, outsiders: 1, minions: 2, demons: 1 }));
+    setNote(getSessionValue(activeSessionId, 'note', ''));
+    setShowHub(getSessionValue(activeSessionId, 'showHub', false));
+    setSplitView(getSessionValue(activeSessionId, 'splitView', false));
+  }, [activeSessionId, getSessionValue, defaultNotepad]);
 
   useEffect(() => {
     const config = {
@@ -187,12 +213,18 @@ export const useGameState = () => {
   const saveSessionSnapshot = (name: string) => {
     const id = `ct_session_${Math.random().toString(36).substr(2, 9)}`;
     const newSession = { id, name, lastSaved: Date.now(), storagePrefix: id };
-    setSessions([...sessions, newSession]);
+    
+    // Immediate persist of current index to ensure consistency
+    const nextSessions = [newSession, ...sessions];
+    setSessions(nextSessions);
     setActiveSessionId(id);
+    
     toast.success(`Snapshot "${name}" saved!`);
   };
 
   const loadSession = (session: SessionMeta) => {
+    // Update timestamp on the session
+    setSessions(prev => prev.map(s => s.id === session.id ? { ...s, lastSaved: Date.now() } : s));
     setActiveSessionId(session.id);
     toast.success(`Switched to "${session.name}"`);
   };
@@ -201,17 +233,10 @@ export const useGameState = () => {
     if (id === 'default') return;
     setSessions(sessions.filter(s => s.id !== id));
     if (activeSessionId === id) setActiveSessionId('default');
+    
     const keys = ['day', 'count', 'players', 'nominations', 'deaths', 'chars', 'dist', 'note'];
     keys.forEach(k => localStorage.removeItem(`${globalPath}/save/${id}/${k}`));
-  };
-
-  const saveCustomTheme = (name: string) => {
-    if (!customThemeColors) return;
-    const id = `theme_${Date.now()}`;
-    const newTheme: Theme = { id, name, colors: customThemeColors, patterns: customThemePatterns || {} };
-    setSavedCustomThemes([...savedCustomThemes, newTheme]);
-    setActiveTheme(id);
-    toast.success(`Theme "${name}" saved!`);
+    toast.success('Session deleted');
   };
 
   return {

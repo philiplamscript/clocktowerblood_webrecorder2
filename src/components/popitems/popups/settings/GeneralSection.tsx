@@ -28,6 +28,10 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
   const [newSessionName, setNewSessionName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Reference the parent key based on storagePrefix context
+  // Usually this is "main" in this app's current implementation
+  const globalPath = 'main'; 
+
   useEffect(() => {
     const now = new Date();
     const dateStr = now.toISOString().split('T')[0];
@@ -43,14 +47,12 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
 
   const exportSession = (session: SessionMeta) => {
     const sessionData: Record<string, any> = {};
-    const keys = ['day', 'count', 'players', 'nominations', 'deaths', 'chars', 'dist', 'note'];
+    const keys = ['day', 'count', 'players', 'nominations', 'deaths', 'chars', 'dist', 'note', 'showHub', 'splitView'];
     
-    // Include the session metadata
     sessionData['session_meta'] = session;
     
-    // Include all game data for this session
     keys.forEach(k => {
-      const val = localStorage.getItem(`main/save/${session.id}/${k}`);
+      const val = localStorage.getItem(`${globalPath}/save/${session.id}/${k}`);
       if (val) sessionData[k] = val;
     });
 
@@ -58,12 +60,12 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `game_record_${session.name.replace(/\s+/g, '_')}.json`;
+    a.download = `clocktracker_record_${session.name.replace(/\s+/g, '_')}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    toast.success('Game record exported!');
+    toast.success('Session exported!');
   };
 
   const importSession = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,26 +80,30 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
         
         if (!meta || !meta.id) throw new Error('Invalid session file');
 
-        // Ensure ID uniqueness to avoid overwriting
-        const newId = `imp_${Date.now()}_${meta.id}`;
-        const newMeta = { ...meta, id: newId, storagePrefix: newId, lastSaved: Date.now() };
+        const newId = `imp_${Date.now()}`;
+        const newMeta = { 
+          id: newId, 
+          name: `Import: ${meta.name}`, 
+          storagePrefix: newId, 
+          lastSaved: Date.now() 
+        };
 
-        // Save game data
+        // Save game data to local storage using the new ID
         Object.entries(data).forEach(([key, val]) => {
           if (key !== 'session_meta') {
-            localStorage.setItem(`main/save/${newId}/${key}`, val as string);
+            localStorage.setItem(`${globalPath}/save/${newId}/${key}`, val as string);
           }
         });
 
-        // Update session index
-        const sessionsKey = 'main_sessions_index';
+        // Update session index in local storage
+        const sessionsKey = `${globalPath}_sessions_index`;
         const existing: SessionMeta[] = JSON.parse(localStorage.getItem(sessionsKey) || '[]');
         localStorage.setItem(sessionsKey, JSON.stringify([newMeta, ...existing]));
 
-        toast.success('Game record imported! Reloading...');
+        toast.success('Record imported! Refreshing...');
         setTimeout(() => window.location.reload(), 1000);
       } catch (err) {
-        toast.error('Invalid game record file.');
+        toast.error('Invalid record file.');
       }
     };
     reader.readAsText(file);
@@ -130,7 +136,7 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
       <section className="pt-6 border-t border-slate-100 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-            <Save size={14} /> Game Sessions
+            <Save size={14} /> Session Snapshots
           </h3>
           <button 
             onClick={() => fileInputRef.current?.click()}
