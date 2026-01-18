@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { X, Palette, FileText, Settings as SettingsIcon } from 'lucide-react';
-import { type NotepadTemplate, type PropTemplate, type ThemeType, type ThemeColors, type ThemePatterns, type Theme, type IdentityMode } from '../../../type';
+import { type NotepadTemplate, type PropTemplate, type ThemeType, type ThemeColors, type ThemePatterns, type Theme, type IdentityMode, type SessionMeta } from '../../../type';
 
 import ThemeSection from './settings/ThemeSection';
 import CustomizationSection from './settings/CustomizationSection';
@@ -37,6 +37,12 @@ interface SettingsPopupProps {
   aiThemeInput: string;
   setAiThemeInput: (val: string) => void;
   resetCustomization: () => void;
+  storagePrefix: string;
+  switchStoragePath: (path: string) => void;
+  sessions: SessionMeta[];
+  saveSessionSnapshot: (name: string) => void;
+  loadSession: (session: SessionMeta) => void;
+  deleteSession: (id: string) => void;
 }
 
 const SettingsPopup: React.FC<SettingsPopupProps> = (props) => {
@@ -90,6 +96,12 @@ const SettingsPopup: React.FC<SettingsPopupProps> = (props) => {
               language={props.language} setLanguage={props.setLanguage}
               identityMode={props.identityMode} setIdentityMode={props.setIdentityMode}
               resetCustomization={props.resetCustomization}
+              storagePrefix={props.storagePrefix}
+              switchStoragePath={props.switchStoragePath}
+              sessions={props.sessions}
+              saveSessionSnapshot={props.saveSessionSnapshot}
+              loadSession={props.loadSession}
+              deleteSession={props.deleteSession}
             />
           )}
           {activeSection === 'theme' && (

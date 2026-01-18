@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { toast } from 'react-hot-toast';
 import {
   type Player,
@@ -15,19 +15,27 @@ import {
   type ThemePatterns,
   type Theme,
   type IdentityMode,
+  type SessionMeta,
   createInitialChars,
   THEMES
 } from '../type';
 
 export const useGameState = () => {
-  const getStorage = (key: string, fallback: any) => {
-    const saved = localStorage.getItem(`clocktower_${key}`);
+  // 1. Storage Prefix Management
+  const [storagePrefix, setStoragePrefix] = useState(() => {
+    const saved = localStorage.getItem('clocktower_active_prefix');
+    return saved ? JSON.parse(saved) : 'clocktower';
+  });
+
+  const getStorage = (key: string, fallback: any, prefixOverride?: string) => {
+    const prefix = prefixOverride || storagePrefix;
+    const saved = localStorage.getItem(`${prefix}_${key}`);
     return saved ? JSON.parse(saved) : fallback;
   };
 
+  // 2. States
   const [defaultNotepad, setDefaultNotepad] = useState(() => getStorage('default_notepad', ''));
   const [identityMode, setIdentityMode] = useState<IdentityMode>(() => getStorage('identity_mode', 'number'));
-
   const [currentDay, setCurrentDay] = useState(() => getStorage('day', 1));
   const [playerCount, setPlayerCount] = useState(() => getStorage('count', 15));
   
@@ -37,7 +45,7 @@ export const useGameState = () => {
     return Array.from({ length: 20 }, (_, i) => ({ 
       no: i + 1, 
       name: '',
-      inf: defaultNotepad, 
+      inf: '', 
       day: '', 
       reason: '', 
       red: '', 
@@ -57,13 +65,11 @@ export const useGameState = () => {
   const [language, setLanguage] = useState(() => getStorage('lang', 'Eng'));
   const [showHub, setShowHub] = useState(() => getStorage('showHub', false));
   const [splitView, setSplitView] = useState(() => getStorage('splitView', false));
-  
   const [activeTheme, setActiveTheme] = useState<ThemeType>(() => getStorage('active_theme', 'standard'));
   const [customThemeColors, setCustomThemeColors] = useState<ThemeColors | null>(() => getStorage('custom_theme_colors', null));
   const [customThemePatterns, setCustomThemePatterns] = useState<ThemePatterns | null>(() => getStorage('custom_theme_patterns', null));
   const [savedCustomThemes, setSavedCustomThemes] = useState<Theme[]>(() => getStorage('saved_custom_themes', []));
   const [aiThemeInput, setAiThemeInput] = useState(() => getStorage('ai_theme_input', ''));
-
   const [notepadTemplates, setNotepadTemplates] = useState<NotepadTemplate[]>(() => getStorage('notepad_templates', [
     { id: 't1', label: 'SOCIAL READ', content: 'Reads: \nTrust: \nSuspicion: ' },
     { id: 't2', label: 'WORLD INFO', content: 'Day 1: \nDay 2: \nDay 3: ' }
@@ -74,6 +80,13 @@ export const useGameState = () => {
     { id: 'p3', label: 'Glasses', value: '👓' }
   ]));
 
+  // Sessions list is global
+  const [sessions, setSessions] = useState<SessionMeta[]>(() => {
+    const saved = localStorage.getItem('clocktower_sessions_index');
+    return saved ? JSON.parse(saved) : [{ id: 'clocktower', name: 'Default Session', lastSaved: Date.now(), storagePrefix: 'clocktower' }];
+  });
+
+  // Persistence logic
   useEffect(() => {
     const state = {
       day: currentDay, count: playerCount, players, nominations, deaths, chars, dist: roleDist,
@@ -83,9 +96,88 @@ export const useGameState = () => {
       saved_custom_themes: savedCustomThemes, default_notepad: defaultNotepad, ai_theme_input: aiThemeInput,
       identity_mode: identityMode
     };
-    Object.entries(state).forEach(([key, val]) => localStorage.setItem(`clocktower_${key}`, JSON.stringify(val)));
-  }, [currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, language, showHub, splitView, notepadTemplates, propTemplates, activeTheme, customThemeColors, customThemePatterns, savedCustomThemes, defaultNotepad, aiThemeInput, identityMode]);
+    Object.entries(state).forEach(([key, val]) => localStorage.setItem(`${storagePrefix}_${key}`, JSON.stringify(val)));
+    localStorage.setItem('clocktower_active_prefix', JSON.stringify(storagePrefix));
+  }, [storagePrefix, currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, fontSize, language, showHub, splitView, notepadTemplates, propTemplates, activeTheme, customThemeColors, customThemePatterns, savedCustomThemes, defaultNotepad, aiThemeInput, identityMode]);
 
+  useEffect(() => {
+    localStorage.setItem('clocktower_sessions_index', JSON.stringify(sessions));
+  }, [sessions]);
+
+  // Session Management Functions
+  const saveSessionSnapshot = (name: string) => {
+    const id = `session_${Date.now()}`;
+    const newPrefix = `ct_session_${Date.now()}`;
+    
+    // Copy all current storage keys to the new prefix
+    const keys = [
+      'day', 'count', 'players', 'nominations', 'deaths', 'chars', 'dist', 'note', 'font', 
+      'lang', 'showHub', 'splitView', 'notepad_templates', 'prop_templates', 'active_theme', 
+      'custom_theme_colors', 'custom_theme_patterns', 'saved_custom_themes', 'default_notepad', 
+      'ai_theme_input', 'identity_mode'
+    ];
+    
+    keys.forEach(key => {
+      const val = localStorage.getItem(`${storagePrefix}_${key}`);
+      if (val) localStorage.setItem(`${newPrefix}_${key}`, val);
+    });
+
+    const newSession: SessionMeta = { id, name, lastSaved: Date.now(), storagePrefix: newPrefix };
+    setSessions(prev => [newSession, ...prev]);
+    toast.success(`Session "${name}" saved!`);
+  };
+
+  const loadSession = (session: SessionMeta) => {
+    setStoragePrefix(session.storagePrefix);
+    // Reload state from new prefix
+    const p = session.storagePrefix;
+    setCurrentDay(getStorage('day', 1, p));
+    setPlayerCount(getStorage('count', 15, p));
+    setPlayers(getStorage('players', [], p));
+    setNominations(getStorage('nominations', [], p));
+    setDeaths(getStorage('deaths', [], p));
+    setChars(getStorage('chars', createInitialChars(), p));
+    setRoleDist(getStorage('dist', {}, p));
+    setNote(getStorage('note', '', p));
+    setFontSize(getStorage('font', 'mid', p));
+    setLanguage(getStorage('lang', 'Eng', p));
+    setShowHub(getStorage('showHub', false, p));
+    setSplitView(getStorage('splitView', false, p));
+    setActiveTheme(getStorage('active_theme', 'standard', p));
+    setCustomThemeColors(getStorage('custom_theme_colors', null, p));
+    setCustomThemePatterns(getStorage('custom_theme_patterns', null, p));
+    setSavedCustomThemes(getStorage('saved_custom_themes', [], p));
+    setDefaultNotepad(getStorage('default_notepad', '', p));
+    setAiThemeInput(getStorage('ai_theme_input', '', p));
+    setIdentityMode(getStorage('identity_mode', 'number', p));
+    setNotepadTemplates(getStorage('notepad_templates', [], p));
+    setPropTemplates(getStorage('prop_templates', [], p));
+    
+    toast.success(`Loaded session: ${session.name}`);
+  };
+
+  const deleteSession = (id: string) => {
+    const session = sessions.find(s => s.id === id);
+    if (!session) return;
+    if (session.storagePrefix === storagePrefix) {
+      toast.error("Cannot delete the active session.");
+      return;
+    }
+    
+    setSessions(prev => prev.filter(s => s.id !== id));
+    // Optionally clear localstorage for that prefix
+    const keys = ['day', 'count', 'players', 'nominations', 'deaths', 'chars', 'dist', 'note', 'font', 'lang', 'showHub', 'splitView', 'notepad_templates', 'prop_templates', 'active_theme', 'custom_theme_colors', 'custom_theme_patterns', 'saved_custom_themes', 'default_notepad', 'ai_theme_input', 'identity_mode'];
+    keys.forEach(k => localStorage.removeItem(`${session.storagePrefix}_${k}`));
+    toast.success('Session deleted.');
+  };
+
+  const switchStoragePath = (newPath: string) => {
+    if (!newPath.trim()) return;
+    setStoragePrefix(newPath.trim());
+    window.location.reload(); // Force reload to ensure all state is cleanly picked up from the new prefix
+  };
+
+  // Sync players with deaths
   useEffect(() => {
     setPlayers(prev => prev.map(p => {
       const death = deaths.find(d => parseInt(d.playerNo) === p.no);
@@ -228,6 +320,8 @@ export const useGameState = () => {
   };
 
   return {
+    storagePrefix, switchStoragePath,
+    sessions, saveSessionSnapshot, loadSession, deleteSession,
     currentDay, setCurrentDay, playerCount, setPlayerCount, 
     players: activePlayers,
     setPlayers,

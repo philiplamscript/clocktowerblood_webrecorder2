@@ -95,6 +95,13 @@ export interface PropTemplate {
   value: string;
 }
 
+export interface SessionMeta {
+  id: string;
+  name: string;
+  lastSaved: number;
+  storagePrefix: string;
+}
+
 // --- CONSTANTS ---
 
 export const INITIAL_PLAYERS = 15;

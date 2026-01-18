@@ -165,7 +165,7 @@ export default function App() {
             )}
           </div>
         </main>
-        <LedgerTabsPopup isOpen={showLedger} onClose={() => setShowLedger(false)} activeTab={activeTab} setActiveTab={setActiveTab} players={state.players} setPlayers={state.setPlayers} nominations={state.nominations} setNominations={state.setNominations} chars={state.chars} setChars={state.setChars} note={state.note} setNote={state.setNote} playerCount={state.playerCount} setPlayerCount={state.setPlayerCount} roleDist={state.roleDist} setRoleDist={state.setRoleDist} deadPlayers={state.deadPlayers} addNomination={() => state.setNominations([...state.nominations, { id: Math.random().toString(), day: state.currentDay, f: '-', t: '-', voters: '', note: '' }])} isDragging={false} setIsDragging={() => {}} dragAction={null} setDragAction={() => {}} lastDraggedPlayer={null} setLastDraggedPlayer={() => {}} identityMode={state.identityMode} onShowRoleUpdate={() => setShowRoleUpdate(true)} />
+        <LedgerTabsPopup isOpen={showLedger} onClose={() => setShowLedger(false)} activeTab={activeTab} setActiveTab={setActiveTab} players={state.players} setPlayers={state.setPlayers} nominations={state.nominations} setNominations={state.setNominations} chars={state.chars} setChars={state.setChars} note={state.note} setNote={state.setNote} playerCount={state.playerCount} setPlayerCount={setPlayerCount} roleDist={state.roleDist} setRoleDist={state.setRoleDist} deadPlayers={state.deadPlayers} addNomination={() => state.setNominations([...state.nominations, { id: Math.random().toString(), day: state.currentDay, f: '-', t: '-', voters: '', note: '' }])} isDragging={false} setIsDragging={() => {}} dragAction={null} setDragAction={() => {}} lastDraggedPlayer={null} setLastDraggedPlayer={() => {}} identityMode={state.identityMode} onShowRoleUpdate={() => setShowRoleUpdate(true)} />
         <RoleSelectorPopup showRoleSelector={showRoleSelector} setShowRoleSelector={setShowRoleSelector} updatePlayerInfo={state.updatePlayerInfo} players={state.players} categoryBg={{ Townsfolk: 'bg-blue-100 hover:bg-blue-200', Outsider: 'bg-blue-50 hover:bg-blue-100', Minion: 'bg-orange-50 hover:bg-orange-100', Demon: 'bg-red-100 hover:bg-red-200' }} />
         <RoleUpdatePopup showRoleUpdate={showRoleUpdate} setShowRoleUpdate={setShowRoleUpdate} roleUpdateText={roleUpdateText} setRoleUpdateText={setRoleUpdateText} parseRoleUpdate={parseRoleUpdate} />
         <ResetConfirmation showReset={showReset} setShowReset={setShowReset} reset={state.reset} />
@@ -189,7 +189,7 @@ export default function App() {
           savedCustomThemes={state.savedCustomThemes}
           saveCustomTheme={state.saveCustomTheme}
           updateCustomTheme={state.updateCustomTheme}
-          deleteCustomTheme={state.deleteCustomTheme}
+          deleteCustomTheme={state.deleteSession}
           renameCustomTheme={state.renameCustomTheme}
           reorderNotepadTemplates={state.reorderNotepadTemplates}
           reorderPropTemplates={state.reorderPropTemplates}
@@ -198,6 +198,12 @@ export default function App() {
           aiThemeInput={state.aiThemeInput}
           setAiThemeInput={state.setAiThemeInput}
           resetCustomization={state.resetCustomization}
+          storagePrefix={state.storagePrefix}
+          switchStoragePath={state.switchStoragePath}
+          sessions={state.sessions}
+          saveSessionSnapshot={state.saveSessionSnapshot}
+          loadSession={state.loadSession}
+          deleteSession={state.deleteSession}
         />
         <AboutPopup isOpen={showAbout} onClose={() => setShowAbout(false)} />
         <PlayerRosterPopup 
