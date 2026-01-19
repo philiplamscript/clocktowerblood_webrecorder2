@@ -70,10 +70,7 @@ export const useGameState = () => {
     no: i + 1, name: '', inf: defaultNotepad, day: '', reason: '', red: '', property: '' 
   }))));
   const [nominations, setNominations] = useState<Nomination[]>(() => getSessionValue(activeSessionId, 'nominations', [{ id: '1', day: 1, f: '-', t: '-', voters: '', note: '' }]));
-  const [deaths, setDeaths] = useState<Death[]>(() => getSessionValue(activeSessionId, 'deaths', [
-    { id: 'default-execution', day: 1, playerNo: '', reason: '⚔️', note: '', isConfirmed: true },
-    { id: 'default-night', day: 1, playerNo: '', reason: '🌑', note: '', isConfirmed: true }
-  ]));
+  const [deaths, setDeaths] = useState<Death[]>(() => getSessionValue(activeSessionId, 'deaths', []));
   const [chars, setChars] = useState<CharDict>(() => getSessionValue(activeSessionId, 'chars', createInitialChars()));
   const [roleDist, setRoleDist] = useState<RoleDist>(() => getSessionValue(activeSessionId, 'dist', { townsfolk: 9, outsiders: 1, minions: 2, demons: 1 }));
   const [note, setNote] = useState(() => getSessionValue(activeSessionId, 'note', ''));
@@ -85,7 +82,6 @@ export const useGameState = () => {
     return saved ? JSON.parse(saved) : [{ id: 'default', name: 'Primary Session', lastSaved: Date.now(), storagePrefix: 'default' }];
   });
 
-  // Helper to copy data in localStorage
   const copySessionData = useCallback((fromId: string, toId: string) => {
     const keys = ['day', 'count', 'players', 'nominations', 'deaths', 'chars', 'dist', 'note', 'showHub', 'splitView'];
     keys.forEach(k => {
@@ -96,7 +92,6 @@ export const useGameState = () => {
     });
   }, [globalPath]);
 
-  // Persist Global Config
   useEffect(() => {
     const config = {
       active_theme: activeTheme, custom_theme_colors: customThemeColors, custom_theme_patterns: customThemePatterns,
@@ -107,7 +102,6 @@ export const useGameState = () => {
     localStorage.setItem(`${APP_GLOBAL_KEY}_path`, JSON.stringify(globalPath));
   }, [globalPath, activeTheme, customThemeColors, customThemePatterns, savedCustomThemes, notepadTemplates, propTemplates, defaultNotepad, aiThemeInput, fontSize, language, identityMode]);
 
-  // Persist Active Session Data
   useEffect(() => {
     const data = {
       day: currentDay, count: playerCount, players, nominations, deaths, chars, dist: roleDist, note, showHub, splitView
@@ -134,19 +128,13 @@ export const useGameState = () => {
   const saveSessionSnapshot = (name: string) => {
     const snapshotId = `ct_snap_${Date.now()}`;
     const newSession = { id: snapshotId, name, lastSaved: Date.now(), storagePrefix: snapshotId };
-    
-    // Copy all current localStorage data to the new snapshot ID
     copySessionData(activeSessionId, snapshotId);
-    
     setSessions(prev => [newSession, ...prev]);
     toast.success(`Snapshot "${name}" created!`);
   };
 
   const loadSession = (session: SessionMeta) => {
-    // Treat "loading" as copying snapshot data into the CURRENT active session
     copySessionData(session.id, activeSessionId);
-    
-    // Manually refresh state from the updated localStorage
     setCurrentDay(getSessionValue(activeSessionId, 'day', 1));
     setPlayerCount(getSessionValue(activeSessionId, 'count', 15));
     setPlayers(getSessionValue(activeSessionId, 'players', []));
@@ -157,17 +145,13 @@ export const useGameState = () => {
     setNote(getSessionValue(activeSessionId, 'note', ''));
     setShowHub(getSessionValue(activeSessionId, 'showHub', false));
     setSplitView(getSessionValue(activeSessionId, 'splitView', false));
-
     toast.success(`Applied snapshot "${session.name}" to current session`);
   };
 
   const reset = () => {
     setPlayers(Array.from({ length: 20 }, (_, i) => ({ no: i + 1, name: '', inf: defaultNotepad, day: '', reason: '', red: '', property: '' })));
     setNominations([{ id: '1', day: 1, f: '-', t: '-', voters: '', note: '' }]);
-    setDeaths([
-      { id: 'default-execution', day: 1, playerNo: '', reason: '⚔️', note: '', isConfirmed: true },
-      { id: 'default-night', day: 1, playerNo: '', reason: '🌑', note: '', isConfirmed: true }
-    ]);
+    setDeaths([]);
     setChars(prev => {
       const newChars = { ...prev };
       (Object.keys(newChars) as (keyof CharDict)[]).forEach(cat => {
@@ -183,13 +167,29 @@ export const useGameState = () => {
   const updatePlayerInfo = (no: number, inf: string) => setPlayers(prev => prev.map(p => p.no === no ? { ...p, inf } : p));
   const updatePlayerProperty = (no: number, property: string) => setPlayers(prev => prev.map(p => p.no === no ? { ...p, property } : p));
   const updatePlayerName = (no: number, name: string) => setPlayers(prev => prev.map(p => p.no === no ? { ...p, name } : p));
-  const togglePlayerAlive = (no: number) => setPlayers(prev => prev.map(p => {
-    if (p.no === no) {
-      const isDead = p.day !== '';
-      return { ...p, day: isDead ? '' : currentDay.toString(), reason: isDead ? '' : '⚔️', red: isDead ? '' : 'DEAD' };
+  
+  const togglePlayerAlive = (no: number) => {
+    const player = players.find(p => p.no === no);
+    if (!player) return;
+
+    const isDead = player.day !== '' || player.red !== '';
+
+    if (isDead) {
+      // Revive
+      setPlayers(prev => prev.map(p => p.no === no ? { ...p, day: '', reason: '', red: '' } : p));
+      setDeaths(prev => prev.filter(d => d.playerNo !== no.toString()));
+      toast.success(`Player ${no} is now alive`);
+    } else {
+      // Execute
+      setPlayers(prev => prev.map(p => p.no === no ? { ...p, day: currentDay.toString(), reason: '⚔️', red: 'DEAD' } : p));
+      setDeaths(prev => {
+        const exists = prev.find(d => d.playerNo === no.toString());
+        if (exists) return prev;
+        return [...prev, { id: Math.random().toString(36).substr(2, 9), day: currentDay, playerNo: no.toString(), reason: '⚔️', note: '', isConfirmed: true }];
+      });
+      toast.success(`Player ${no} executed`);
     }
-    return p;
-  }));
+  };
 
   const deleteSession = (id: string) => {
     if (id === 'default') return;

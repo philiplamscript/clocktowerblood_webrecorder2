@@ -81,6 +81,31 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
     setShowTemplates(false);
   };
 
+  const updateDeathDay = (no: number, day: number) => {
+    props.setDeaths(prev => {
+      const exists = prev.find(d => d.playerNo === no.toString());
+      if (exists) {
+        return prev.map(d => d.playerNo === no.toString() ? { ...d, day } : d);
+      }
+      return [...prev, { id: Math.random().toString(36).substr(2, 9), day, playerNo: no.toString(), reason: '⚔️', note: '', isConfirmed: true }];
+    });
+    // Also update player visual day
+    props.updatePlayerProperty(no, props.players.find(p => p.no === no)?.property || ''); // Trigger re-render
+  };
+
+  const cycleDeathReason = () => {
+    props.setDeaths(prev => {
+      const exists = prev.find(d => d.playerNo === props.playerNo.toString());
+      const curReason = exists?.reason || '⚔️';
+      const nextReason = REASON_CYCLE[(REASON_CYCLE.indexOf(curReason) + 1) % REASON_CYCLE.length];
+      
+      if (exists) {
+        return prev.map(d => d.playerNo === props.playerNo.toString() ? { ...d, reason: nextReason } : d);
+      }
+      return [...prev, { id: Math.random().toString(36).substr(2, 9), day: props.currentDay, playerNo: props.playerNo.toString(), reason: nextReason, note: '', isConfirmed: true }];
+    });
+  };
+
   const currentPlayer = props.players.find(p => p.no === props.playerNo);
   const death = props.deaths.find(d => d.playerNo === props.playerNo.toString());
   const allRoles = ['Townsfolk', 'Outsider', 'Minion', 'Demon'].flatMap(cat => 
@@ -89,7 +114,6 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
 
   return (
     <div className="h-full bg-[var(--panel-color)] overflow-y-auto p-2 space-y-4 pb-24 transition-colors duration-500">
-      {/* Clock Panel with Background Pattern */}
       <div className="bg-[var(--bg-color)] rounded-xl border border-[var(--border-color)] p-4 shadow-sm relative overflow-hidden flex flex-col items-center min-h-[420px] transition-colors duration-500">
         <div className="absolute inset-0 pointer-events-none opacity-100 z-0" style={{ backgroundImage: 'var(--bg-pattern)' }} />
         <div className="relative z-10 w-full flex flex-col items-center">
@@ -147,16 +171,11 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
       <StatusSection 
         isDead={props.deadPlayers.includes(props.playerNo)} togglePlayerAlive={props.togglePlayerAlive}
         playerNo={props.playerNo} death={death} currentDay={props.currentDay}
-        updateDeathDay={(no, day) => props.setDeaths(props.deaths.map(d => d.playerNo === no.toString() ? { ...d, day } : d))}
-        cycleDeathReason={() => {
-          const cur = death?.reason || '⚔️';
-          const next = REASON_CYCLE[(REASON_CYCLE.indexOf(cur) + 1) % REASON_CYCLE.length];
-          props.setDeaths(props.deaths.map(d => d.playerNo === props.playerNo.toString() ? { ...d, reason: next } : d));
-        }}
+        updateDeathDay={updateDeathDay}
+        cycleDeathReason={cycleDeathReason}
         currentPlayer={currentPlayer} updatePlayerProperty={props.updatePlayerProperty}
       />
       
-      {/* Spacer to ensure "plain" panel background at the bottom */}
       <div className="h-16" />
       <div className="h-16" />
     </div>
