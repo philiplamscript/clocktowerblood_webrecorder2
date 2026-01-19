@@ -168,7 +168,13 @@ export const useGameState = () => {
       { id: 'default-execution', day: 1, playerNo: '', reason: '⚔️', note: '', isConfirmed: true },
       { id: 'default-night', day: 1, playerNo: '', reason: '🌑', note: '', isConfirmed: true }
     ]);
-    setChars(createInitialChars());
+    setChars(prev => {
+      const newChars = { ...prev };
+      (Object.keys(newChars) as (keyof CharDict)[]).forEach(cat => {
+        newChars[cat] = newChars[cat].map(c => ({ ...c, status: '—', note: '' }));
+      });
+      return newChars;
+    });
     setCurrentDay(1);
     setNote('');
     toast.success('Session Reset Complete');

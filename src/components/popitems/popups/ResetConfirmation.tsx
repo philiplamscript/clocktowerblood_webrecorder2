@@ -29,7 +29,7 @@ const ResetConfirmation: React.FC<ResetConfirmationProps> = ({
         </div>
         <div className="flex gap-2">
           <button onClick={() => setShowReset(false)} className="flex-1 py-2 bg-slate-100 rounded text-[10px] font-bold uppercase">CANCEL</button>
-          <button onClick={() => {reset();setShowReset(false);}} className="flex-1 py-2 bg-red-600 text-white rounded text-[10px] font-black uppercase tracking-widest">RESET ALL</button>
+          <button onClick={() => {reset();setShowReset(false);}} className="flex-1 py-2 bg-red-600 text-white rounded text-[10px] font-black tracking-widest">RESET ALL but Role name</button>
         </div>
       </div>
     </div>
