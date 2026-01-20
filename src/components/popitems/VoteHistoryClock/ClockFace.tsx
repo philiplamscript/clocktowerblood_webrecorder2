@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { cx, cy, innerRadius, outerRadius } from './utils';
+import { cx, cy, innerRadius, outerRadius, sliceStartRadius } from './utils';
 
 interface ClockFaceProps {
   playerCount: number;
@@ -31,6 +31,7 @@ const ClockFace: React.FC<ClockFaceProps> = ({playerCount,playerNo, ringCount, r
       className="pointer-events-none" 
       transform={`rotate(${rotationAngle}, ${cx}, ${cy})`}
     >
+      {/* Structural Rings for Days */}
       {Array.from({ length: ringCount + 1 }).map((_, i) => (
         <circle 
           key={`ring-${i}`} 
@@ -42,8 +43,14 @@ const ClockFace: React.FC<ClockFaceProps> = ({playerCount,playerNo, ringCount, r
           className="opacity-50"
         />
       ))}
+
+      {/* Boundary Ring for Labels */}
+      <circle cx={cx} cy={cy} r={sliceStartRadius} fill="none" stroke="var(--border-color)" strokeWidth="0.5" className="opacity-20" />
+      <circle cx={cx} cy={cy} r={innerRadius} fill="none" stroke="var(--border-color)" strokeWidth="0.5" className="opacity-30" />
       
-      <line x1={cx} y1={cy - outerRadius - 5} x2={cx} y2={cy + outerRadius + 5} stroke="var(--muted-color)" strokeWidth="0.5" className="opacity-20" />
+      {/* Vertical Axis line starts from slices, not center */}
+      <line x1={cx} y1={cy - outerRadius - 5} x2={cx} y2={cy - sliceStartRadius} stroke="var(--muted-color)" strokeWidth="0.5" className="opacity-20" />
+      <line x1={cx} y1={cy + sliceStartRadius} x2={cx} y2={cy + outerRadius + 5} stroke="var(--muted-color)" strokeWidth="0.5" className="opacity-20" />
       
       {Array.from({ length: ringCount }).map((_, i) => {
         const radius = innerRadius + (i + 0.5) * ringWidth;

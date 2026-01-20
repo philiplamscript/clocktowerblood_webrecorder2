@@ -1,7 +1,9 @@
 export const cx = 144;
 export const cy = 144;
-export const outerRadius = 140; // Slightly smaller for better padding
-export const innerRadius = 58;  // Slightly larger center for better interaction
+export const outerRadius = 140; 
+export const innerRadius = 64;  // Data rings start here
+export const sliceStartRadius = 32; // Interactive slices start closer to center
+export const labelRadius = 48; // Where player numbers will sit
 
 export const getPosition = (num: number, playerCount: number, radius: number) => {
   const angle = ((num - 1) * (360 / playerCount)) - 90 + (360 / (playerCount * 2));
@@ -16,7 +18,6 @@ export const getSlicePath = (index: number, total: number, rInner: number, rOute
   const startAngle = (index * angleStep) - 90;
   const endAngle = ((index + 1) * angleStep) - 90;
   
-  // Adding a tiny gap between slices for elegance
   const pad = 0.5;
   const sA = startAngle + pad;
   const eA = endAngle - pad;

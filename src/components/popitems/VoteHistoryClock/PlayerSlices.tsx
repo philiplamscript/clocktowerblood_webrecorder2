@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { getSlicePath, getPosition, innerRadius, outerRadius } from './utils';
+import { getSlicePath, getPosition, innerRadius, outerRadius, sliceStartRadius, labelRadius } from './utils';
 import { type IdentityMode } from '../../../type';
 
 interface PlayerSlicesProps {
@@ -27,12 +27,6 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
 }) => {
   return (
     <>
-      <defs>
-        <radialGradient id="playerSpotlight" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="var(--accent-color)" stopOpacity="0.2" />
-          <stop offset="100%" stopColor="var(--panel-color)" stopOpacity="1" />
-        </radialGradient>
-      </defs>
       {Array.from({ length: playerCount }, (_, i) => i + 1).map((num, i) => {
         const numStr = num.toString();
         const isCurrent = num === playerNo;
@@ -40,7 +34,7 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
         const pd = deaths.find(d => d.playerNo === numStr);
         const pData = players.find(p => p.no === num);
         
-        const fill = isVoter ? 'var(--accent-color)' : isCurrent ? 'var(--panel-color)' : pd ? 'var(--panel-color)' : 'var(--panel-color)';
+        const fill = isVoter ? 'var(--accent-color)' : isCurrent ? 'var(--panel-color)' : 'var(--panel-color)';
         const stroke = isCurrent ? 'var(--accent-color)' : assignmentMode === 'death' ? '#ef4444' : assignmentMode === 'property' ? '#3b82f6' : 'var(--border-color)';
 
         const angleStep = 360 / playerCount;
@@ -56,14 +50,16 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
 
         return (
           <g key={num} onMouseDown={(e) => onStart(num, e)} onTouchStart={(e) => onStart(num, e)} className="cursor-pointer group">
+            {/* Main Interactive Slice - now starts from sliceStartRadius */}
             <path 
-              d={getSlicePath(i, playerCount, innerRadius, outerRadius)} 
+              d={getSlicePath(i, playerCount, sliceStartRadius, outerRadius)} 
               fill={fill} 
               stroke={stroke} 
               strokeWidth={isCurrent ? "2" : "0.75"} 
               className="transition-colors duration-200"
             />
             
+            {/* Data Rings (Days/Votes) - starts from innerRadius */}
             {Array.from({ length: ringCount }).map((_, rIdx) => {
               const dayNum = rIdx + 1;
               const vCount = (votedAtDay[numStr] || {})[dayNum];
@@ -84,10 +80,7 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
 
               return (
                 <g key={`${num}-${dayNum}`} className="pointer-events-none">
-                  <path 
-                    d={getSlicePath(i, playerCount, rs, re)} 
-                    fill={ringFill}
-                    />
+                  <path d={getSlicePath(i, playerCount, rs, re)} fill={ringFill} />
                   {showDeathIcons && diedNow && (
                     <text x={pos.x} y={pos.y} textAnchor="middle" alignmentBaseline="middle" className="text-[10px] opacity-100 fill-[var(--text-on-panel)] drop-shadow-sm">{pd.reason}</text>
                   )}
@@ -124,13 +117,14 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
               </g>
             )}
 
+            {/* Player ID/Name label positioned in the inner "Label Zone" */}
             <text 
-              x={getPosition(num, playerCount, (innerRadius + outerRadius) / 2).x} 
-              y={getPosition(num, playerCount, (innerRadius + outerRadius) / 2).y} 
+              x={getPosition(num, playerCount, labelRadius).x} 
+              y={getPosition(num, playerCount, labelRadius).y} 
               textAnchor="middle" 
               alignmentBaseline="middle" 
-              className={`text-[10px] font-black tracking-tight pointer-events-none transition-all duration-200 ${isVoter ? 'fill-white' : isCurrent ? 'fill-[var(--accent-color)]' : pd ? 'fill-[var(--muted-color)]' : 'fill-[var(--text-on-panel)] opacity-60'}`}
-              style={identityMode === 'name' && label.toString().length > 4 ? { fontSize: '7px' } : {}}
+              className={`text-[9px] font-black tracking-tight pointer-events-none transition-all duration-200 ${isVoter ? 'fill-white' : isCurrent ? 'fill-[var(--accent-color)]' : pd ? 'fill-[var(--muted-color)]' : 'fill-[var(--text-on-panel)]'}`}
+              style={identityMode === 'name' && label.toString().length > 4 ? { fontSize: '6.5px' } : {}}
             >
               {label}
             </text>
