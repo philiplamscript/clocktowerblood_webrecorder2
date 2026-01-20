@@ -168,6 +168,39 @@ export const useGameState = () => {
   const updatePlayerProperty = (no: number, property: string) => setPlayers(prev => prev.map(p => p.no === no ? { ...p, property } : p));
   const updatePlayerName = (no: number, name: string) => setPlayers(prev => prev.map(p => p.no === no ? { ...p, name } : p));
   
+  const updateDeathInfo = (no: number, day: number | null, reason: string | null) => {
+    setPlayers(prev => prev.map(p => {
+      if (p.no === no) {
+        return { 
+          ...p, 
+          day: day ? day.toString() : '', 
+          reason: reason || p.reason || '', 
+          red: day ? 'DEAD' : '' 
+        };
+      }
+      return p;
+    }));
+
+    if (day === null) {
+      setDeaths(prev => prev.filter(d => d.playerNo !== no.toString()));
+    } else {
+      setDeaths(prev => {
+        const exists = prev.find(d => d.playerNo === no.toString());
+        if (exists) {
+          return prev.map(d => d.playerNo === no.toString() ? { ...d, day, reason: reason || d.reason } : d);
+        }
+        return [...prev, { 
+          id: Math.random().toString(36).substr(2, 9), 
+          day, 
+          playerNo: no.toString(), 
+          reason: reason || '⚔️', 
+          note: '', 
+          isConfirmed: true 
+        }];
+      });
+    }
+  };
+
   const togglePlayerAlive = (no: number) => {
     const player = players.find(p => p.no === no);
     if (!player) return;
@@ -175,18 +208,10 @@ export const useGameState = () => {
     const isDead = player.day !== '' || player.red !== '';
 
     if (isDead) {
-      // Revive
-      setPlayers(prev => prev.map(p => p.no === no ? { ...p, day: '', reason: '', red: '' } : p));
-      setDeaths(prev => prev.filter(d => d.playerNo !== no.toString()));
+      updateDeathInfo(no, null, null);
       toast.success(`Player ${no} is now alive`);
     } else {
-      // Execute
-      setPlayers(prev => prev.map(p => p.no === no ? { ...p, day: currentDay.toString(), reason: '⚔️', red: 'DEAD' } : p));
-      setDeaths(prev => {
-        const exists = prev.find(d => d.playerNo === no.toString());
-        if (exists) return prev;
-        return [...prev, { id: Math.random().toString(36).substr(2, 9), day: currentDay, playerNo: no.toString(), reason: '⚔️', note: '', isConfirmed: true }];
-      });
+      updateDeathInfo(no, currentDay, '⚔️');
       toast.success(`Player ${no} executed`);
     }
   };
@@ -233,7 +258,7 @@ export const useGameState = () => {
       toast.success('Reset triggered');
     },
     fontSize, setFontSize, language, setLanguage, identityMode, setIdentityMode,
-    updatePlayerInfo, updatePlayerProperty, updatePlayerName, togglePlayerAlive, reset,
+    updatePlayerInfo, updatePlayerProperty, updatePlayerName, togglePlayerAlive, updateDeathInfo, reset,
     reorderPlayers: (from: number, to: number) => {
       const copy = [...players];
       const [moved] = copy.splice(from, 1);

@@ -48,9 +48,7 @@ export default function App() {
 
   const handlePlayerClick = (num: number) => {
     if (assignmentMode === 'death') {
-      const existing = state.deaths.find(d => parseInt(d.playerNo) === num);
-      if (existing) state.setDeaths(state.deaths.map(d => d.id === existing.id ? { ...d, reason: selectedReason, day: state.currentDay } : d));
-      else state.setDeaths([...state.deaths, { id: Math.random().toString(), day: state.currentDay, playerNo: num.toString(), reason: selectedReason, note: '', isConfirmed: true }]);
+      state.updateDeathInfo(num, state.currentDay, selectedReason);
     } else if (assignmentMode === 'property') {
       state.setPlayers(prev => prev.map(p => {
         if (p.no === num) {
@@ -155,7 +153,7 @@ export default function App() {
             <div className="bg-[var(--panel-color)] transition-colors duration-500 relative overflow-hidden">
               <div className="absolute inset-0 pointer-events-none opacity-30 z-0" />
               <div className="relative z-10 h-full">
-                <PlayerDetailView playerNo={focusPlayerNo} setPlayerNo={setFocusPlayerNo} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} updatePlayerInfo={state.updatePlayerInfo} updatePlayerProperty={state.updatePlayerProperty} togglePlayerAlive={state.togglePlayerAlive} chars={state.chars} nominations={state.nominations} setNominations={state.setNominations} voteHistoryMode={voteHistoryMode} setVoteHistoryMode={setVoteHistoryMode} setShowRoleSelector={setShowRoleSelector} deaths={state.deaths} setDeaths={state.setDeaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} onPlayerClick={handlePlayerClick} setAssignmentMode={setAssignmentMode} setSelectedReason={setSelectedReason} setSelectedProperty={setSelectedProperty} notepadTemplates={state.notepadTemplates} propTemplates={state.propTemplates} identityMode={state.identityMode} />
+                <PlayerDetailView playerNo={focusPlayerNo} setPlayerNo={setFocusPlayerNo} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} updatePlayerInfo={state.updatePlayerInfo} updatePlayerProperty={state.updatePlayerProperty} togglePlayerAlive={state.togglePlayerAlive} updateDeathInfo={state.updateDeathInfo} chars={state.chars} nominations={state.nominations} setNominations={state.setNominations} voteHistoryMode={voteHistoryMode} setVoteHistoryMode={setVoteHistoryMode} setShowRoleSelector={setShowRoleSelector} deaths={state.deaths} setDeaths={state.setDeaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} onPlayerClick={handlePlayerClick} setAssignmentMode={setAssignmentMode} setSelectedReason={setSelectedReason} setSelectedProperty={setSelectedProperty} notepadTemplates={state.notepadTemplates} propTemplates={state.propTemplates} identityMode={state.identityMode} />
               </div>
             </div>
             {state.splitView && (

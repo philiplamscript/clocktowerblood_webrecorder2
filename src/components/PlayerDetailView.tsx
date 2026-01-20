@@ -19,6 +19,7 @@ interface PlayerDetailViewProps {
   updatePlayerInfo: (no: number, text: string) => void;
   updatePlayerProperty: (no: number, text: string) => void;
   togglePlayerAlive: (no: number) => void;
+  updateDeathInfo: (no: number, day: number | null, reason: string | null) => void;
   chars: any;
   nominations: any[];
   setNominations: (noms: any[]) => void;
@@ -82,28 +83,15 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
   };
 
   const updateDeathDay = (no: number, day: number) => {
-    props.setDeaths(prev => {
-      const exists = prev.find(d => d.playerNo === no.toString());
-      if (exists) {
-        return prev.map(d => d.playerNo === no.toString() ? { ...d, day } : d);
-      }
-      return [...prev, { id: Math.random().toString(36).substr(2, 9), day, playerNo: no.toString(), reason: '⚔️', note: '', isConfirmed: true }];
-    });
-    // Also update player visual day
-    props.updatePlayerProperty(no, props.players.find(p => p.no === no)?.property || ''); // Trigger re-render
+    const existing = props.deaths.find(d => d.playerNo === no.toString());
+    props.updateDeathInfo(no, day, existing?.reason || '⚔️');
   };
 
   const cycleDeathReason = () => {
-    props.setDeaths(prev => {
-      const exists = prev.find(d => d.playerNo === props.playerNo.toString());
-      const curReason = exists?.reason || '⚔️';
-      const nextReason = REASON_CYCLE[(REASON_CYCLE.indexOf(curReason) + 1) % REASON_CYCLE.length];
-      
-      if (exists) {
-        return prev.map(d => d.playerNo === props.playerNo.toString() ? { ...d, reason: nextReason } : d);
-      }
-      return [...prev, { id: Math.random().toString(36).substr(2, 9), day: props.currentDay, playerNo: props.playerNo.toString(), reason: nextReason, note: '', isConfirmed: true }];
-    });
+    const exists = props.deaths.find(d => d.playerNo === props.playerNo.toString());
+    const curReason = exists?.reason || '⚔️';
+    const nextReason = REASON_CYCLE[(REASON_CYCLE.indexOf(curReason) + 1) % REASON_CYCLE.length];
+    props.updateDeathInfo(props.playerNo, exists?.day || props.currentDay, nextReason);
   };
 
   const currentPlayer = props.players.find(p => p.no === props.playerNo);
