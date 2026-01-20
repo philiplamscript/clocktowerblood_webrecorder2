@@ -40,18 +40,18 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose }) => {
       icon: <Users size={16} className="text-blue-500" />,
       images: ["/how2use/screen-1.jpg"],
       content: [
-        "Tap any player in the hub❶ to record social reads and role claims in their private notepad❷.",
+        "❶Tap any player in the hub to record social reads and role claims in their private notepad❷.",
         "This keeps your data organized per player."
       ]
     },
     {
       title: "2. Nomination Flow",
       icon: <Zap size={16} className="text-yellow-500" />,
-      images: ["/how2use/screen-2.0.jpg"],
+      images: ["/how2use/screen-2.jpg"],
       content: [
-        "Slide from Nominee to Target on the clock to create a link❶.",
-        "Before Voting you can still review/edit player notes❷.",
-        "Enter Voting Mode in the center to toggle voter status."
+        "❶:Slide from Nominee to Target on the clock to create a link.",
+        "❷:Before Voting you can still review/edit player notes.",
+        "❸:Enter Voting Mode and select voter for this nomination."
       ]
     },
     {
@@ -59,8 +59,9 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose }) => {
       icon: <Skull size={16} className="text-red-500" />,
       images: ["/how2use/screen-3.jpg"],
       content: [
-        "Toggle Death or Property mode❶, then tap clock slices to tag players.",
-        "Swipe the center ball❷ to change the current game day."
+        "❶: Toggle Death or Property assign mode for tag players.",
+        "❷: Swipe the center ball to change the current game day.",
+        "❸: Review mode, Clock Layer, and day filter for Clock review."
       ]
     },
     {
@@ -68,10 +69,11 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose }) => {
       icon: <Search size={16} className="text-indigo-500" />,
       images: ["/how2use/screen-4.jpg"],
       content: [
-        "V/R/G modes help visualize patterns❶.",
-        "See who voted for whom and global trends.",
-        "Enable/Disable layers with toggle❷.",
-        "Use the ring filter❸ to focus on specific days."
+        "⓿: Enter to open full ledger. Contain information on",
+        "❶: Player information table",
+        "❷: Nomination information table.",
+        "❸: Role script for the session. Here set number of players and existing role for keywords insert.",
+        "❹: Our only Notes if any nessessary."
       ]
     },
     {
@@ -79,16 +81,20 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose }) => {
       icon: <BookOpen size={16} className="text-emerald-500" />,
       images: ["/how2use/screen-5.jpg"],
       content: [
-        "Access detailed tables for player records, all nominations, and the full role script for the session."
+       "❶: Nagigate Role Tab at Ledger for set up.",
+        "❷: Game reset.",
+        "❸: Player name setup, if nessessary display naming via setting.",
+        "❹: Setting.",
+        "❺: Anytime you can get back here."
       ]
     },
     {
-      title: "6. Game Management",
+      title: "6. Game Session",
       icon: <Edit3 size={16} className="text-slate-400" />,
       images: ["/how2use/screen-6.jpg"],
       content: [
-        "Use the sidebar to 'Load Role' scripts via AI prompt or manual entry.",
-        "Reset sessions here to start fresh with the same roles."
+        "❶: Dispaly in number or naming",
+        "❷: Game Save/load session, could export/import to/from other devices."
       ]
     },
     {
@@ -96,8 +102,10 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose }) => {
       icon: <Palette size={16} className="text-purple-500" />,
       images: ["/how2use/screen-7.jpg"],
       content: [
-        "Personalize your experience in the settings.",
-        "Adjust colors, themes, and display preferences to suit your playstyle."
+        "⓿: Customization export/import session to/from other devices",
+        "❶: Property customizer for easy assign.",
+        "❷: Notepad customizer for default notepad and templates.",
+        "❾: Theme UI on app"
       ]
     },
     {
@@ -105,7 +113,6 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose }) => {
       icon: <Sparkles size={16} className="text-amber-500" />,
       images: ["/how2use/screen-8.jpg"],
       content: [
-        "Now you're ready to run your game with confidence.",
         "Happy hunting!"
       ]
     },
