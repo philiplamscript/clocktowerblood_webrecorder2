@@ -100,7 +100,7 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
         const existing: SessionMeta[] = JSON.parse(localStorage.getItem(sessionsKey) || '[]');
         localStorage.setItem(sessionsKey, JSON.stringify([newMeta, ...existing]));
 
-        toast.success('Record imported! Refreshing...');
+        toast.success('Record importing! Refreshing...');
         setTimeout(() => window.location.reload(), 1000);
       } catch (err) {
         toast.error('Invalid record file.');
@@ -109,7 +109,16 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
     reader.readAsText(file);
   };
 
-  const sortedSessions = [...sessions].sort((a, b) => b.lastSaved - a.lastSaved);
+  const sortedSessions = [...sessions].sort((a, b) => {
+    // 1. If 'a' is the default, move it up (return negative)
+  if (a.id === 'default') return -1;
+  
+  // 2. If 'b' is the default, move it up (return positive)
+  if (b.id === 'default') return 1;
+
+  // 3. Otherwise, sort by lastSaved descending
+  return b.lastSaved - a.lastSaved;
+  });
 
   return (
     <div className="space-y-8">
