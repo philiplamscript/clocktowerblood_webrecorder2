@@ -34,7 +34,7 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
         const pd = deaths.find(d => d.playerNo === numStr);
         const pData = players.find(p => p.no === num);
         
-        const fill = isVoter ? 'var(--accent-color)' : isCurrent ? 'var(--panel-color)' : 'var(--panel-color)';
+        const Voterfill = isVoter ? 'var(--accent-color)' :'';
         const stroke = isCurrent ? 'var(--accent-color)' : assignmentMode === 'death' ? '#ef4444' : assignmentMode === 'property' ? '#3b82f6' : 'var(--border-color)';
 
         const angleStep = 360 / playerCount;
@@ -47,15 +47,15 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
 
         const properties = pData?.property ? pData.property.split('|').filter(Boolean) : [];
         const label = identityMode === 'name' && pData?.name ? pData.name : num;
-
+        /// Main Slice --> Data Rings voteinfo --> Data Rings (alive/diednow/diedlater) --> Death/Prop display --> Current view --> Voter
         return (
           <g key={num} onMouseDown={(e) => onStart(num, e)} onTouchStart={(e) => onStart(num, e)} className="cursor-pointer group">
             {/* Main Interactive Slice - now starts from sliceStartRadius */}
             <path 
               d={getSlicePath(i, playerCount, innerRadius, outerRadius)} 
-              fill={fill} 
+              fill='rgba(var(--bg-color-rgb), 0.85)'
               stroke={stroke} 
-              strokeWidth={isCurrent ? "2" : "0.75"} 
+              strokeWidth={isCurrent ? "3" : "0.75"} 
               className="transition-colors duration-200"
             />
             
@@ -66,18 +66,22 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
               const vCount = (votedAtDay[numStr] || {})[dayNum];
               const diedNow = pd && dayNum === pd.day;
               const diedLater = pd && dayNum > pd.day;
+              const diedBefore = !pd || pd && dayNum < pd.day;
               const rs = innerRadius + rIdx * ringWidth;
               const re = rs + ringWidth;
               const pos = getPosition(num, playerCount, (rs + re) / 2);
               
               let ringFill = 'transparent';
               if (vCount !== undefined) {
-                ringFill = 'rgba(var(--accent-color-rgb), 0.8)';
-              } else if (diedNow) {
-                ringFill = 'rgba(var(--muted-color-rgb), 0.3)';
+                ringFill = 'rgba(var(--accent-color-rgb), 0.6)';
+              } else if (diedBefore) {
+                ringFill = 'var(--panel-color)';
               } else if (diedLater) {
-                ringFill = 'rgba(var(--bg-color-rgb), 0.95)';
-              }
+                ringFill = 'rgba(var(--bg-color-rgb), 0.5)';
+              } else if (diedNow) {
+                ringFill = 'rgba(var(--muted-color-rgb), 0.25)';
+              } 
+              
 
               return (
                 <g key={`${num}-${dayNum}`} className="pointer-events-none">
@@ -118,15 +122,29 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
               </g>
             )}
 
+            {isCurrent && <path 
+              d={getSlicePath(i, playerCount, innerRadius, outerRadius)} 
+              fill="rgba(var(--accent-color-rgb), 0.1)" 
+              strokeWidth="2" 
+
+            />}
+            {isVoter && <path 
+              d={getSlicePath(i, playerCount, innerRadius, outerRadius)} 
+              fill = "var(--accent-color)"
+            />}
+            
+
+
             {/* Player ID/Name label positioned in the inner "Label Zone" */}
             <path 
               d={getSlicePath(i, playerCount, sliceStartRadius, innerRadius)} 
               // fill='var(--bg-color)'
               stroke={stroke} 
-              strokeWidth={isCurrent ? "2" : "0.75"} 
+              strokeWidth={isCurrent ? "3" : "0.75"} 
               className={`transition-colors duration-200
                 ${isVoter ? 'fill-[var(--accent-color)]' : isCurrent ? 'fill-[var(--accent-color)]' : pd ? 'fill-[var(--bg-color)]' : 'fill-[var(--panel-color)]'}`}
             />
+            
 
             <text 
               x={getPosition(num, playerCount, labelRadius).x} 

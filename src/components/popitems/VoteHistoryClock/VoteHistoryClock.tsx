@@ -171,13 +171,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
         onMouseMove={(e) => handleMove(e.clientX, e.clientY)} onMouseUp={handleEnd} onMouseLeave={handleEnd}
         onTouchMove={(e) => handleMove(e.touches[0].clientX, e.touches[0].clientY)} onTouchEnd={handleEnd}
       >
-        <defs>
-          <radialGradient id="playerSpotlight" cx="0%" cy="50%" r="100%">
-            <stop offset="0%" stopColor="var(--bg-color)" stopOpacity="0" />
-            <stop offset="50%" stopColor="var(--bg-color)" stopOpacity="0" />
-            <stop offset="100%" stopColor="var(--bg-color)" stopOpacity="0" />
-          </radialGradient>
-        </defs>
+        
         
         <PlayerSlices 
           playerCount={props.playerCount} playerNo={props.playerNo} isVoting={props.isVoting} pendingNomVoters={props.pendingNom?.voters ?? []}

@@ -99,6 +99,7 @@ export default function App() {
       '--bg-color': c.bg,
       '--bg-color-rgb': hexToRgb(c.bg),
       '--panel-color': c.panel,
+      '--panel-color-rgb': hexToRgb(c.panel),
       '--header-color': c.header,
       '--accent-color': c.accent,
       '--accent-color-rgb': hexToRgb(c.accent),
