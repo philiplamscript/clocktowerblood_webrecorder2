@@ -23,7 +23,7 @@ const ThemeSection: React.FC<ThemeSectionProps> = ({
   activeTheme, setActiveTheme, setCustomThemeColors, setCustomThemePatterns, savedCustomThemes, saveCustomTheme, updateCustomTheme, deleteCustomTheme, renameCustomTheme, aiThemeInput, setAiThemeInput
 }) => {
   const [desiredStyle, setDesiredStyle] = useState('');
-  const [patternType, setPatternType] = useState<'none' | 'subtle' | 'decorative'>('subtle');
+  const [patternType, setPatternType] = useState<'none' | 'subtle' | 'decorative'>('none');
   const [copied, setCopied] = useState(false);
   const [showSaveTheme, setShowSaveTheme] = useState(false);
   const [themeName, setThemeName] = useState('');
