@@ -30,7 +30,7 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose }) => {
       title: "Welcome to ClockTracker",
       icon: <Sparkles size={16} className="text-red-500" />,
       images: [],
-      content: "A digital companion for Blood on the Clocktower. Track votes, manage roles, and solve the mystery with elegance and speed."
+      content: "A digital companion for Blood on the Clocktower. Track votes, manage details, and backtrack to solve the mystery."
     },
     {
       title: "1. Player Notes",
