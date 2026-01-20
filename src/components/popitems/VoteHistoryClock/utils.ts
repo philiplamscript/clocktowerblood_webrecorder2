@@ -1,8 +1,8 @@
 export const cx = 144;
 export const cy = 144;
 export const outerRadius = 140; 
-export const innerRadius = 64;  // Data rings start here
-export const sliceStartRadius = 32; // Interactive slices start closer to center
+export const innerRadius = 58;  // Data rings start here
+export const sliceStartRadius = 42; // Interactive slices start closer to center
 export const labelRadius = 48; // Where player numbers will sit
 
 export const getPosition = (num: number, playerCount: number, radius: number) => {

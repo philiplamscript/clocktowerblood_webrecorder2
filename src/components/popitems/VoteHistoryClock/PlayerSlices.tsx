@@ -52,12 +52,13 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
           <g key={num} onMouseDown={(e) => onStart(num, e)} onTouchStart={(e) => onStart(num, e)} className="cursor-pointer group">
             {/* Main Interactive Slice - now starts from sliceStartRadius */}
             <path 
-              d={getSlicePath(i, playerCount, sliceStartRadius, outerRadius)} 
+              d={getSlicePath(i, playerCount, innerRadius, outerRadius)} 
               fill={fill} 
               stroke={stroke} 
               strokeWidth={isCurrent ? "2" : "0.75"} 
               className="transition-colors duration-200"
             />
+            
             
             {/* Data Rings (Days/Votes) - starts from innerRadius */}
             {Array.from({ length: ringCount }).map((_, rIdx) => {
@@ -71,11 +72,11 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
               
               let ringFill = 'transparent';
               if (vCount !== undefined) {
-                ringFill = `rgba(var(--accent-color-rgb), 0.7)`;
+                ringFill = 'rgba(var(--accent-color-rgb), 0.8)';
               } else if (diedNow) {
-                ringFill = 'rgba(var(--bg-color-rgb), 0.5)';
+                ringFill = 'rgba(var(--muted-color-rgb), 0.3)';
               } else if (diedLater) {
-                ringFill = 'rgba(var(--bg-color-rgb), 1)';
+                ringFill = 'rgba(var(--bg-color-rgb), 0.95)';
               }
 
               return (
@@ -118,12 +119,22 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
             )}
 
             {/* Player ID/Name label positioned in the inner "Label Zone" */}
+            <path 
+              d={getSlicePath(i, playerCount, sliceStartRadius, innerRadius)} 
+              // fill='var(--bg-color)'
+              stroke={stroke} 
+              strokeWidth={isCurrent ? "2" : "0.75"} 
+              className={`transition-colors duration-200
+                ${isVoter ? 'fill-[var(--accent-color)]' : isCurrent ? 'fill-[var(--accent-color)]' : pd ? 'fill-[var(--bg-color)]' : 'fill-[var(--panel-color)]'}`}
+            />
+
             <text 
               x={getPosition(num, playerCount, labelRadius).x} 
               y={getPosition(num, playerCount, labelRadius).y} 
               textAnchor="middle" 
               alignmentBaseline="middle" 
-              className={`text-[9px] font-black tracking-tight pointer-events-none transition-all duration-200 ${isVoter ? 'fill-white' : isCurrent ? 'fill-[var(--accent-color)]' : pd ? 'fill-[var(--muted-color)]' : 'fill-[var(--text-on-panel)]'}`}
+              className={`text-[9px] font-black tracking-tight pointer-events-none transition-all duration-200 
+                ${isVoter ? 'fill-[var(--text-on-bg)]' : isCurrent ? 'fill-[var(--text-on-bg)]' : pd ? 'fill-[var(--text-on-bg)]' : 'fill-[var(--text-on-panel)]'}`}
               style={identityMode === 'name' && label.toString().length > 4 ? { fontSize: '6.5px' } : {}}
             >
               {label}
