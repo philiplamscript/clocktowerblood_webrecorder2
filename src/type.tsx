@@ -238,13 +238,13 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       bg: "#3a8bc5",
       panel: "#D6EFFF",
       header: "#3498DB",
-      accent: "#53ebff",
+      accent: "#00E5FF",
       text: "#0B1D2A",
       textOnBg: "#FFFFFF",
       textOnPanel: "#0B1D2A",
       textOnHeader: "#FFFFFF",
-      border: "#85C1E9",
-      muted: "#5D6D7E",
+      border: "#486581",
+      muted: "#829AB1",
     },
     patterns: {
       // New dropping ice pattern
@@ -261,19 +261,13 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
 
 </defs> 
   <g transform='translate(60, 50) rotate(115) scale(0.7)'><use href='#crystal-shard' width='160' height='60' /></g> 
-  <g transform='translate(50, 120) rotate(110) scale(0.5)'><use href='#crystal-shard' width='160' height='60' /></g> 
-  <g transform='translate(80, 200) rotate(100) scale(0.8)'><use href='#crystal-shard' width='160' height='60' /></g> 
-  <g transform='translate(220, 80) rotate(35) scale(0.6)'><use href='#crystal-shard' width='160' height='60' /></g> 
+  <g transform='translate(40, 200) rotate(100) scale(0.8)'><use href='#crystal-shard' width='160' height='60' /></g> 
   <g transform='translate(150, 150) rotate(110) scale(0.9)'><use href='#crystal-shard' width='160' height='60' /></g> 
-  <g transform='translate(180, 30) rotate(60) scale(0.4)'><use href='#crystal-shard' width='160' height='60' /></g> 
-  <g transform='translate(220, 220) rotate(90) scale(0.7)'><use href='#crystal-shard' width='160' height='60' /></g> 
-  <g transform='translate(250, 190) rotate(50) scale(0.5)'><use href='#crystal-shard' width='160' height='60' /></g>
-  <g transform='translate(220, 130) rotate(80) scale(0.8)'><use href='#crystal-shard' width='160' height='60' /></g> 
+  <g transform='translate(260, 130) rotate(80) scale(0.8)'><use href='#crystal-shard' width='160' height='60' /></g> 
   <g transform='translate(130, 50) rotate(80) scale(0.6)'><use href='#crystal-shard' width='160' height='60' /></g> 
-  <g transform='translate(250, 280) rotate(70) scale(0.4)'><use href='#crystal-shard' width='160' height='60' /></g> 
   <g transform='translate(200, 260) rotate(100) scale(0.6)'><use href='#crystal-shard' width='160' height='60' /></g> </svg>`,
       panel: `
-      <svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink="http://www.w3.org/1999/xlink" viewBox='0 50 500 500' width='100' height='100'>
+      <svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink="http://www.w3.org/1999/xlink" viewBox='0 250 500 1' width='100' height='100'>
 <defs>
   <g id = 'snowflake'>      
   <defs>
@@ -301,13 +295,13 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
 
   <g transform='translate(150, 220) rotate(100) scale(0.3)'><use href='#snowflake' width='160' height='60' /></g> 
   <g transform='translate(290, 80) rotate(35) scale(0.6)'><use href='#snowflake' width='160' height='60' /></g> 
-  <g transform='translate(450, 400) rotate(110) scale(0.2)'><use href='#snowflake' width='160' height='60' /></g> 
+  <!-- <g transform='translate(450, 400) rotate(110) scale(0.2)'><use href='#snowflake' width='160' height='60' /></g>  -->
   <g transform='translate(180, 0) rotate(60) scale(0.4)'><use href='#snowflake' width='160' height='60' /></g> 
-
-  <g transform='translate(450, 190) rotate(50) scale(0.1)'><use href='#snowflake' width='160' height='60' /></g>
-  <g transform='translate(280, 30) rotate(80) scale(0.3)'><use href='#snowflake' width='160' height='60' /></g> 
+<!-- 
+  <g transform='translate(450, 190) rotate(50) scale(0.1)'><use href='#snowflake' width='160' height='60' /></g> -->
+  <!-- <g transform='translate(280, 30) rotate(80) scale(0.3)'><use href='#snowflake' width='160' height='60' /></g>  -->
   <g transform='translate(400, 50) rotate(80) scale(0.2)'><use href='#snowflake' width='160' height='60' /></g> 
-  <g transform='translate(250, 280) rotate(70) scale(0.4)'><use href='#snowflake' width='160' height='60' /></g> 
+  <!-- <g transform='translate(250, 280) rotate(70) scale(0.4)'><use href='#snowflake' width='160' height='60' /></g>  -->
 
 </svg>`    }
 },
