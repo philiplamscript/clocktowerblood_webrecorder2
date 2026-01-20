@@ -11,13 +11,13 @@ import {
   Search,
   Users,
   Sparkles,
-  BookOpen
+  BookOpen,
+  Palette
 } from 'lucide-react';
 
 interface GreetingPopupProps {
   isOpen: boolean;
   onClose: () => void;
-  title?: string;
 }
 
 const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose }) => {
@@ -30,44 +30,85 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose }) => {
       title: "Welcome to ClockTracker",
       icon: <Sparkles size={16} className="text-red-500" />,
       images: [],
-      content: "A digital companion for Blood on the Clocktower. Track votes, manage details, and backtrack to solve the mystery."
+      content: [
+        "A digital companion for Blood on the Clocktower.",
+        "Track votes, manage details, and backtrack to solve the mystery."
+      ]
     },
     {
       title: "1. Player Notes",
       icon: <Users size={16} className="text-blue-500" />,
       images: ["/how2use/screen-1.jpg"],
-      content: "Tap any player in the hub❶ to record social reads and role claims in their private notepad❷. This keeps your data organized per player."
+      content: [
+        "Tap any player in the hub❶ to record social reads and role claims in their private notepad❷.",
+        "This keeps your data organized per player."
+      ]
     },
     {
       title: "2. Nomination Flow",
       icon: <Zap size={16} className="text-yellow-500" />,
-      images: ["/how2use/screen-2.0.jpg", "/how2use/screen-2.1.jpg", "/how2use/screen-2.2.jpg"],
-      content: `Slide from Nominee to Target on the clock to create a link❶. Before Voting still able review/edit player notes❷.Enter Voting Mode in the center to toggle voter status.`
+      images: ["/how2use/screen-2.0.jpg"],
+      content: [
+        "Slide from Nominee to Target on the clock to create a link❶.",
+        "Before Voting you can still review/edit player notes❷.",
+        "Enter Voting Mode in the center to toggle voter status."
+      ]
     },
     {
       title: "3. Quick Assignment",
       icon: <Skull size={16} className="text-red-500" />,
       images: ["/how2use/screen-3.jpg"],
-      content: "Toggle Death or Property mode❶, then tap clock slices to tag players. Swipe the center ball❷ to change the current game day."
+      content: [
+        "Toggle Death or Property mode❶, then tap clock slices to tag players.",
+        "Swipe the center ball❷ to change the current game day."
+      ]
     },
     {
-      title: "4. Pattern Review",
+      title: "4. Full Ledgers",
       icon: <Search size={16} className="text-indigo-500" />,
       images: ["/how2use/screen-4.jpg"],
-      content: "V/R/G modes help visualize patterns❶. See who voted for whom and global trends. Able/Disable layer❷. Use the ring filter❸ to focus on specific days."
+      content: [
+        "V/R/G modes help visualize patterns❶.",
+        "See who voted for whom and global trends.",
+        "Enable/Disable layers with toggle❷.",
+        "Use the ring filter❸ to focus on specific days."
+      ]
     },
     {
-      title: "5. Full Ledgers",
+      title: "5. Sidebar",
       icon: <BookOpen size={16} className="text-emerald-500" />,
-      images: ["/how2use/screen-5.2.jpg", "/how2use/screen-5.3.jpg", "/how2use/screen-5.4.jpg"],
-      content: "Access detailed tables for player records, all nominations, and the full role script for the session."
+      images: ["/how2use/screen-5.jpg"],
+      content: [
+        "Access detailed tables for player records, all nominations, and the full role script for the session."
+      ]
     },
     {
-      title: "6. Script Setup",
+      title: "6. Game Management",
       icon: <Edit3 size={16} className="text-slate-400" />,
       images: ["/how2use/screen-6.jpg"],
-      content: "Use the sidebar to 'Load Role' scripts via AI prompt or manual entry. Reset sessions here to start fresh with the same roles."
-    }
+      content: [
+        "Use the sidebar to 'Load Role' scripts via AI prompt or manual entry.",
+        "Reset sessions here to start fresh with the same roles."
+      ]
+    },
+    {
+      title: "7. Customization",
+      icon: <Palette size={16} className="text-purple-500" />,
+      images: ["/how2use/screen-7.jpg"],
+      content: [
+        "Personalize your experience in the settings.",
+        "Adjust colors, themes, and display preferences to suit your playstyle."
+      ]
+    },
+    {
+      title: "8. Enjoy",
+      icon: <Sparkles size={16} className="text-amber-500" />,
+      images: ["/how2use/screen-8.jpg"],
+      content: [
+        "Now you're ready to run your game with confidence.",
+        "Happy hunting!"
+      ]
+    },
   ];
 
   const page = pages[currentPage];
@@ -117,9 +158,13 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose }) => {
                   {page.title}
                 </h2>
               </div>
-              <p className="text-xs text-slate-500 font-medium leading-relaxed">
-                {page.content}
-              </p>
+              <div className="space-y-2">
+                {page.content.map((text, idx) => (
+                  <p key={idx} className="text-xs text-slate-500 font-medium leading-relaxed">
+                    {text}
+                  </p>
+                ))}
+              </div>
             </div>
 
             <div className="flex items-center justify-between mt-8">
