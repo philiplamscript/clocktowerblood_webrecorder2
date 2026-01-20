@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { X, Github, Coffee, MessageSquare } from 'lucide-react';
+import { app_version} from '../../../type';
 
 interface AboutPopupProps {
   isOpen: boolean;
@@ -17,7 +18,7 @@ const AboutPopup: React.FC<AboutPopupProps> = ({ isOpen, onClose }) => {
 
   const emailSubject = encodeURIComponent("[BOTCT-ClockTracker] Feedback / Bug Report");
   const emailBody = encodeURIComponent(`Type: [Feedback / Bug Report]
-  Version: v0.3
+  Version: v${app_version}
   ---
   Description of the issue or feedback:
 

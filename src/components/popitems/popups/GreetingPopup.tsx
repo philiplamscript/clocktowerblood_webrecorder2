@@ -15,6 +15,8 @@ import {
   Palette
 } from 'lucide-react';
 
+import { app_version} from '../../../type';
+
 interface GreetingPopupProps {
   isOpen: boolean;
   onClose: () => void;
@@ -143,7 +145,7 @@ const GreetingPopup: React.FC<GreetingPopupProps> = ({ isOpen, onClose }) => {
                 <img src="/The_Minimalist_Wheel.svg" alt="logo" className="w-14 h-14" />
               </div>
               <h1 className="text-3xl font-black uppercase tracking-tighter italic">ClockTower</h1>
-              <p className="text-[10px] uppercase tracking-[0.4em] font-black text-slate-400 mt-2">Recorder v0.3</p>
+              <p className="text-[10px] uppercase tracking-[0.4em] font-black text-slate-400 mt-2">Recorder {app_version}</p>
             </div>
           ) : (
             <div className="flex-none h-[45%] bg-slate-100 flex items-center justify-center p-4 gap-2 border-b border-slate-200 overflow-hidden">

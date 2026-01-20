@@ -2,6 +2,7 @@
 
 import { pattern } from "framer-motion/client";
 
+
 export type ThemeType = 'standard' | 'knights' | 'grimoire' | 'puppet' | 'custom' | string;
 
 export type IdentityMode = 'number' | 'name';
@@ -103,6 +104,7 @@ export interface SessionMeta {
 }
 
 // --- CONSTANTS ---
+export const app_version = "1.0.0";
 
 export const INITIAL_PLAYERS = 15;
 export const REASON_CYCLE = ['⚔️', '☀️', '🌑'];
