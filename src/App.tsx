@@ -97,6 +97,7 @@ export default function App() {
     
     return {
       '--bg-color': c.bg,
+      '--bg-color-rgb': hexToRgb(c.bg),
       '--panel-color': c.panel,
       '--header-color': c.header,
       '--accent-color': c.accent,
@@ -107,6 +108,7 @@ export default function App() {
       '--text-on-header': c.textOnHeader || c.bg,
       '--border-color': c.border,
       '--muted-color': c.muted,
+      '--muted-color-rgb': hexToRgb(c.muted),
       
       '--bg-pattern': createPattern(p?.bg),
       '--panel-pattern': createPattern(p?.panel),

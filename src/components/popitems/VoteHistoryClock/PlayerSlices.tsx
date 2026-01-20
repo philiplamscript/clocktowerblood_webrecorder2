@@ -40,7 +40,7 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
         const pd = deaths.find(d => d.playerNo === numStr);
         const pData = players.find(p => p.no === num);
         
-        const fill = isVoter ? 'var(--accent-color)' : isCurrent ? 'var(--panel-color)' : pd ? 'var(--bg-color)' : 'var(--panel-color)';
+        const fill = isVoter ? 'var(--accent-color)' : isCurrent ? 'var(--panel-color)' : pd ? 'var(--panel-color)' : 'var(--panel-color)';
         const stroke = isCurrent ? 'var(--accent-color)' : assignmentMode === 'death' ? '#ef4444' : assignmentMode === 'property' ? '#3b82f6' : 'var(--border-color)';
 
         const angleStep = 360 / playerCount;
@@ -75,20 +75,19 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
               
               let ringFill = 'transparent';
               if (vCount !== undefined) {
-                ringFill = `rgba(var(--accent-color-rgb), ${mode === 'allReceive' ? '0.3' : '0.4'})`;
+                ringFill = `rgba(var(--accent-color-rgb), 0.7)`;
               } else if (diedNow) {
-                ringFill = 'rgba(var(--accent-color-rgb), 0.1)';
+                ringFill = 'rgba(var(--bg-color-rgb), 0.5)';
               } else if (diedLater) {
-                ringFill = 'var(--muted-color)';
+                ringFill = 'rgba(var(--bg-color-rgb), 1)';
               }
 
               return (
                 <g key={`${num}-${dayNum}`} className="pointer-events-none">
                   <path 
                     d={getSlicePath(i, playerCount, rs, re)} 
-                    fill={ringFill} 
-                    className={diedLater ? 'opacity-20' : ''}
-                  />
+                    fill={ringFill}
+                    />
                   {showDeathIcons && diedNow && (
                     <text x={pos.x} y={pos.y} textAnchor="middle" alignmentBaseline="middle" className="text-[10px] opacity-100 fill-[var(--text-on-panel)] drop-shadow-sm">{pd.reason}</text>
                   )}

@@ -172,10 +172,10 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
         onTouchMove={(e) => handleMove(e.touches[0].clientX, e.touches[0].clientY)} onTouchEnd={handleEnd}
       >
         <defs>
-          <radialGradient id="playerSpotlight" cx="0%" cy="0%" r="0%">
-            <stop offset="0%" stopColor="#fef3c7" stopOpacity="1" />
-            <stop offset="50%" stopColor="#fef3c7" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#fde68a" stopOpacity="0.4" />
+          <radialGradient id="playerSpotlight" cx="0%" cy="50%" r="100%">
+            <stop offset="0%" stopColor="var(--bg-color)" stopOpacity="1" />
+            <stop offset="50%" stopColor="var(--bg-color)" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="var(--bg-color)" stopOpacity="0.4" />
           </radialGradient>
         </defs>
         

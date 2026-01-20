@@ -192,8 +192,8 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
       muted: '#64748b',
 
     },
-
   },
+
   knights: {
     id: 'knights',
     name: 'Knights of the Round Table',
@@ -289,7 +289,6 @@ export const THEMES: Record<Exclude<ThemeType, string>, Theme> = {
   patterns: {
     bg: "<svg xmlns='http://www.w3.org/2000/svg' width='80' height='120' viewBox='0 0 80 120'><g stroke='#3d1f1f' stroke-width='1' fill='none' opacity='0.6'><path d='M40 120 V0 M0 60 H80'/><path d='M40 100 Q 40 40 80 40 M40 100 Q 40 40 0 40'/><path d='M40 80 Q 40 20 70 20 M40 80 Q 40 20 10 20'/><path d='M40 0 L50 20 L40 30 L30 20 Z' fill='#3d1f1f'/><circle cx='40' cy='60' r='5'/><path d='M0 100 Q 40 100 40 120 M80 100 Q 40 100 40 120'/><path d='M0 20 Q 40 20 40 0 M80 20 Q 40 20 40 0'/></g></svg>",
     panel: "<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><g fill='#8c7a65' fill-opacity='0.15'><path d='M60 20 L62 40 L80 42 L62 44 L60 64 L58 44 L40 42 L58 40 Z'/><path d='M0 0 L10 0 L0 10 Z M120 0 L110 0 L120 10 Z M0 120 L10 120 L0 110 Z M120 120 L110 120 L120 110 Z'/></g><path d='M60 0 Q 60 60 120 60 M120 60 Q 60 60 60 120 M60 120 Q 60 60 0 60 M0 60 Q 60 60 60 0' stroke='#8c7a65' stroke-width='0.5' stroke-opacity='0.3' fill='none'/></svg>"
-    // 
     }
   },
 };

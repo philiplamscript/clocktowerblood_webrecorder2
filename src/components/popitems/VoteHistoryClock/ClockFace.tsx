@@ -39,7 +39,7 @@ const ClockFace: React.FC<ClockFaceProps> = ({playerCount,playerNo, ringCount, r
           fill="none" 
           stroke="var(--border-color)" 
           strokeWidth="0.5" 
-          className="opacity-40"
+          className="opacity-50"
         />
       ))}
       
