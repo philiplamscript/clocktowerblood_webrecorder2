@@ -5,8 +5,8 @@ import ClockFace from './ClockFace';
 import PlayerSlices from './PlayerSlices';
 import VoteArrows from './VoteArrows';
 import ClockCenter from './ClockCenter';
-import { cx, cy, innerRadius, outerRadius } from './utils';
-import { type IdentityMode } from '../../../type';
+import { innerRadius, outerRadius } from './utils';
+import { type IdentityMode, type ReviewRole, type RoleDetectMap, type DetectStatus, normalizeDetectStatus } from '../../../type';
 
 interface VoteHistoryClockProps {
   playerNo: number;
@@ -33,6 +33,10 @@ interface VoteHistoryClockProps {
   selectedProperty?: string;
   showArrows?: boolean;
   identityMode?: IdentityMode;
+  reviewRole?: ReviewRole | null;
+  reviewStatus?: DetectStatus;
+  reviewDetectMap?: RoleDetectMap;
+  onReviewDayToggle?: (day: number) => void;
 }
 
 const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
@@ -43,6 +47,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
   const [centerTouchX, setCenterTouchX] = useState<number | null>(null);
   const [centerSwipeOffset, setCenterSwipeOffset] = useState(0); 
   const [centerSwiped, setCenterSwiped] = useState(false);
+  const [gestureClient, setGestureClient] = useState<{ x: number; y: number } | null>(null);
 
   const svgRef = useRef<SVGSVGElement>(null);
   const lastEventTime = useRef<number>(0);
@@ -68,6 +73,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
   const data = useMemo(() => {
     const votedAtDay: Record<string, Record<number, number>> = {}; 
     const arrowData: any[] = [];
+    const reviewAtDay: Record<string, Record<number, boolean>> = {};
     const playerStr = props.playerNo.toString();
 
     props.nominations.forEach(n => {
@@ -79,6 +85,16 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
         const fromNum = parseInt(n.f), toNum = parseInt(n.t);
         let type: 'to' | 'from' | 'self' = fromNum === toNum ? 'self' : toNum === props.playerNo ? 'from' : fromNum === props.playerNo ? 'to' : 'to';
         arrowData.push({ from: fromNum, to: toNum, day, type });
+
+        if (props.reviewRole === 'flowerGirl') {
+          (n.voters || '').split(',').filter(Boolean).forEach((v: string) => {
+            if (!reviewAtDay[v]) reviewAtDay[v] = {};
+            reviewAtDay[v][day] = true;
+          });
+        } else if (props.reviewRole === 'townCrier') {
+          if (!reviewAtDay[n.f]) reviewAtDay[n.f] = {};
+          reviewAtDay[n.f][day] = true;
+        }
       }
 
       if (props.mode === 'allReceive') {
@@ -102,8 +118,8 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
         }
       }
     });
-    return { votedAtDay, arrowData };
-  }, [props.nominations, props.playerNo, props.mode, props.filterDay]);
+    return { votedAtDay, arrowData, reviewAtDay };
+  }, [props.nominations, props.playerNo, props.mode, props.filterDay, props.reviewRole]);
 
   const getPlayerAtPos = (clientX: number, clientY: number) => {
     if (!svgRef.current) return null;
@@ -114,12 +130,29 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
     return (Math.floor(angle / (360 / props.playerCount)) % props.playerCount) + 1;
   };
 
+  const getDayAtPos = (clientX: number, clientY: number) => {
+    if (!svgRef.current) return null;
+    const rect = svgRef.current.getBoundingClientRect();
+    const scale = rect.width / 288;
+    const x = (clientX - (rect.left + rect.width / 2)) / scale;
+    const y = (clientY - (rect.top + rect.height / 2)) / scale;
+    const r = Math.sqrt(x * x + y * y);
+    if (r < innerRadius || r > outerRadius) return null;
+    const dayIdx = Math.floor((r - innerRadius) / ringWidth);
+    const day = dayIdx + 1;
+    return day >= 1 && day <= ringCount ? day : null;
+  };
+
   const handleStart = (num: number, e: React.MouseEvent | React.TouchEvent) => {
     const now = Date.now();
     if (now - lastEventTime.current < 100) return;
     lastEventTime.current = now;
 
     if (e.cancelable) e.preventDefault();
+
+    const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
+    setGestureClient({ x: clientX, y: clientY });
 
     if (props.isVoting) {
       const action = props.pendingNom?.voters.includes(num.toString()) ? 'remove' : 'add';
@@ -159,10 +192,22 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
       return; 
     }
     if (gestureStart !== null) {
-      if (!props.isVoting && !isSliding) props.onPlayerClick(gestureStart);
-      else if (!props.isVoting && isSliding && gestureCurrent !== null) props.onNominationSlideEnd(gestureStart.toString(), gestureCurrent.toString());
+      if (!props.isVoting && !isSliding) {
+        if (props.reviewRole && gestureClient && props.onReviewDayToggle) {
+          const day = getDayAtPos(gestureClient.x, gestureClient.y);
+          if (day) {
+            props.onReviewDayToggle(day);
+          } else {
+            props.onPlayerClick(gestureStart);
+          }
+        } else {
+          props.onPlayerClick(gestureStart);
+        }
+      } else if (!props.isVoting && isSliding && gestureCurrent !== null) {
+        props.onNominationSlideEnd(gestureStart.toString(), gestureCurrent.toString());
+      }
     }
-    setGestureStart(null); setGestureCurrent(null); setIsSliding(false); setDragAction(null);
+    setGestureStart(null); setGestureCurrent(null); setIsSliding(false); setDragAction(null); setGestureClient(null);
   };
 
   return (
@@ -178,6 +223,9 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
           deaths={props.deaths} players={props.players} ringCount={ringCount} ringWidth={ringWidth} votedAtDay={data.votedAtDay} mode={props.mode} 
           showDeathIcons={props.showDeathIcons} showProperties={props.showProperties} assignmentMode={props.assignmentMode ?? null} onStart={handleStart}
           identityMode={props.identityMode}
+          reviewRole={props.reviewRole ?? null}
+          reviewAtDay={data.reviewAtDay}
+          reviewDetectMap={props.reviewDetectMap ?? {}}
         />
         <ClockFace playerCount = {props.playerCount} playerNo = {props.playerNo} ringCount={ringCount} ringWidth={ringWidth} showAxis={props.showAxis ?? true} />
         <VoteArrows 
@@ -196,6 +244,8 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
           mode={props.mode}
           onStart={handleCenterStart}
           swipeOffset={centerSwipeOffset}
+          reviewRole={props.reviewRole ?? null}
+          reviewStatus={normalizeDetectStatus(props.reviewStatus ?? 'DET')}
         />
       </svg>
     </div>

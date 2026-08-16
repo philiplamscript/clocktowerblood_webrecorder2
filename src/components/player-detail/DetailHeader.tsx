@@ -1,8 +1,9 @@
 "use client";
 
 import React from 'react';
-import { Vote, Calendar, Skull, Grid3X3, ArrowRight, Tag } from 'lucide-react';
+import { Vote, Calendar, Skull, Grid3X3, ArrowRight, Tag, Flower2, Megaphone } from 'lucide-react';
 import TextRotaryPicker from '../pickers/RotaryPicker/TextRotaryPicker';
+import { type ReviewRole } from '../../type';
 
 interface DetailHeaderProps {
   isVoting: boolean;
@@ -20,13 +21,16 @@ interface DetailHeaderProps {
   setVoteHistoryMode: (mode: 'vote' | 'beVoted' | 'allReceive') => void;
   showArrows: boolean;
   setShowArrows: (show: boolean) => void;
+  reviewRole: ReviewRole | null;
+  setReviewRole: (role: ReviewRole | null) => void;
 }
 
 const DetailHeader: React.FC<DetailHeaderProps> = ({
   isVoting, filterDay, dayOptions, currentFilterText, setFilterDay,
   showDeathIcons, setShowDeathIcons, showAxis, setShowAxis,
   showProperties, setShowProperties,
-  voteHistoryMode, setVoteHistoryMode, showArrows, setShowArrows
+  voteHistoryMode, setVoteHistoryMode, showArrows, setShowArrows,
+  reviewRole, setReviewRole
 }) => {
   const modes: { id: 'vote' | 'beVoted' | 'allReceive'; label: string }[] = [
     { id: 'vote', label: 'V' },
@@ -34,12 +38,16 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
     { id: 'allReceive', label: 'G' }
   ];
 
+  const toggleReview = (role: ReviewRole) => {
+    setReviewRole(reviewRole === role ? null : role);
+  };
+
   return (
     <div className="w-full flex items-center justify-between gap-2">
       <div className="flex items-center gap-1.5 shrink-0">
         <Vote size={14} className="text-[var(--accent-color)]" />
         <span className="text-[9px] font-black text-[var(--text-on-bg)] opacity-80 uppercase tracking-tighter">
-          {isVoting ? 'Recording' : 'Patterns'}
+          {isVoting ? 'Recording' : reviewRole ? (reviewRole === 'flowerGirl' ? 'Flower Girl' : 'Town Crier') : 'Patterns'}
         </span>
       </div>
       
@@ -59,6 +67,33 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
                 {m.label}
               </button>
             ))}
+          </div>
+        )}
+
+        {!isVoting && (
+          <div className="flex bg-[var(--panel-color)] border border-[var(--border-color)] rounded-full p-0.5 shadow-sm shrink-0">
+            <button
+              onClick={() => toggleReview('flowerGirl')}
+              className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black transition-all ${
+                reviewRole === 'flowerGirl'
+                  ? 'bg-pink-500 text-white shadow-sm'
+                  : 'text-[var(--muted-color)] hover:bg-slate-100'
+              }`}
+              title="Flower Girl review (voters)"
+            >
+              <Flower2 size={9} /> FG
+            </button>
+            <button
+              onClick={() => toggleReview('townCrier')}
+              className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[8px] font-black transition-all ${
+                reviewRole === 'townCrier'
+                  ? 'bg-amber-500 text-white shadow-sm'
+                  : 'text-[var(--muted-color)] hover:bg-slate-100'
+              }`}
+              title="Town Crier review (nominators)"
+            >
+              <Megaphone size={9} /> TC
+            </button>
           </div>
         )}
 

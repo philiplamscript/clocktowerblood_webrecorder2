@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { X, UserPlus, UserMinus, GripVertical, CornerDownRight } from 'lucide-react';
+import { X, UserPlus, UserMinus, GripVertical, CornerDownRight, RotateCcw } from 'lucide-react';
 import { type Player } from '../../../type';
 
 interface PlayerRosterPopupProps {
@@ -9,14 +9,14 @@ interface PlayerRosterPopupProps {
   onClose: () => void;
   players: Player[];
   updatePlayerName: (no: number, name: string) => void;
-  updatePlayerInfo: (no: number, text: string) => void;
+  resetPlayerNames: () => void;
   reorderPlayers: (from: number, to: number) => void;
   addPlayer: () => void;
   removePlayer: (no: number) => void;
 }
 
 const PlayerRosterPopup: React.FC<PlayerRosterPopupProps> = ({
-  isOpen, onClose, players, updatePlayerName, updatePlayerInfo, reorderPlayers, addPlayer, removePlayer
+  isOpen, onClose, players, updatePlayerName, resetPlayerNames, reorderPlayers, addPlayer, removePlayer
 }) => {
   const [movingIdx, setMovingIdx] = useState<number | null>(null);
 
@@ -58,7 +58,6 @@ const PlayerRosterPopup: React.FC<PlayerRosterPopupProps> = ({
                   <th className="w-10 py-2 text-center">#</th>
                   <th className="w-14 py-2 text-center">Move</th>
                   <th className="px-4 py-2 text-left">Player Name</th>
-                  <th className="px-4 py-2 text-left">Description</th>
                   <th className="w-10 py-2 text-center">Del</th>
                 </tr>
               </thead>
@@ -100,15 +99,6 @@ const PlayerRosterPopup: React.FC<PlayerRosterPopupProps> = ({
                         className="w-full bg-transparent border-none p-0 text-[11px] font-black focus:ring-0 text-slate-700 placeholder:opacity-30"
                       />
                     </td>
-                    <td className="px-4 py-3">
-                      <input 
-                        type="text" 
-                        value={p.inf} 
-                        onChange={(e) => updatePlayerInfo(p.no, e.target.value)}
-                        placeholder="Description..."
-                        className="w-full bg-transparent border-none p-0 text-[10px] font-medium focus:ring-0 text-slate-500 placeholder:opacity-30"
-                      />
-                    </td>
                     <td className="py-3 text-center">
                       <button 
                         onClick={() => removePlayer(p.no)}
@@ -131,7 +121,14 @@ const PlayerRosterPopup: React.FC<PlayerRosterPopupProps> = ({
           </button>
         </main>
         
-        <footer className="bg-white border-t border-slate-100 p-4 flex justify-end">
+        <footer className="bg-white border-t border-slate-100 p-4 flex justify-between items-center gap-3">
+          <button 
+            onClick={resetPlayerNames}
+            className="px-4 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-100 transition-all flex items-center gap-2 active:scale-95"
+            title="Clear all player names"
+          >
+            <RotateCcw size={12} /> Reset Names
+          </button>
           <button 
             onClick={onClose}
             className="px-6 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-md active:scale-95"

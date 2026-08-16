@@ -50,11 +50,10 @@ src/
 │   ├── player-detail/    # Specialized sections for PlayerDetailView
 │   ├── tabs/             # Content tabs used within LedgerTabsPopup
 │   ├── popitems/         # UI popups and modularized clock
-│   │   ├── popups/       # Modals (Settings, About, Roster, etc.)
+│   │   ├── popups/       # Modals (Settings, About, Roster, Greeting, etc.)
 │   │   │   └── settings/ # Nested settings sub-sections
 │   │   ├── VoteHistoryClock/ # Modularized SVG clock components
-│   │   ├── FAB.tsx       # Floating Action Button
-│   │   └── GreetingPopup.tsx
+│   │   └── FAB.tsx       # Floating Action Button
 │   ├── Sidebar.tsx       # Main navigation drawer
 │   ├── PlayerDetailView.tsx # Main player focus view
 │   └── GlobalVotingView.tsx # Global game state overview

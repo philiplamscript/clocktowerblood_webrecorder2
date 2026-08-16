@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { cx, cy } from './utils';
+import { type ReviewRole, type DetectStatus, normalizeDetectStatus } from '../../../type';
 
 interface ClockCenterProps {
   isVoting: boolean;
@@ -13,21 +14,39 @@ interface ClockCenterProps {
   mode: string;
   onStart: (e: React.MouseEvent | React.TouchEvent) => void;
   swipeOffset?: number;
+  reviewRole?: ReviewRole | null;
+  reviewStatus?: DetectStatus;
 }
 
 const ClockCenter: React.FC<ClockCenterProps> = ({
-  isVoting, pendingNom, assignmentMode, selectedReason, playerNo, currentDay, mode, onStart, swipeOffset = 0
+  isVoting, pendingNom, assignmentMode, selectedReason, playerNo, currentDay, mode, onStart, swipeOffset = 0,
+  reviewRole = null, reviewStatus = 'DET'
 }) => {
+  const status = normalizeDetectStatus(reviewStatus);
+
   const getBaseColor = () => {
-    if (isVoting) return '#e11d48'; // Keep critical game states high contrast
+    if (isVoting) return '#e11d48';
     if (pendingNom) return '#7c3aed'; 
+    if (reviewRole) {
+      if (status === 'DET') return reviewRole === 'flowerGirl' ? '#ec4899' : '#f59e0b';
+      if (status === 'NO') return reviewRole === 'flowerGirl' ? '#9d174d' : '#92400e';
+      return '#64748b'; // UNK
+    }
     if (assignmentMode === 'death') return '#ef4444';
     if (assignmentMode === 'property') return '#3b82f6';
-    return 'var(--header-color)'; // Use theme header color as the default ball base
+    return 'var(--header-color)';
   };
 
   const baseColor = getBaseColor();
   const horizontalShift = Math.max(-20, Math.min(20, swipeOffset * 0.4));
+
+  const statusLabel = () => {
+    if (pendingNom) return isVoting ? 'SAVE' : 'VOTE';
+    if (reviewRole) return status;
+    return mode === 'vote' ? 'VOTE' : mode === 'beVoted' ? 'RECV' : 'ALL';
+  };
+
+  const roleTag = reviewRole === 'flowerGirl' ? 'FG' : reviewRole === 'townCrier' ? 'TC' : null;
   
   return (
     <g 
@@ -51,7 +70,7 @@ const ClockCenter: React.FC<ClockCenterProps> = ({
         fill="none" 
         stroke={baseColor} 
         strokeWidth="1" 
-        className={`transition-all duration-500 ${isVoting || pendingNom ? 'opacity-40 animate-pulse' : 'opacity-10 group-hover:opacity-20'}`} 
+        className={`transition-all duration-500 ${isVoting || pendingNom || reviewRole ? 'opacity-40 animate-pulse' : 'opacity-10 group-hover:opacity-20'}`} 
       />
       
       <circle 
@@ -78,7 +97,7 @@ const ClockCenter: React.FC<ClockCenterProps> = ({
                 textAnchor="middle" 
                 className="fill-white/40 text-[6px] font-black uppercase tracking-[0.2em]"
               >
-                Day
+                {roleTag ?? 'Day'}
               </text>
               
               <g className="transition-transform duration-300">
@@ -95,7 +114,7 @@ const ClockCenter: React.FC<ClockCenterProps> = ({
 
               <rect x={cx - 12} y={cy + 13} width="24" height="8" rx="4" fill="black" fillOpacity="0.2" />
               <text x={cx} y={cy + 19} textAnchor="middle" className="fill-white/60 text-[6px] font-black uppercase tracking-[0.1em]">
-                {mode === 'vote' ? 'VOTE' : mode === 'beVoted' ? 'RECV' : 'ALL'}
+                {statusLabel()}
               </text>
             </g>
           )}

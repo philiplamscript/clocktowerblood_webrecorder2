@@ -153,7 +153,7 @@ export default function App() {
             <div className="bg-[var(--panel-color)] transition-colors duration-500 relative overflow-hidden">
               <div className="absolute inset-0 pointer-events-none opacity-30 z-0" />
               <div className="relative z-10 h-full">
-                <PlayerDetailView playerNo={focusPlayerNo} setPlayerNo={setFocusPlayerNo} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} updatePlayerInfo={state.updatePlayerInfo} updatePlayerProperty={state.updatePlayerProperty} togglePlayerAlive={state.togglePlayerAlive} updateDeathInfo={state.updateDeathInfo} chars={state.chars} nominations={state.nominations} setNominations={state.setNominations} voteHistoryMode={voteHistoryMode} setVoteHistoryMode={setVoteHistoryMode} setShowRoleSelector={setShowRoleSelector} deaths={state.deaths} setDeaths={state.setDeaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} onPlayerClick={handlePlayerClick} setAssignmentMode={setAssignmentMode} setSelectedReason={setSelectedReason} setSelectedProperty={setSelectedProperty} notepadTemplates={state.notepadTemplates} propTemplates={state.propTemplates} identityMode={state.identityMode} />
+                <PlayerDetailView playerNo={focusPlayerNo} setPlayerNo={setFocusPlayerNo} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} updatePlayerInfo={state.updatePlayerInfo} updatePlayerProperty={state.updatePlayerProperty} togglePlayerAlive={state.togglePlayerAlive} updateDeathInfo={state.updateDeathInfo} chars={state.chars} nominations={state.nominations} setNominations={state.setNominations} voteHistoryMode={voteHistoryMode} setVoteHistoryMode={setVoteHistoryMode} setShowRoleSelector={setShowRoleSelector} deaths={state.deaths} setDeaths={state.setDeaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} onPlayerClick={handlePlayerClick} setAssignmentMode={setAssignmentMode} setSelectedReason={setSelectedReason} setSelectedProperty={setSelectedProperty} notepadTemplates={state.notepadTemplates} propTemplates={state.propTemplates} identityMode={state.identityMode} flowerGirlDetect={state.flowerGirlDetect} townCrierDetect={state.townCrierDetect} toggleFlowerGirlDetect={state.toggleFlowerGirlDetect} toggleTownCrierDetect={state.toggleTownCrierDetect} />
               </div>
             </div>
             {state.splitView && (
@@ -212,7 +212,7 @@ export default function App() {
           onClose={() => setShowRoster(false)} 
           players={state.players} 
           updatePlayerName={state.updatePlayerName} 
-          updatePlayerInfo={state.updatePlayerInfo} 
+          resetPlayerNames={state.resetPlayerNames}
           reorderPlayers={state.reorderPlayers} 
           addPlayer={state.addPlayer} 
           removePlayer={state.removePlayer} 

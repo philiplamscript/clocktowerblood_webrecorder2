@@ -59,6 +59,34 @@ export interface Death {
   isConfirmed?: boolean;
 }
 
+/** Flower Girl / Town Crier night result per day */
+export type DetectStatus = 'DET' | 'NO' | 'UNK';
+export type RoleDetectMap = Record<number, DetectStatus>;
+export type ReviewRole = 'flowerGirl' | 'townCrier';
+
+export const DETECT_CYCLE: DetectStatus[] = ['DET', 'NO', 'UNK'];
+
+export function normalizeDetectStatus(value: unknown): DetectStatus {
+  if (value === 'DET' || value === true) return 'DET';
+  if (value === 'NO' || value === false) return 'NO';
+  if (value === 'UNK') return 'UNK';
+  return 'DET';
+}
+
+export function cycleDetectStatus(current: unknown): DetectStatus {
+  const cur = normalizeDetectStatus(current);
+  return DETECT_CYCLE[(DETECT_CYCLE.indexOf(cur) + 1) % DETECT_CYCLE.length];
+}
+
+export function normalizeDetectMap(raw: unknown): RoleDetectMap {
+  if (!raw || typeof raw !== 'object') return {};
+  const out: RoleDetectMap = {};
+  Object.entries(raw as Record<string, unknown>).forEach(([day, val]) => {
+    out[Number(day)] = normalizeDetectStatus(val);
+  });
+  return out;
+}
+
 export interface Character {
   name: string;
   status: string;

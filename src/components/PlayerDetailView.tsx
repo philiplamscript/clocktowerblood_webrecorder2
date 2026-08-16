@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
-import { REASON_CYCLE, type NotepadTemplate, type PropTemplate, type IdentityMode } from '../type';
+import { REASON_CYCLE, type NotepadTemplate, type PropTemplate, type IdentityMode, type ReviewRole, type RoleDetectMap, normalizeDetectStatus } from '../type';
 import VoteHistoryClock from './popitems/VoteHistoryClock/VoteHistoryClock';
 import DetailHeader from './player-detail/DetailHeader';
 import AssignmentControls from './player-detail/AssignmentControls';
@@ -40,6 +40,10 @@ interface PlayerDetailViewProps {
   notepadTemplates?: NotepadTemplate[];
   propTemplates?: PropTemplate[];
   identityMode?: IdentityMode;
+  flowerGirlDetect: RoleDetectMap;
+  townCrierDetect: RoleDetectMap;
+  toggleFlowerGirlDetect: (day: number) => void;
+  toggleTownCrierDetect: (day: number) => void;
 }
 
 const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
@@ -52,6 +56,11 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
   const [showAxis, setShowAxis] = useState(true);
   const [showArrows, setShowArrows] = useState(true);
   const [showProperties, setShowProperties] = useState(true);
+  const [reviewRole, setReviewRole] = useState<ReviewRole | null>(null);
+
+  useEffect(() => {
+    if (reviewRole) setFilterDay('all');
+  }, [reviewRole]);
 
   const handleToggleVotingPhase = () => {
     if (!pendingNom) return;
@@ -61,6 +70,19 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
       props.setNominations([...props.nominations, newNom]);
       setPendingNom(null); setIsVoting(false);
     }
+  };
+
+  const toggleReviewDay = (day: number) => {
+    if (reviewRole === 'flowerGirl') props.toggleFlowerGirlDetect(day);
+    else if (reviewRole === 'townCrier') props.toggleTownCrierDetect(day);
+  };
+
+  const handleCenterTap = () => {
+    if (reviewRole && !pendingNom) {
+      toggleReviewDay(props.currentDay);
+      return;
+    }
+    handleToggleVotingPhase();
   };
 
   const handleVoterToggle = (voterNo: string, forceAction?: 'add' | 'remove') => {
@@ -94,6 +116,14 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
     props.updateDeathInfo(props.playerNo, exists?.day || props.currentDay, nextReason);
   };
 
+  const reviewDetectMap = reviewRole === 'flowerGirl'
+    ? props.flowerGirlDetect
+    : reviewRole === 'townCrier'
+      ? props.townCrierDetect
+      : {};
+
+  const reviewStatus = normalizeDetectStatus(reviewDetectMap[props.currentDay] ?? 'DET');
+
   const currentPlayer = props.players.find(p => p.no === props.playerNo);
   const death = props.deaths.find(d => d.playerNo === props.playerNo.toString());
   const allRoles = ['Townsfolk', 'Outsider', 'Minion', 'Demon'].flatMap(cat => 
@@ -114,6 +144,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
             showProperties={showProperties} setShowProperties={setShowProperties}
             voteHistoryMode={props.voteHistoryMode} setVoteHistoryMode={props.setVoteHistoryMode}
             showArrows={showArrows} setShowArrows={setShowArrows}
+            reviewRole={reviewRole} setReviewRole={setReviewRole}
           />
 
           <div className="relative w-full flex-1 flex flex-col items-center justify-center pt-2">
@@ -122,12 +153,16 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
               mode={props.voteHistoryMode} players={props.players} deaths={props.deaths} filterDay={filterDay}
               onPlayerClick={props.onPlayerClick ?? (() => {})} pendingNom={pendingNom} isVoting={isVoting}
               onNominationSlideEnd={(f, t) => setPendingNom({ f, t, voters: [] })}
-              onVoterToggle={handleVoterToggle} onToggleVotingPhase={handleToggleVotingPhase}
+              onVoterToggle={handleVoterToggle} onToggleVotingPhase={handleCenterTap}
               currentDay={props.currentDay} setCurrentDay={props.setCurrentDay} showDeathIcons={showDeathIcons} showAxis={showAxis}
               showProperties={showProperties}
               assignmentMode={props.assignmentMode} selectedReason={props.selectedReason} selectedProperty={props.selectedProperty}
               showArrows={showArrows}
               identityMode={props.identityMode}
+              reviewRole={reviewRole}
+              reviewStatus={reviewStatus}
+              reviewDetectMap={reviewDetectMap}
+              onReviewDayToggle={toggleReviewDay}
             />
 
             <div className="absolute bottom-2 left-0 z-10">
