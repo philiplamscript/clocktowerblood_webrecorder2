@@ -78,6 +78,13 @@ export function cycleDetectStatus(current: unknown): DetectStatus {
   return DETECT_CYCLE[(DETECT_CYCLE.indexOf(cur) + 1) % DETECT_CYCLE.length];
 }
 
+export function formatDetectStatus(value: unknown): string {
+  const status = normalizeDetectStatus(value);
+  if (status === 'DET') return 'Y';
+  if (status === 'NO') return 'N';
+  return '(?)';
+}
+
 export function normalizeDetectMap(raw: unknown): RoleDetectMap {
   if (!raw || typeof raw !== 'object') return {};
   const out: RoleDetectMap = {};

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { getSlicePath, getPosition, innerRadius, outerRadius, sliceStartRadius, labelRadius } from './utils';
-import { type IdentityMode, type ReviewRole, type RoleDetectMap, type DetectStatus, normalizeDetectStatus } from '../../../type';
+import { type IdentityMode, type ReviewRole, type RoleDetectMap, type DetectStatus, normalizeDetectStatus, formatDetectStatus } from '../../../type';
 
 interface PlayerSlicesProps {
   playerCount: number;
@@ -124,7 +124,7 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
                       className="font-black fill-white drop-shadow-sm" 
                       style={{ fontSize: `${Math.max(6, ringWidth * 0.28)}px` }}
                     >
-                      {status}
+                      {formatDetectStatus(status)}
                     </text>
                   )}
                   {vCount !== undefined && mode === 'allReceive' && !diedNow && !dayHasReview && (

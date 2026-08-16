@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { cx, cy } from './utils';
-import { type ReviewRole, type DetectStatus, normalizeDetectStatus } from '../../../type';
+import { type ReviewRole, type DetectStatus, normalizeDetectStatus, formatDetectStatus } from '../../../type';
 
 interface ClockCenterProps {
   isVoting: boolean;
@@ -42,7 +42,7 @@ const ClockCenter: React.FC<ClockCenterProps> = ({
 
   const statusLabel = () => {
     if (pendingNom) return isVoting ? 'SAVE' : 'VOTE';
-    if (reviewRole) return status;
+    if (reviewRole) return formatDetectStatus(status);
     return mode === 'vote' ? 'VOTE' : mode === 'beVoted' ? 'RECV' : 'ALL';
   };
 
