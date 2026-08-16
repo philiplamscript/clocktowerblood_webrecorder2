@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Vote,
   Calendar,
@@ -9,6 +9,7 @@ import {
 
 import TextRotaryPicker from './pickers/RotaryPicker/TextRotaryPicker';
 import VoteHistoryClock from './popitems/VoteHistoryClock/VoteHistoryClock';
+import { getFrontierDay } from '../type';
 
 interface GlobalVotingViewProps {
   nominations: any[];
@@ -38,8 +39,17 @@ const GlobalVotingView: React.FC<GlobalVotingViewProps> = ({
   selectedProperty
 }) => {
   const [filterDay, setFilterDay] = useState<number | 'all'>('all');
-  const dayOptions = ['ALL', ...Array.from({ length: currentDay }, (_, i) => `D${i + 1}`)];
+  const frontierDay = useMemo(
+    () => getFrontierDay(currentDay, nominations, deaths),
+    [currentDay, nominations, deaths]
+  );
+  const dayOptions = ['ALL', ...Array.from({ length: frontierDay }, (_, i) => `D${i + 1}`)];
   const currentFilterText = filterDay === 'all' ? 'ALL' : `D${filterDay}`;
+
+  const requestNextDay = () => {
+    setCurrentDay(frontierDay + 1);
+    setFilterDay(frontierDay + 1);
+  };
 
   return (
     <div className="h-full bg-white overflow-hidden flex flex-col">
@@ -66,7 +76,7 @@ const GlobalVotingView: React.FC<GlobalVotingViewProps> = ({
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className="bg-slate-50 rounded-lg border p-4 shadow-sm flex flex-col items-center">
           <VoteHistoryClock 
-            playerNo={-1} // Global mode, no specific player
+            playerNo={-1}
             nominations={nominations} 
             playerCount={playerCount} 
             deadPlayers={deadPlayers} 
@@ -82,6 +92,8 @@ const GlobalVotingView: React.FC<GlobalVotingViewProps> = ({
             onToggleVotingPhase={() => {}}
             currentDay={currentDay}
             setCurrentDay={setCurrentDay}
+            frontierDay={frontierDay}
+            onRequestNextDay={requestNextDay}
             showDeathIcons={true}
             assignmentMode={assignmentMode}
             selectedReason={selectedReason}

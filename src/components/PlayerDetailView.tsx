@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { X } from 'lucide-react';
 
-import { REASON_CYCLE, type NotepadTemplate, type PropTemplate, type IdentityMode, type ReviewRole, type RoleDetectMap, normalizeDetectStatus } from '../type';
+import { REASON_CYCLE, getFrontierDay, type NotepadTemplate, type PropTemplate, type IdentityMode, type ReviewRole, type RoleDetectMap, normalizeDetectStatus } from '../type';
 import VoteHistoryClock from './popitems/VoteHistoryClock/VoteHistoryClock';
 import DetailHeader from './player-detail/DetailHeader';
 import AssignmentControls from './player-detail/AssignmentControls';
@@ -59,13 +59,76 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
   const [showArrows, setShowArrows] = useState(true);
   const [showProperties, setShowProperties] = useState(true);
   const [reviewRole, setReviewRole] = useState<ReviewRole | null>(null);
+  const [nextDayArmed, setNextDayArmed] = useState(false);
+  const skipClearOnMount = useRef(true);
+  const nextDayArmTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const frontierDay = useMemo(
+    () => getFrontierDay(props.currentDay, props.nominations, props.deaths),
+    [props.currentDay, props.nominations, props.deaths]
+  );
 
   useEffect(() => {
     if (reviewRole) setFilterDay('all');
   }, [reviewRole]);
 
+  useEffect(() => {
+    return () => {
+      if (nextDayArmTimer.current) clearTimeout(nextDayArmTimer.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (skipClearOnMount.current) {
+      skipClearOnMount.current = false;
+      return;
+    }
+    setPendingNom(null);
+    setIsVoting(false);
+    setNextDayArmed(false);
+    if (nextDayArmTimer.current) clearTimeout(nextDayArmTimer.current);
+    setFilterDay((prev) => (prev === 'all' ? prev : props.currentDay));
+  }, [props.currentDay]);
+
+  const clearNextDayArm = () => {
+    setNextDayArmed(false);
+    if (nextDayArmTimer.current) {
+      clearTimeout(nextDayArmTimer.current);
+      nextDayArmTimer.current = null;
+    }
+  };
+
+  const executeNextDay = () => {
+    clearNextDayArm();
+    const next = frontierDay + 1;
+    props.setCurrentDay(next);
+    setFilterDay(next);
+    props.setAssignmentMode?.('death');
+  };
+
+  const armOrConfirmNextDay = () => {
+    if (pendingNom || isVoting) return;
+    if (nextDayArmed) {
+      executeNextDay();
+      return;
+    }
+    setNextDayArmed(true);
+    if (nextDayArmTimer.current) clearTimeout(nextDayArmTimer.current);
+    nextDayArmTimer.current = setTimeout(() => setNextDayArmed(false), 4000);
+  };
+
+  const handleDayPick = (val: number | 'all') => {
+    if (val === 'all') {
+      setFilterDay('all');
+      return;
+    }
+    props.setCurrentDay(val);
+    setFilterDay(val);
+  };
+
   const handleToggleVotingPhase = () => {
     if (!pendingNom) return;
+    clearNextDayArm();
     if (!isVoting) setIsVoting(true);
     else {
       const newNom = { id: Math.random().toString(36).substr(2, 9), day: props.currentDay, f: pendingNom.f, t: pendingNom.t, voters: pendingNom.voters.join(','), note: '' };
@@ -80,11 +143,18 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
   };
 
   const handleCenterTap = () => {
-    if (reviewRole && !pendingNom) {
+    if (pendingNom) {
+      handleToggleVotingPhase();
+      return;
+    }
+    if (nextDayArmed) {
+      executeNextDay();
+      return;
+    }
+    if (reviewRole) {
       toggleReviewDay(props.currentDay);
       return;
     }
-    handleToggleVotingPhase();
   };
 
   const handleVoterToggle = (voterNo: string, forceAction?: 'add' | 'remove') => {
@@ -132,15 +202,25 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
     props.chars[cat].map((c: any) => ({ role: c.name, category: cat })).filter((i: any) => i.role)
   );
 
+  const remainingVoters = useMemo(() => {
+    if (!isVoting || !pendingNom) return [];
+    const voted = new Set(pendingNom.voters);
+    return Array.from({ length: props.playerCount }, (_, i) => i + 1).filter(
+      (n) => !voted.has(n.toString())
+    );
+  }, [isVoting, pendingNom, props.playerCount]);
+
   return (
     <div className="h-full bg-[var(--panel-color)] overflow-y-auto p-2 space-y-4 pb-24 transition-colors duration-500">
       <div className="bg-[var(--bg-color)] rounded-xl border border-[var(--border-color)] p-4 shadow-sm relative overflow-hidden flex flex-col items-center min-h-[420px] transition-colors duration-500">
         <div className="absolute inset-0 pointer-events-none opacity-100 z-0" style={{ backgroundImage: 'var(--bg-pattern)' }} />
         <div className="relative z-10 w-full flex flex-col items-center">
           <DetailHeader 
-            isVoting={isVoting} filterDay={filterDay} setFilterDay={setFilterDay}
-            dayOptions={['ALL', ...Array.from({ length: props.currentDay }, (_, i) => `D${i + 1}`)]}
-            currentFilterText={filterDay === 'all' ? 'ALL' : `D${filterDay}`}
+            isVoting={isVoting}
+            filterDay={filterDay}
+            frontierDay={frontierDay}
+            currentDay={props.currentDay}
+            onDayPick={handleDayPick}
             showDeathIcons={showDeathIcons} setShowDeathIcons={setShowDeathIcons}
             showAxis={showAxis} setShowAxis={setShowAxis}
             showProperties={showProperties} setShowProperties={setShowProperties}
@@ -156,7 +236,10 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
               onPlayerClick={props.onPlayerClick ?? (() => {})} pendingNom={pendingNom} isVoting={isVoting}
               onNominationSlideEnd={(f, t) => setPendingNom({ f, t, voters: [] })}
               onVoterToggle={handleVoterToggle} onToggleVotingPhase={handleCenterTap}
-              currentDay={props.currentDay} setCurrentDay={props.setCurrentDay} showDeathIcons={showDeathIcons} showAxis={showAxis}
+              currentDay={props.currentDay} setCurrentDay={props.setCurrentDay}
+              frontierDay={frontierDay}
+              onRequestNextDay={armOrConfirmNextDay}
+              showDeathIcons={showDeathIcons} showAxis={showAxis}
               showProperties={showProperties}
               assignmentMode={props.assignmentMode} selectedReason={props.selectedReason} selectedProperty={props.selectedProperty}
               showArrows={showArrows}
@@ -165,7 +248,23 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
               reviewStatus={reviewStatus}
               reviewDetectMap={reviewDetectMap}
               onReviewDayToggle={toggleReviewDay}
+              nextDayArmed={nextDayArmed}
             />
+
+            <div className="w-full mt-2 flex justify-center">
+              <button
+                type="button"
+                disabled={!!pendingNom || isVoting}
+                onClick={armOrConfirmNextDay}
+                className={`px-4 h-8 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-sm transition-all active:scale-95 disabled:opacity-40 ${
+                  nextDayArmed
+                    ? 'bg-amber-500 text-white animate-pulse'
+                    : 'bg-[var(--header-color)] text-[var(--text-on-header)] hover:opacity-90'
+                }`}
+              >
+                {nextDayArmed ? `Confirm → D${frontierDay + 1}` : `Next day → D${frontierDay + 1}`}
+              </button>
+            </div>
 
             <div className="absolute bottom-2 left-0 z-10">
               <AssignmentControls 
@@ -175,6 +274,29 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
                 propTemplates={props.propTemplates}
               />
             </div>
+
+            {isVoting && pendingNom && remainingVoters.length > 0 && (
+              <div className="absolute bottom-2 right-0 z-20 max-w-[55%] flex flex-wrap items-center justify-end gap-1">
+                <span className="text-[8px] font-black uppercase tracking-widest text-[var(--muted-color)]">Left:</span>
+                {remainingVoters.map((n) => {
+                  const isDead = props.deadPlayers.includes(n);
+                  return (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => handleVoterToggle(n.toString())}
+                      className={`min-w-[24px] h-6 px-1.5 rounded-md text-[9px] font-black border transition-all active:scale-90 ${
+                        isDead
+                          ? 'bg-black/5 border-[var(--border-color)] text-[var(--muted-color)] opacity-60'
+                          : 'bg-[var(--panel-color)] border-[var(--border-color)] text-[var(--text-on-panel)] hover:border-[var(--accent-color)]'
+                      }`}
+                    >
+                      {n}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
             {pendingNom && !isVoting && (
               <div className="absolute bottom-0 bg-[var(--accent-color)] text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase flex items-center gap-2 animate-bounce shadow-lg z-20">

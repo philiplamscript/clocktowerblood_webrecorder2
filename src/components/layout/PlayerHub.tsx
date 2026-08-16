@@ -2,11 +2,12 @@
 
 import React from 'react';
 import { Plus, Minus } from 'lucide-react';
-import { REASON_CYCLE, type Player, type Death, type PropTemplate, type IdentityMode } from '../../type';
+import { REASON_CYCLE, getFrontierDay, type Player, type Death, type Nomination, type PropTemplate, type IdentityMode } from '../../type';
 
 interface PlayerHubProps {
   currentDay: number;
   setCurrentDay: (day: number) => void;
+  nominations: Nomination[];
   playerCount: number;
   players: Player[];
   deadPlayers: number[];
@@ -24,22 +25,36 @@ interface PlayerHubProps {
 }
 
 const PlayerHub: React.FC<PlayerHubProps> = ({
-  currentDay, setCurrentDay, playerCount, players, deadPlayers, deaths,
+  currentDay, setCurrentDay, nominations, playerCount, players, deadPlayers, deaths,
   assignmentMode, setAssignmentMode, selectedReason, setSelectedReason,
   selectedProperty, setSelectedProperty, propTemplates, focusPlayerNo, onPlayerClick, identityMode
 }) => {
+  const frontierDay = getFrontierDay(currentDay, nominations, deaths);
+  const atFrontier = currentDay >= frontierDay;
+
   const cycleSelectedReason = () => {
     const nextIndex = (REASON_CYCLE.indexOf(selectedReason) + 1) % REASON_CYCLE.length;
     setSelectedReason(REASON_CYCLE[nextIndex]);
   };
 
+  const handlePrevDay = () => setCurrentDay(Math.max(1, currentDay - 1));
+
+  const handleNextDay = () => {
+    if (currentDay < frontierDay) {
+      setCurrentDay(currentDay + 1);
+      return;
+    }
+    setCurrentDay(frontierDay + 1);
+    setAssignmentMode('death');
+  };
+
   return (
     <div className="flex-none bg-slate-800 border-b border-slate-700 p-2 shadow-inner animate-in slide-in-from-top-4 duration-200 transition-all">
       <div className="flex flex-wrap items-center gap-1.5 max-w-5xl mx-auto">
-        <div className="flex items-center bg-slate-900 rounded-lg h-7 overflow-hidden border border-slate-700 shadow-lg mr-1 w-[58px]">
-          <button onClick={() => setCurrentDay(Math.max(1, currentDay - 1))} className="flex-1 hover:bg-slate-800 text-slate-500 transition-colors flex items-center justify-center"><Minus size={10} /></button>
-          <div className="w-6 font-black text-[9px] text-white bg-slate-800 h-full flex items-center justify-center tracking-tighter border-x border-slate-700">D{currentDay}</div>
-          <button onClick={() => setCurrentDay(currentDay + 1)} className="flex-1 hover:bg-slate-800 text-slate-500 transition-colors flex items-center justify-center"><Plus size={10} /></button>
+        <div className="flex items-center bg-slate-900 rounded-lg h-7 overflow-hidden border border-slate-700 shadow-lg mr-1 w-[58px]" title={atFrontier ? 'Next day' : 'Editing day'}>
+          <button onClick={handlePrevDay} className="flex-1 hover:bg-slate-800 text-slate-500 transition-colors flex items-center justify-center"><Minus size={10} /></button>
+          <div className={`w-6 font-black text-[9px] h-full flex items-center justify-center tracking-tighter border-x border-slate-700 ${currentDay < frontierDay ? 'bg-amber-700 text-amber-50' : 'bg-slate-800 text-white'}`}>D{currentDay}</div>
+          <button onClick={handleNextDay} className="flex-1 hover:bg-slate-800 text-slate-500 transition-colors flex items-center justify-center" title={atFrontier ? 'Next day' : 'Later day'}><Plus size={10} /></button>
         </div>
 
         <div className="flex items-center gap-1 mr-2">
@@ -63,8 +78,6 @@ const PlayerHub: React.FC<PlayerHubProps> = ({
             const p = players.find(pl => pl.no === num);
             const isDead = deadPlayers.includes(num);
             const death = deaths.find(d => parseInt(d.playerNo) === num);
-            
-            // Determine display label based on identity mode
             const label = identityMode === 'name' && p?.name ? p.name : num;
 
             return (

@@ -4,10 +4,10 @@ overview: "Plan 1 (do first): script status under the notepad (confirm/possible/
 todos:
   - id: script-status
     content: ScriptStatusSection under notepad + CharsTab restyle (keep edit/add, 4 cols Towns|Outs|Minion|Demon, no pills, green/none/red); main list Demon→… with hairline dividers + filters; default POSS; migrate —
-    status: pending
+    status: completed
   - id: auto-dist
     content: BotC distribution table from player count; CharsTab auto-fill + Custom override rotaries above 4 role columns
-    status: pending
+    status: completed
 isProject: false
 ---
 

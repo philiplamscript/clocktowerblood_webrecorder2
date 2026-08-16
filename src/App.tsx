@@ -147,7 +147,7 @@ export default function App() {
           onShowDonation={() => setShowAbout(true)} 
         />
         <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} splitView={state.splitView} setSplitView={state.setSplitView} showHub={state.showHub} setShowHub={state.setShowHub} setShowLedger={setShowLedger} />
-        {state.showHub && <PlayerHub currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} deaths={state.deaths} assignmentMode={assignmentMode} setAssignmentMode={setAssignmentMode} selectedReason={selectedReason} setSelectedReason={setSelectedReason} selectedProperty={selectedProperty} setSelectedProperty={setSelectedProperty} propTemplates={state.propTemplates} focusPlayerNo={focusPlayerNo} onPlayerClick={handlePlayerClick} identityMode={state.identityMode} />}
+        {state.showHub && <PlayerHub currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} nominations={state.nominations} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} deaths={state.deaths} assignmentMode={assignmentMode} setAssignmentMode={setAssignmentMode} selectedReason={selectedReason} setSelectedReason={setSelectedReason} selectedProperty={selectedProperty} setSelectedProperty={setSelectedProperty} propTemplates={state.propTemplates} focusPlayerNo={focusPlayerNo} onPlayerClick={handlePlayerClick} identityMode={state.identityMode} />}
         <main className="flex-1 relative">
           <div className={`h-full ${state.splitView ? 'grid grid-cols-2 divide-x border-[var(--border-color)]' : ''}`}>
             <div className="bg-[var(--panel-color)] transition-colors duration-500 relative overflow-hidden">

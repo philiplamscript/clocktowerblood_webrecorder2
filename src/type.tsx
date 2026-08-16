@@ -59,6 +59,25 @@ export interface Death {
   isConfirmed?: boolean;
 }
 
+/** Max day stamped on nominations/deaths (ignores current editing day). */
+export function getDataMaxDay(
+  nominations: { day?: number }[],
+  deaths: { day?: number }[]
+): number {
+  const maxNom = nominations.reduce((m, n) => Math.max(m, Number(n.day) || 0), 0);
+  const maxDeath = deaths.reduce((m, d) => Math.max(m, Number(d.day) || 0), 0);
+  return Math.max(maxNom, maxDeath, 1);
+}
+
+/** Recording frontier: max(editing day, data days). */
+export function getFrontierDay(
+  currentDay: number,
+  nominations: { day?: number }[],
+  deaths: { day?: number }[]
+): number {
+  return Math.max(currentDay, getDataMaxDay(nominations, deaths));
+}
+
 /** Flower Girl / Town Crier night result per day */
 export type DetectStatus = 'DET' | 'NO' | 'UNK';
 export type RoleDetectMap = Record<number, DetectStatus>;

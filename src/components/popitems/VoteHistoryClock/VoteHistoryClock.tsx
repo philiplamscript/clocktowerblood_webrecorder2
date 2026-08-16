@@ -25,6 +25,8 @@ interface VoteHistoryClockProps {
   onToggleVotingPhase: () => void;
   currentDay: number;
   setCurrentDay?: (day: number) => void;
+  frontierDay?: number;
+  onRequestNextDay?: () => void;
   showDeathIcons: boolean;
   showAxis?: boolean;
   showProperties?: boolean;
@@ -37,6 +39,7 @@ interface VoteHistoryClockProps {
   reviewStatus?: DetectStatus;
   reviewDetectMap?: RoleDetectMap;
   onReviewDayToggle?: (day: number) => void;
+  nextDayArmed?: boolean;
 }
 
 const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
@@ -45,8 +48,8 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
   const [isSliding, setIsSliding] = useState(false);
   const [dragAction, setDragAction] = useState<'add' | 'remove' | null>(null);
   const [centerTouchX, setCenterTouchX] = useState<number | null>(null);
-  const [centerSwipeOffset, setCenterSwipeOffset] = useState(0); 
-  const [centerSwiped, setCenterSwiped] = useState(false);
+  const [centerTouchY, setCenterTouchY] = useState<number | null>(null);
+  const [centerMoved, setCenterMoved] = useState(false);
   const [gestureClient, setGestureClient] = useState<{ x: number; y: number } | null>(null);
 
   const svgRef = useRef<SVGSVGElement>(null);
@@ -65,9 +68,10 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
     e.stopPropagation();
 
     const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
     setCenterTouchX(clientX);
-    setCenterSwipeOffset(0);
-    setCenterSwiped(false);
+    setCenterTouchY(clientY);
+    setCenterMoved(false);
   };
 
   const data = useMemo(() => {
@@ -164,15 +168,9 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
   };
 
   const handleMove = (clientX: number, clientY: number) => {
-    if (centerTouchX !== null) {
-      const deltaX = clientX - centerTouchX;
-      setCenterSwipeOffset(deltaX); 
-
-      if (Math.abs(deltaX) > 40 && !centerSwiped) {
-        if (deltaX > 0) props.setCurrentDay?.(Math.max(1, props.currentDay - 1));
-        else props.setCurrentDay?.(props.currentDay + 1);
-        setCenterSwiped(true);
-      }
+    if (centerTouchX !== null && centerTouchY !== null) {
+      const dist = Math.hypot(clientX - centerTouchX, clientY - centerTouchY);
+      if (dist > 12) setCenterMoved(true);
       return;
     }
     if (gestureStart === null) return;
@@ -185,10 +183,10 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
 
   const handleEnd = () => {
     if (centerTouchX !== null) { 
-      if (!centerSwiped) props.onToggleVotingPhase(); 
+      if (!centerMoved) props.onToggleVotingPhase(); 
       setCenterTouchX(null); 
-      setCenterSwipeOffset(0);
-      setCenterSwiped(false); 
+      setCenterTouchY(null);
+      setCenterMoved(false); 
       return; 
     }
     if (gestureStart !== null) {
@@ -243,9 +241,9 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
           currentDay={props.currentDay} 
           mode={props.mode}
           onStart={handleCenterStart}
-          swipeOffset={centerSwipeOffset}
           reviewRole={props.reviewRole ?? null}
           reviewStatus={normalizeDetectStatus(props.reviewStatus ?? 'DET')}
+          nextDayArmed={props.nextDayArmed ?? false}
         />
       </svg>
     </div>

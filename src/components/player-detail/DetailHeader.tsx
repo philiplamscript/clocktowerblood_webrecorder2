@@ -2,15 +2,15 @@
 
 import React from 'react';
 import { Vote, Calendar, Skull, Grid3X3, ArrowRight, Tag, Flower2, Megaphone } from 'lucide-react';
-import TextRotaryPicker from '../pickers/RotaryPicker/TextRotaryPicker';
 import { type ReviewRole } from '../../type';
 
 interface DetailHeaderProps {
   isVoting: boolean;
   filterDay: number | 'all';
-  dayOptions: string[];
-  currentFilterText: string;
-  setFilterDay: (val: number | 'all') => void;
+  frontierDay: number;
+  currentDay: number;
+  /** Pick ALL (view) or Dn (edit that day). */
+  onDayPick: (val: number | 'all') => void;
   showDeathIcons: boolean;
   setShowDeathIcons: (show: boolean) => void;
   showAxis: boolean;
@@ -26,7 +26,7 @@ interface DetailHeaderProps {
 }
 
 const DetailHeader: React.FC<DetailHeaderProps> = ({
-  isVoting, filterDay, dayOptions, currentFilterText, setFilterDay,
+  isVoting, filterDay, frontierDay, currentDay, onDayPick,
   showDeathIcons, setShowDeathIcons, showAxis, setShowAxis,
   showProperties, setShowProperties,
   voteHistoryMode, setVoteHistoryMode, showArrows, setShowArrows,
@@ -41,6 +41,8 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
   const toggleReview = (role: ReviewRole) => {
     setReviewRole(reviewRole === role ? null : role);
   };
+
+  const displayValue = filterDay === 'all' ? 'all' : String(currentDay);
 
   return (
     <div className="w-full flex items-center justify-between gap-2">
@@ -129,16 +131,24 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
         </div>
 
         {!isVoting && (
-          <div className="flex items-center gap-1 bg-[var(--panel-color)] border border-[var(--border-color)] rounded-full px-1.5 h-6 shadow-sm shrink-0">
-            <Calendar size={10} className="text-[var(--muted-color)]" />
-            <div className="w-8">
-              <TextRotaryPicker 
-                value={currentFilterText} 
-                options={dayOptions} 
-                onChange={(val) => setFilterDay(val === 'ALL' ? 'all' : parseInt(val.replace('D', '')))}
-                color="text-[var(--text-on-panel)]"
-              />
-            </div>
+          <div className="flex items-center gap-1 bg-[var(--panel-color)] border border-[var(--border-color)] rounded-full pl-1.5 pr-1 h-6 shadow-sm shrink-0">
+            <Calendar size={10} className="text-[var(--muted-color)] shrink-0" />
+            <select
+              value={displayValue}
+              onChange={(e) => {
+                const v = e.target.value;
+                onDayPick(v === 'all' ? 'all' : parseInt(v, 10));
+              }}
+              className="bg-transparent border-none text-[9px] font-black text-[var(--text-on-panel)] focus:ring-0 py-0 pl-0 pr-4 cursor-pointer max-w-[4.5rem]"
+              title="Pick day to view/edit"
+            >
+              <option value="all">ALL</option>
+              {Array.from({ length: frontierDay }, (_, i) => i + 1).map((d) => (
+                <option key={d} value={String(d)}>
+                  D{d}{d === currentDay && filterDay !== 'all' ? ' ·' : ''}
+                </option>
+              ))}
+            </select>
           </div>
         )}
       </div>
