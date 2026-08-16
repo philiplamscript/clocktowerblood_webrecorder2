@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { createInitialChars, REASON_CYCLE, STATUS_OPTIONS } from './type';
+import {
+  createInitialChars,
+  REASON_CYCLE,
+  STATUS_OPTIONS,
+  normalizeCharStatus,
+  cycleCharStatus,
+  normalizeCharDict,
+  getRoleDistForPlayerCount,
+} from './type';
 
 describe('Game Data Utilities', () => {
   it('should create initial character dictionary with correct structure', () => {
@@ -11,7 +19,7 @@ describe('Game Data Utilities', () => {
     expect(chars).toHaveProperty('Demon');
     
     expect(chars.Townsfolk).toHaveLength(8);
-    expect(chars.Townsfolk[0].status).toBe('—');
+    expect(chars.Townsfolk[0].status).toBe('POSS');
   });
 
   it('should have the expected death reasons in the cycle', () => {
@@ -20,8 +28,33 @@ describe('Game Data Utilities', () => {
   });
 
   it('should have standard status options for character tracking', () => {
-    expect(STATUS_OPTIONS).toContain('POSS');
-    expect(STATUS_OPTIONS).toContain('CONF');
-    expect(STATUS_OPTIONS).toContain('NOT');
+    expect(STATUS_OPTIONS).toEqual(['POSS', 'CONF', 'NOT']);
+    expect(STATUS_OPTIONS).not.toContain('—');
+  });
+
+  it('should migrate legacy dash status to POSS', () => {
+    expect(normalizeCharStatus('—')).toBe('POSS');
+    expect(normalizeCharStatus(undefined)).toBe('POSS');
+    const migrated = normalizeCharDict({
+      Townsfolk: [{ name: 'Chef', status: '—', note: '' }],
+      Outsider: [],
+      Minion: [],
+      Demon: [{ name: 'Imp', status: 'CONF', note: '' }],
+    });
+    expect(migrated.Townsfolk[0].status).toBe('POSS');
+    expect(migrated.Demon[0].status).toBe('CONF');
+  });
+
+  it('should cycle POSS → CONF → NOT → POSS', () => {
+    expect(cycleCharStatus('POSS')).toBe('CONF');
+    expect(cycleCharStatus('CONF')).toBe('NOT');
+    expect(cycleCharStatus('NOT')).toBe('POSS');
+    expect(cycleCharStatus('—')).toBe('CONF');
+  });
+
+  it('should map player count to standard role distribution', () => {
+    expect(getRoleDistForPlayerCount(7)).toEqual({ townsfolk: 5, outsiders: 0, minions: 1, demons: 1 });
+    expect(getRoleDistForPlayerCount(10)).toEqual({ townsfolk: 7, outsiders: 0, minions: 2, demons: 1 });
+    expect(getRoleDistForPlayerCount(15)).toEqual({ townsfolk: 9, outsiders: 2, minions: 3, demons: 1 });
   });
 });

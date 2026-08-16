@@ -18,6 +18,8 @@ import {
   type SessionMeta,
   type RoleDetectMap,
   createInitialChars,
+  normalizeCharDict,
+  getRoleDistForPlayerCount,
   THEMES,
   normalizeDetectMap,
   cycleDetectStatus
@@ -74,8 +76,13 @@ export const useGameState = () => {
   }))));
   const [nominations, setNominations] = useState<Nomination[]>(() => getSessionValue(activeSessionId, 'nominations', [{ id: '1', day: 1, f: '-', t: '-', voters: '', note: '' }]));
   const [deaths, setDeaths] = useState<Death[]>(() => getSessionValue(activeSessionId, 'deaths', []));
-  const [chars, setChars] = useState<CharDict>(() => getSessionValue(activeSessionId, 'chars', createInitialChars()));
-  const [roleDist, setRoleDist] = useState<RoleDist>(() => getSessionValue(activeSessionId, 'dist', { townsfolk: 9, outsiders: 1, minions: 2, demons: 1 }));
+  const [chars, setChars] = useState<CharDict>(() => normalizeCharDict(getSessionValue(activeSessionId, 'chars', createInitialChars())));
+  const [roleDist, setRoleDist] = useState<RoleDist>(() => {
+    const saved = getSessionValue(activeSessionId, 'dist', null);
+    if (saved && typeof saved === 'object') return saved as RoleDist;
+    const count = getSessionValue(activeSessionId, 'count', 15);
+    return getRoleDistForPlayerCount(count);
+  });
   const [note, setNote] = useState(() => getSessionValue(activeSessionId, 'note', ''));
   const [showHub, setShowHub] = useState(() => getSessionValue(activeSessionId, 'showHub', false));
   const [splitView, setSplitView] = useState(() => getSessionValue(activeSessionId, 'splitView', false));
@@ -146,8 +153,8 @@ export const useGameState = () => {
     setPlayers(getSessionValue(activeSessionId, 'players', []));
     setNominations(getSessionValue(activeSessionId, 'nominations', []));
     setDeaths(getSessionValue(activeSessionId, 'deaths', []));
-    setChars(getSessionValue(activeSessionId, 'chars', {}));
-    setRoleDist(getSessionValue(activeSessionId, 'dist', {}));
+    setChars(normalizeCharDict(getSessionValue(activeSessionId, 'chars', createInitialChars())));
+    setRoleDist(getSessionValue(activeSessionId, 'dist', getRoleDistForPlayerCount(getSessionValue(activeSessionId, 'count', 15))));
     setNote(getSessionValue(activeSessionId, 'note', ''));
     setShowHub(getSessionValue(activeSessionId, 'showHub', false));
     setSplitView(getSessionValue(activeSessionId, 'splitView', false));
@@ -163,7 +170,7 @@ export const useGameState = () => {
     setChars(prev => {
       const newChars = { ...prev };
       (Object.keys(newChars) as (keyof CharDict)[]).forEach(cat => {
-        newChars[cat] = newChars[cat].map(c => ({ ...c, status: '—', note: '' }));
+        newChars[cat] = newChars[cat].map(c => ({ ...c, status: 'POSS', note: '' }));
       });
       return newChars;
     });

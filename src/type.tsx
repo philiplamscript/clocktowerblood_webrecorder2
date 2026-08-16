@@ -143,7 +143,76 @@ export const app_version = "1.0.0";
 
 export const INITIAL_PLAYERS = 15;
 export const REASON_CYCLE = ['⚔️', '☀️', '🌑'];
-export const STATUS_OPTIONS = ["—", "POSS", "CONF", "NOT"];
+export const STATUS_OPTIONS = ["POSS", "CONF", "NOT"] as const;
+export type CharStatus = (typeof STATUS_OPTIONS)[number];
+
+/** Script status category order for main-tab SCRIPT list (evil first). */
+export const SCRIPT_STATUS_CATEGORIES: (keyof CharDict)[] = ['Demon', 'Minion', 'Outsider', 'Townsfolk'];
+
+/** Roles page column order: Townsfolk | Outsider | Minion | Demon */
+export const ROLES_PAGE_CATEGORIES: (keyof CharDict)[] = ['Townsfolk', 'Outsider', 'Minion', 'Demon'];
+
+export function normalizeCharStatus(value: unknown): CharStatus {
+  if (value === 'CONF' || value === 'NOT' || value === 'POSS') return value;
+  return 'POSS';
+}
+
+export function cycleCharStatus(current: unknown): CharStatus {
+  const cur = normalizeCharStatus(current);
+  return STATUS_OPTIONS[(STATUS_OPTIONS.indexOf(cur) + 1) % STATUS_OPTIONS.length];
+}
+
+export function charStatusCellClass(status: unknown): string {
+  const s = normalizeCharStatus(status);
+  if (s === 'CONF') return 'bg-emerald-500/25 text-emerald-800 dark:text-emerald-200';
+  if (s === 'NOT') return 'bg-red-500/25 text-red-800 dark:text-red-200';
+  return 'bg-transparent text-[var(--text-on-panel)]';
+}
+
+export function normalizeCharDict(raw: unknown): CharDict {
+  const base = createInitialChars();
+  if (!raw || typeof raw !== 'object') return base;
+  const src = raw as Partial<CharDict>;
+  (Object.keys(base) as (keyof CharDict)[]).forEach((cat) => {
+    const list = Array.isArray(src[cat]) ? src[cat]! : base[cat];
+    base[cat] = list.map((c) => ({
+      name: c?.name ?? '',
+      status: normalizeCharStatus(c?.status),
+      note: c?.note ?? '',
+    }));
+  });
+  return base;
+}
+
+/** Official-style BotC player → bag counts (5–15). */
+const ROLE_DIST_BY_COUNT: Record<number, RoleDist> = {
+  5: { townsfolk: 3, outsiders: 0, minions: 1, demons: 1 },
+  6: { townsfolk: 3, outsiders: 1, minions: 1, demons: 1 },
+  7: { townsfolk: 5, outsiders: 0, minions: 1, demons: 1 },
+  8: { townsfolk: 5, outsiders: 1, minions: 1, demons: 1 },
+  9: { townsfolk: 5, outsiders: 2, minions: 1, demons: 1 },
+  10: { townsfolk: 7, outsiders: 0, minions: 2, demons: 1 },
+  11: { townsfolk: 7, outsiders: 1, minions: 2, demons: 1 },
+  12: { townsfolk: 7, outsiders: 2, minions: 2, demons: 1 },
+  13: { townsfolk: 9, outsiders: 0, minions: 3, demons: 1 },
+  14: { townsfolk: 9, outsiders: 1, minions: 3, demons: 1 },
+  15: { townsfolk: 9, outsiders: 2, minions: 3, demons: 1 },
+};
+
+export function getRoleDistForPlayerCount(playerCount: number): RoleDist {
+  const n = Math.max(1, Math.min(20, Math.floor(playerCount) || 1));
+  if (ROLE_DIST_BY_COUNT[n]) return { ...ROLE_DIST_BY_COUNT[n] };
+  if (n < 5) {
+    return {
+      townsfolk: Math.max(0, n - 2),
+      outsiders: 0,
+      minions: n >= 3 ? 1 : 0,
+      demons: n >= 1 ? 1 : 0,
+    };
+  }
+  const base = ROLE_DIST_BY_COUNT[15];
+  return { ...base, townsfolk: base.townsfolk + (n - 15) };
+}
 
 export const ROLE_PARSING_PROMPT = `
 Please analyze this Blood on the Clocktower script image and output the role names. 
@@ -179,10 +248,10 @@ Demon: \n
 \`\`\``;
 
 export const createInitialChars = (): CharDict => ({
-  Townsfolk: Array(8).fill(null).map(() => ({ name: '', status: '—', note: '' })),
-  Outsider: Array(8).fill(null).map(() => ({ name: '', status: '—', note: '' })),
-  Minion: Array(8).fill(null).map(() => ({ name: '', status: '—', note: '' })),
-  Demon: Array(8).fill(null).map(() => ({ name: '', status: '—', note: '' })),
+  Townsfolk: Array(8).fill(null).map(() => ({ name: '', status: 'POSS', note: '' })),
+  Outsider: Array(8).fill(null).map(() => ({ name: '', status: 'POSS', note: '' })),
+  Minion: Array(8).fill(null).map(() => ({ name: '', status: 'POSS', note: '' })),
+  Demon: Array(8).fill(null).map(() => ({ name: '', status: 'POSS', note: '' })),
 });
 
 // --- PATTERN GENERATOR ---

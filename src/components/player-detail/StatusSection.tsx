@@ -44,7 +44,7 @@ const StatusSection: React.FC<StatusSectionProps> = ({
       ) : (
         <button 
           onClick={() => togglePlayerAlive(playerNo)} 
-          className="flex-[8] h-10 rounded-lg text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 shadow-sm bg-emerald-600 text-white hover:bg-emerald-700"
+          className="flex-[8] h-10 rounded-lg text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 shadow-sm bg-red-600 text-white hover:bg-red-700"
         >
           EXECUTE
         </button>

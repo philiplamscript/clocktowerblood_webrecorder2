@@ -8,6 +8,7 @@ import VoteHistoryClock from './popitems/VoteHistoryClock/VoteHistoryClock';
 import DetailHeader from './player-detail/DetailHeader';
 import AssignmentControls from './player-detail/AssignmentControls';
 import NoteSection from './player-detail/NoteSection';
+import ScriptStatusSection from './player-detail/ScriptStatusSection';
 import StatusSection from './player-detail/StatusSection';
 
 interface PlayerDetailViewProps {
@@ -21,6 +22,7 @@ interface PlayerDetailViewProps {
   togglePlayerAlive: (no: number) => void;
   updateDeathInfo: (no: number, day: number | null, reason: string | null) => void;
   chars: any;
+  setChars: React.Dispatch<React.SetStateAction<any>>;
   nominations: any[];
   setNominations: (noms: any[]) => void;
   voteHistoryMode: 'vote' | 'beVoted' | 'allReceive';
@@ -198,6 +200,8 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
         cycleDeathReason={cycleDeathReason}
         currentPlayer={currentPlayer} updatePlayerProperty={props.updatePlayerProperty}
       />
+
+      <ScriptStatusSection chars={props.chars} setChars={props.setChars} />
       
       <div className="h-16" />
       <div className="h-16" />
