@@ -7,6 +7,7 @@ import {
   cycleCharStatus,
   normalizeCharDict,
   getRoleDistForPlayerCount,
+  normalizeClockDayDirection,
 } from './type';
 
 describe('Game Data Utilities', () => {
@@ -56,5 +57,12 @@ describe('Game Data Utilities', () => {
     expect(getRoleDistForPlayerCount(7)).toEqual({ townsfolk: 5, outsiders: 0, minions: 1, demons: 1 });
     expect(getRoleDistForPlayerCount(10)).toEqual({ townsfolk: 7, outsiders: 0, minions: 2, demons: 1 });
     expect(getRoleDistForPlayerCount(15)).toEqual({ townsfolk: 9, outsiders: 2, minions: 3, demons: 1 });
+  });
+
+  it('should default unknown clock day direction to out-in', () => {
+    expect(normalizeClockDayDirection('in-out')).toBe('in-out');
+    expect(normalizeClockDayDirection('out-in')).toBe('out-in');
+    expect(normalizeClockDayDirection('nope')).toBe('out-in');
+    expect(normalizeClockDayDirection(undefined)).toBe('out-in');
   });
 });

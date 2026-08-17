@@ -5,8 +5,8 @@ import ClockFace from './ClockFace';
 import PlayerSlices from './PlayerSlices';
 import VoteArrows from './VoteArrows';
 import ClockCenter from './ClockCenter';
-import { innerRadius, outerRadius } from './utils';
-import { type IdentityMode, type ReviewRole, type RoleDetectMap, type DetectStatus, normalizeDetectStatus } from '../../../type';
+import { innerRadius, outerRadius, innerRingIndexToDay, DEFAULT_CLOCK_DAY_DIRECTION } from './utils';
+import { type IdentityMode, type ClockDayDirection, type ReviewRole, type RoleDetectMap, type DetectStatus, normalizeDetectStatus } from '../../../type';
 
 interface VoteHistoryClockProps {
   playerNo: number;
@@ -37,6 +37,7 @@ interface VoteHistoryClockProps {
   reviewStatus?: DetectStatus;
   reviewDetectMap?: RoleDetectMap;
   onReviewDayToggle?: (day: number) => void;
+  clockDayDirection?: ClockDayDirection;
 }
 
 const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
@@ -139,7 +140,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
     const r = Math.sqrt(x * x + y * y);
     if (r < innerRadius || r > outerRadius) return null;
     const dayIdx = Math.floor((r - innerRadius) / ringWidth);
-    const day = dayIdx + 1;
+    const day = innerRingIndexToDay(dayIdx, ringCount, props.clockDayDirection);
     return day >= 1 && day <= ringCount ? day : null;
   };
 
@@ -226,13 +227,15 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
           reviewRole={props.reviewRole ?? null}
           reviewAtDay={data.reviewAtDay}
           reviewDetectMap={props.reviewDetectMap ?? {}}
+          clockDayDirection={props.clockDayDirection ?? DEFAULT_CLOCK_DAY_DIRECTION}
         />
-        <ClockFace playerCount = {props.playerCount} playerNo = {props.playerNo} ringCount={ringCount} ringWidth={ringWidth} showAxis={props.showAxis ?? true} />
+        <ClockFace playerCount = {props.playerCount} playerNo = {props.playerNo} ringCount={ringCount} ringWidth={ringWidth} showAxis={props.showAxis ?? true} clockDayDirection={props.clockDayDirection ?? DEFAULT_CLOCK_DAY_DIRECTION} />
         <VoteArrows 
           arrowData={data.arrowData} playerCount={props.playerCount} playerNo={props.playerNo} isVoting={props.isVoting} 
           isSliding={isSliding} gestureStart={gestureStart} gestureCurrent={gestureCurrent} pendingNom={props.pendingNom} 
-          currentDay={props.currentDay} mode={props.mode} ringWidth={ringWidth} offset={0}
+          currentDay={props.currentDay} mode={props.mode} ringWidth={ringWidth} ringCount={ringCount} offset={0}
           showArrows={props.showArrows ?? true}
+          clockDayDirection={props.clockDayDirection ?? DEFAULT_CLOCK_DAY_DIRECTION}
         />
         <ClockCenter 
           isVoting={props.isVoting} 

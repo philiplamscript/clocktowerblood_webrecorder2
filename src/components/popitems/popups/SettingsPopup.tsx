@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { X, FileText, Settings as SettingsIcon } from 'lucide-react';
-import { type NotepadTemplate, type PropTemplate, type ThemeType, type ThemeColors, type ThemePatterns, type Theme, type IdentityMode, type SessionMeta } from '../../../type';
+import { type NotepadTemplate, type PropTemplate, type ThemeType, type ThemeColors, type ThemePatterns, type Theme, type IdentityMode, type ClockDayDirection, type SessionMeta } from '../../../type';
 
 import CustomizationSection from './settings/CustomizationSection';
 import GeneralSection from './settings/GeneralSection';
@@ -16,6 +16,8 @@ interface SettingsPopupProps {
   setLanguage: (lang: string) => void;
   identityMode: IdentityMode;
   setIdentityMode: (mode: IdentityMode) => void;
+  clockDayDirection: ClockDayDirection;
+  setClockDayDirection: (direction: ClockDayDirection) => void;
   notepadTemplates: NotepadTemplate[];
   setNotepadTemplates: (templates: NotepadTemplate[]) => void;
   propTemplates: PropTemplate[];
@@ -86,6 +88,7 @@ const SettingsPopup: React.FC<SettingsPopupProps> = (props) => {
               fontSize={props.fontSize} setFontSize={props.setFontSize}
               language={props.language} setLanguage={props.setLanguage}
               identityMode={props.identityMode} setIdentityMode={props.setIdentityMode}
+              clockDayDirection={props.clockDayDirection} setClockDayDirection={props.setClockDayDirection}
               resetCustomization={props.resetCustomization}
               storagePrefix={props.storagePrefix}
               switchStoragePath={props.switchStoragePath}

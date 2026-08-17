@@ -1,9 +1,24 @@
+import { type ClockDayDirection, normalizeClockDayDirection } from '../../../type';
+
 export const cx = 144;
 export const cy = 144;
 export const outerRadius = 140; 
 export const innerRadius = 58;  // Data rings start here
 export const sliceStartRadius = 42; // Interactive slices start closer to center
 export const labelRadius = 48; // Where player numbers will sit
+export const DEFAULT_CLOCK_DAY_DIRECTION: ClockDayDirection = 'out-in';
+
+const dir = (direction?: ClockDayDirection): ClockDayDirection =>
+  normalizeClockDayDirection(direction ?? DEFAULT_CLOCK_DAY_DIRECTION);
+
+/** `rIdx` 0 is the innermost ring. */
+export const innerRingIndexToDay = (rIdx: number, ringCount: number, direction?: ClockDayDirection) =>
+  dir(direction) === 'in-out' ? rIdx + 1 : ringCount - rIdx;
+
+export const dayRingMidRadius = (day: number, ringCount: number, ringWidth: number, direction?: ClockDayDirection) => {
+  const rIdx = dir(direction) === 'in-out' ? day - 1 : ringCount - day;
+  return innerRadius + (rIdx + 0.5) * ringWidth;
+};
 
 export const getPosition = (num: number, playerCount: number, radius: number) => {
   const angle = ((num - 1) * (360 / playerCount)) - 90 + (360 / (playerCount * 2));

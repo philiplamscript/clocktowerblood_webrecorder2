@@ -15,6 +15,7 @@ import {
   type ThemePatterns,
   type Theme,
   type IdentityMode,
+  type ClockDayDirection,
   type SessionMeta,
   type RoleDetectMap,
   createInitialChars,
@@ -22,7 +23,8 @@ import {
   getRoleDistForPlayerCount,
   THEMES,
   normalizeDetectMap,
-  cycleDetectStatus
+  cycleDetectStatus,
+  normalizeClockDayDirection
 } from '../type';
 
 const APP_GLOBAL_KEY = 'ct_app_config';
@@ -67,6 +69,7 @@ export const useGameState = () => {
   const [fontSize, setFontSize] = useState<'small' | 'mid' | 'large'>(() => getGlobal('font', 'mid'));
   const [language, setLanguage] = useState(() => getGlobal('lang', 'Eng'));
   const [identityMode, setIdentityMode] = useState<IdentityMode>(() => getGlobal('identity_mode', 'number'));
+  const [clockDayDirection, setClockDayDirection] = useState<ClockDayDirection>(() => normalizeClockDayDirection(getGlobal('clock_day_direction', 'out-in')));
 
   // Session-Specific Game Data
   const [currentDay, setCurrentDay] = useState(() => getSessionValue(activeSessionId, 'day', 1));
@@ -108,11 +111,11 @@ export const useGameState = () => {
     const config = {
       active_theme: activeTheme, custom_theme_colors: customThemeColors, custom_theme_patterns: customThemePatterns,
       saved_custom_themes: savedCustomThemes, notepad_templates: notepadTemplates, prop_templates: propTemplates,
-      default_notepad: defaultNotepad, ai_theme_input: aiThemeInput, font: fontSize, lang: language, identity_mode: identityMode
+      default_notepad: defaultNotepad, ai_theme_input: aiThemeInput, font: fontSize, lang: language, identity_mode: identityMode, clock_day_direction: clockDayDirection
     };
     Object.entries(config).forEach(([key, val]) => localStorage.setItem(`${APP_GLOBAL_KEY}_${key}`, JSON.stringify(val)));
     localStorage.setItem(`${APP_GLOBAL_KEY}_path`, JSON.stringify(globalPath));
-  }, [globalPath, activeTheme, customThemeColors, customThemePatterns, savedCustomThemes, notepadTemplates, propTemplates, defaultNotepad, aiThemeInput, fontSize, language, identityMode]);
+  }, [globalPath, activeTheme, customThemeColors, customThemePatterns, savedCustomThemes, notepadTemplates, propTemplates, defaultNotepad, aiThemeInput, fontSize, language, identityMode, clockDayDirection]);
 
   useEffect(() => {
     const data = {
@@ -283,7 +286,7 @@ export const useGameState = () => {
       }
       toast.success('Reset triggered');
     },
-    fontSize, setFontSize, language, setLanguage, identityMode, setIdentityMode,
+    fontSize, setFontSize, language, setLanguage, identityMode, setIdentityMode, clockDayDirection, setClockDayDirection,
     flowerGirlDetect, townCrierDetect, toggleFlowerGirlDetect, toggleTownCrierDetect,
     updatePlayerInfo, updatePlayerProperty, updatePlayerName, resetPlayerNames, togglePlayerAlive, updateDeathInfo, reset,
     reorderPlayers: (from: number, to: number) => {

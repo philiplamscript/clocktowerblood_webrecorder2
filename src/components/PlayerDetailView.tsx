@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
-import { REASON_CYCLE, type NotepadTemplate, type PropTemplate, type IdentityMode, type ReviewRole, type RoleDetectMap, normalizeDetectStatus } from '../type';
+import { REASON_CYCLE, type NotepadTemplate, type PropTemplate, type IdentityMode, type ClockDayDirection, type ReviewRole, type RoleDetectMap, normalizeDetectStatus } from '../type';
 import VoteHistoryClock from './popitems/VoteHistoryClock/VoteHistoryClock';
 import DetailHeader from './player-detail/DetailHeader';
 import AssignmentControls from './player-detail/AssignmentControls';
@@ -42,6 +42,7 @@ interface PlayerDetailViewProps {
   notepadTemplates?: NotepadTemplate[];
   propTemplates?: PropTemplate[];
   identityMode?: IdentityMode;
+  clockDayDirection?: ClockDayDirection;
   flowerGirlDetect: RoleDetectMap;
   townCrierDetect: RoleDetectMap;
   toggleFlowerGirlDetect: (day: number) => void;
@@ -161,6 +162,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
               assignmentMode={props.assignmentMode} selectedReason={props.selectedReason} selectedProperty={props.selectedProperty}
               showArrows={showArrows}
               identityMode={props.identityMode}
+              clockDayDirection={props.clockDayDirection}
               reviewRole={reviewRole}
               reviewStatus={reviewStatus}
               reviewDetectMap={reviewDetectMap}

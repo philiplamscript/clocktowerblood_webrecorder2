@@ -153,14 +153,14 @@ export default function App() {
             <div className="bg-[var(--panel-color)] transition-colors duration-500 relative overflow-hidden">
               <div className="absolute inset-0 pointer-events-none opacity-30 z-0" />
               <div className="relative z-10 h-full">
-                <PlayerDetailView playerNo={focusPlayerNo} setPlayerNo={setFocusPlayerNo} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} updatePlayerInfo={state.updatePlayerInfo} updatePlayerProperty={state.updatePlayerProperty} togglePlayerAlive={state.togglePlayerAlive} updateDeathInfo={state.updateDeathInfo} chars={state.chars} setChars={state.setChars} nominations={state.nominations} setNominations={state.setNominations} voteHistoryMode={voteHistoryMode} setVoteHistoryMode={setVoteHistoryMode} setShowRoleSelector={setShowRoleSelector} deaths={state.deaths} setDeaths={state.setDeaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} onPlayerClick={handlePlayerClick} setAssignmentMode={setAssignmentMode} setSelectedReason={setSelectedReason} setSelectedProperty={setSelectedProperty} notepadTemplates={state.notepadTemplates} propTemplates={state.propTemplates} identityMode={state.identityMode} flowerGirlDetect={state.flowerGirlDetect} townCrierDetect={state.townCrierDetect} toggleFlowerGirlDetect={state.toggleFlowerGirlDetect} toggleTownCrierDetect={state.toggleTownCrierDetect} />
+                <PlayerDetailView playerNo={focusPlayerNo} setPlayerNo={setFocusPlayerNo} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} updatePlayerInfo={state.updatePlayerInfo} updatePlayerProperty={state.updatePlayerProperty} togglePlayerAlive={state.togglePlayerAlive} updateDeathInfo={state.updateDeathInfo} chars={state.chars} setChars={state.setChars} nominations={state.nominations} setNominations={state.setNominations} voteHistoryMode={voteHistoryMode} setVoteHistoryMode={setVoteHistoryMode} setShowRoleSelector={setShowRoleSelector} deaths={state.deaths} setDeaths={state.setDeaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} onPlayerClick={handlePlayerClick} setAssignmentMode={setAssignmentMode} setSelectedReason={setSelectedReason} setSelectedProperty={setSelectedProperty} notepadTemplates={state.notepadTemplates} propTemplates={state.propTemplates} identityMode={state.identityMode} clockDayDirection={state.clockDayDirection} flowerGirlDetect={state.flowerGirlDetect} townCrierDetect={state.townCrierDetect} toggleFlowerGirlDetect={state.toggleFlowerGirlDetect} toggleTownCrierDetect={state.toggleTownCrierDetect} />
               </div>
             </div>
             {state.splitView && (
               <div className="bg-[var(--panel-color)] transition-colors duration-500 relative overflow-hidden">
                 <div className="absolute inset-0 pointer-events-none opacity-30 z-0" style={{ backgroundImage: 'var(--panel-pattern)' }} />
                 <div className="relative z-10 h-full">
-                  <GlobalVotingView nominations={state.nominations} playerCount={state.playerCount} deadPlayers={state.deadPlayers} players={state.players} deaths={state.deaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} onPlayerClick={handlePlayerClick} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} />
+                  <GlobalVotingView nominations={state.nominations} playerCount={state.playerCount} deadPlayers={state.deadPlayers} players={state.players} deaths={state.deaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} onPlayerClick={handlePlayerClick} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} clockDayDirection={state.clockDayDirection} />
                 </div>
               </div>
             )}
@@ -179,6 +179,8 @@ export default function App() {
           setLanguage={state.setLanguage} 
           identityMode={state.identityMode}
           setIdentityMode={state.setIdentityMode}
+          clockDayDirection={state.clockDayDirection}
+          setClockDayDirection={state.setClockDayDirection}
           notepadTemplates={state.notepadTemplates} 
           setNotepadTemplates={state.setNotepadTemplates} 
           propTemplates={state.propTemplates} 

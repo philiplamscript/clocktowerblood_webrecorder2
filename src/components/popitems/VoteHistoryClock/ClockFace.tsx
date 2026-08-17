@@ -1,7 +1,8 @@
 "use client";
 
 import React from 'react';
-import { cx, cy, innerRadius, outerRadius, sliceStartRadius } from './utils';
+import { type ClockDayDirection } from '../../../type';
+import { cx, cy, innerRadius, outerRadius, sliceStartRadius, innerRingIndexToDay, DEFAULT_CLOCK_DAY_DIRECTION } from './utils';
 
 interface ClockFaceProps {
   playerCount: number;
@@ -9,9 +10,10 @@ interface ClockFaceProps {
   ringCount: number;
   ringWidth: number;
   showAxis: boolean;
+  clockDayDirection?: ClockDayDirection;
 }
 
-const ClockFace: React.FC<ClockFaceProps> = ({playerCount,playerNo, ringCount, ringWidth, showAxis}) => {
+const ClockFace: React.FC<ClockFaceProps> = ({playerCount,playerNo, ringCount, ringWidth, showAxis, clockDayDirection = DEFAULT_CLOCK_DAY_DIRECTION}) => {
   if (!showAxis) return null;
   const rotationAngle = playerNo !== 0 ? ((playerNo -1) / playerCount) * 360 +2: 0;
   
@@ -58,7 +60,7 @@ const ClockFace: React.FC<ClockFaceProps> = ({playerCount,playerNo, ringCount, r
         const y = cy - radius;
         return (
           <g key={`day-label-${i}`}>
-            {renderUprightText(x, y, `D${i + 1}`, "text-[5px] font-black uppercase tracking-widest fill-[var(--text-on-panel)] opacity-80")}
+            {renderUprightText(x, y, `D${innerRingIndexToDay(i, ringCount, clockDayDirection)}`, "text-[5px] font-black uppercase tracking-widest fill-[var(--text-on-panel)] opacity-80")}
           </g>
         );
       })}

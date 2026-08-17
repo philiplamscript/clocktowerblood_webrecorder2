@@ -1,7 +1,8 @@
 "use client";
 
 import React from 'react';
-import { innerRadius, cx, cy } from './utils';
+import { type ClockDayDirection } from '../../../type';
+import { cx, cy, dayRingMidRadius, DEFAULT_CLOCK_DAY_DIRECTION } from './utils';
 import { RefreshCw } from 'lucide-react';
 
 interface VoteArrowsProps {
@@ -16,12 +17,14 @@ interface VoteArrowsProps {
   currentDay: number;
   mode: string;
   ringWidth: number;
+  ringCount: number;
   offset: number;
   showArrows?: boolean;
+  clockDayDirection?: ClockDayDirection;
 }
 
 const VoteArrows: React.FC<VoteArrowsProps> = ({
-  arrowData, playerCount, playerNo, isVoting, isSliding, gestureStart, gestureCurrent, pendingNom, currentDay, mode, ringWidth, showArrows = true
+  arrowData, playerCount, playerNo, isVoting, isSliding, gestureStart, gestureCurrent, pendingNom, currentDay, mode, ringWidth, ringCount, showArrows = true, clockDayDirection = DEFAULT_CLOCK_DAY_DIRECTION
 }) => {
   if (!showArrows) return null;
 
@@ -44,7 +47,7 @@ const VoteArrows: React.FC<VoteArrowsProps> = ({
     const opacity = isPending ? 0.9 : (isSelected ? 0.8 : (isOld ? 0.3 : 0.5));
     const strokeWidth = isSelected ? width * 1.5 : width;
     
-    const radius = innerRadius + (day - 0.5) * ringWidth;
+    const radius = dayRingMidRadius(day, ringCount, ringWidth, clockDayDirection);
     
     if (type === 'self' || from === to) {
       const pos = getShiftedPosition(from, radius, day);

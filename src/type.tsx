@@ -7,6 +7,13 @@ export type ThemeType = 'standard' | 'knights' | 'grimoire' | 'puppet' | 'custom
 
 export type IdentityMode = 'number' | 'name';
 
+/** D1 inner → Dn outer, or D1 outer → Dn inner. */
+export type ClockDayDirection = 'in-out' | 'out-in';
+
+export function normalizeClockDayDirection(value: unknown): ClockDayDirection {
+  return value === 'in-out' ? 'in-out' : 'out-in';
+}
+
 export interface ThemeColors {
   bg: string;
   panel: string;

@@ -9,6 +9,7 @@ import {
 
 import TextRotaryPicker from './pickers/RotaryPicker/TextRotaryPicker';
 import VoteHistoryClock from './popitems/VoteHistoryClock/VoteHistoryClock';
+import { type ClockDayDirection } from '../type';
 
 interface GlobalVotingViewProps {
   nominations: any[];
@@ -22,6 +23,7 @@ interface GlobalVotingViewProps {
   assignmentMode?: 'death' | 'property' | null;
   selectedReason?: string;
   selectedProperty?: string;
+  clockDayDirection?: ClockDayDirection;
 }
 
 const GlobalVotingView: React.FC<GlobalVotingViewProps> = ({
@@ -35,7 +37,8 @@ const GlobalVotingView: React.FC<GlobalVotingViewProps> = ({
   onPlayerClick,
   assignmentMode,
   selectedReason,
-  selectedProperty
+  selectedProperty,
+  clockDayDirection
 }) => {
   const [filterDay, setFilterDay] = useState<number | 'all'>('all');
   const dayOptions = ['ALL', ...Array.from({ length: currentDay }, (_, i) => `D${i + 1}`)];
@@ -86,6 +89,7 @@ const GlobalVotingView: React.FC<GlobalVotingViewProps> = ({
             assignmentMode={assignmentMode}
             selectedReason={selectedReason}
             selectedProperty={selectedProperty}
+            clockDayDirection={clockDayDirection}
           />
         </div>
 

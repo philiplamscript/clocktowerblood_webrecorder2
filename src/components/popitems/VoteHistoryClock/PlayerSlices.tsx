@@ -1,8 +1,8 @@
 "use client";
 
 import React from 'react';
-import { getSlicePath, getPosition, innerRadius, outerRadius, sliceStartRadius, labelRadius } from './utils';
-import { type IdentityMode, type ReviewRole, type RoleDetectMap, type DetectStatus, normalizeDetectStatus, formatDetectStatus } from '../../../type';
+import { getSlicePath, getPosition, innerRadius, outerRadius, sliceStartRadius, labelRadius, innerRingIndexToDay, DEFAULT_CLOCK_DAY_DIRECTION } from './utils';
+import { type IdentityMode, type ClockDayDirection, type ReviewRole, type RoleDetectMap, type DetectStatus, normalizeDetectStatus, formatDetectStatus } from '../../../type';
 
 interface PlayerSlicesProps {
   playerCount: number;
@@ -23,6 +23,7 @@ interface PlayerSlicesProps {
   reviewRole?: ReviewRole | null;
   reviewAtDay?: Record<string, Record<number, boolean>>;
   reviewDetectMap?: RoleDetectMap;
+  clockDayDirection?: ClockDayDirection;
 }
 
 const roleRgb = (role: ReviewRole | null) =>
@@ -39,7 +40,7 @@ const reviewRingFill = (status: DetectStatus, isTarget: boolean, role: ReviewRol
 
 const PlayerSlices: React.FC<PlayerSlicesProps> = ({
   playerCount, playerNo, isVoting, pendingNomVoters, deaths, players, ringCount, ringWidth, votedAtDay, mode, showDeathIcons, showProperties = true, assignmentMode, onStart, identityMode = 'number',
-  reviewRole = null, reviewAtDay = {}, reviewDetectMap = {}
+  reviewRole = null, reviewAtDay = {}, reviewDetectMap = {}, clockDayDirection = DEFAULT_CLOCK_DAY_DIRECTION
 }) => {
   const daysWithTargets = new Set<number>();
   if (reviewRole) {
@@ -84,7 +85,7 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
             />
             
             {Array.from({ length: ringCount }).map((_, rIdx) => {
-              const dayNum = rIdx + 1;
+              const dayNum = innerRingIndexToDay(rIdx, ringCount, clockDayDirection);
               const vCount = (votedAtDay[numStr] || {})[dayNum];
               const isTarget = !!(reviewAtDay[numStr] || {})[dayNum];
               const dayHasReview = !!reviewRole && daysWithTargets.has(dayNum);

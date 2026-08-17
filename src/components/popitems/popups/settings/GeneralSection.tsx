@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Hash, User, Save, CheckCircle2, Trash2, PlayCircle, Download, Upload, Clock } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { type IdentityMode, type SessionMeta } from '../../../../type';
+import { type IdentityMode, type ClockDayDirection, type SessionMeta } from '../../../../type';
 
 interface GeneralSectionProps {
   fontSize: 'small' | 'mid' | 'large';
@@ -12,6 +12,8 @@ interface GeneralSectionProps {
   setLanguage: (lang: string) => void;
   identityMode: IdentityMode;
   setIdentityMode: (mode: IdentityMode) => void;
+  clockDayDirection: ClockDayDirection;
+  setClockDayDirection: (direction: ClockDayDirection) => void;
   resetCustomization: () => void;
   storagePrefix: string;
   switchStoragePath: (path: string) => void;
@@ -23,6 +25,7 @@ interface GeneralSectionProps {
 
 const GeneralSection: React.FC<GeneralSectionProps> = ({ 
   identityMode, setIdentityMode,
+  clockDayDirection, setClockDayDirection,
   storagePrefix, sessions, saveSessionSnapshot, loadSession, deleteSession
 }) => {
   const [newSessionName, setNewSessionName] = useState('');
@@ -140,6 +143,29 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
             <User size={12} /> Name
           </button>
         </div>
+      </section>
+
+      <section className="space-y-3">
+        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+          <Clock size={14} /> Clock Day Rings
+        </h3>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => setClockDayDirection('in-out')}
+            className={`flex-1 py-3 rounded-xl border-2 font-black uppercase text-[10px] transition-all ${clockDayDirection === 'in-out' ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-slate-100 text-slate-400 hover:bg-slate-50'}`}
+          >
+            In → Out
+          </button>
+          <button 
+            onClick={() => setClockDayDirection('out-in')}
+            className={`flex-1 py-3 rounded-xl border-2 font-black uppercase text-[10px] transition-all ${clockDayDirection === 'out-in' ? 'border-blue-600 bg-blue-50 text-blue-600' : 'border-slate-100 text-slate-400 hover:bg-slate-50'}`}
+          >
+            Out → In
+          </button>
+        </div>
+        <p className="text-[9px] text-slate-400 leading-relaxed">
+          {clockDayDirection === 'in-out' ? 'D1 is the inner ring; later days grow outward.' : 'D1 is the outer ring; later days grow inward.'}
+        </p>
       </section>
 
       <section className="pt-6 border-t border-slate-100 space-y-4">
