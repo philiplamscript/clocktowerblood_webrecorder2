@@ -24,7 +24,10 @@ import {
   THEMES,
   normalizeDetectMap,
   cycleDetectStatus,
-  normalizeClockDayDirection
+  normalizeClockDayDirection,
+  normalizeMePlayerNo,
+  remapMeAfterReorder,
+  remapMeAfterRemove
 } from '../type';
 
 const APP_GLOBAL_KEY = 'ct_app_config';
@@ -91,6 +94,7 @@ export const useGameState = () => {
   const [splitView, setSplitView] = useState(() => getSessionValue(activeSessionId, 'splitView', false));
   const [flowerGirlDetect, setFlowerGirlDetect] = useState<RoleDetectMap>(() => normalizeDetectMap(getSessionValue(activeSessionId, 'flowerGirlDetect', {})));
   const [townCrierDetect, setTownCrierDetect] = useState<RoleDetectMap>(() => normalizeDetectMap(getSessionValue(activeSessionId, 'townCrierDetect', {})));
+  const [mePlayerNo, setMePlayerNo] = useState<number | null>(() => normalizeMePlayerNo(getSessionValue(activeSessionId, 'mePlayerNo', null)));
 
   const [sessions, setSessions] = useState<SessionMeta[]>(() => {
     const saved = localStorage.getItem(`${globalPath}_sessions_index`);
@@ -98,7 +102,7 @@ export const useGameState = () => {
   });
 
   const copySessionData = useCallback((fromId: string, toId: string) => {
-    const keys = ['day', 'count', 'players', 'nominations', 'deaths', 'chars', 'dist', 'note', 'showHub', 'splitView', 'flowerGirlDetect', 'townCrierDetect'];
+    const keys = ['day', 'count', 'players', 'nominations', 'deaths', 'chars', 'dist', 'note', 'showHub', 'splitView', 'flowerGirlDetect', 'townCrierDetect', 'mePlayerNo'];
     keys.forEach(k => {
       const val = localStorage.getItem(`${globalPath}/save/${fromId}/${k}`);
       if (val !== null) {
@@ -120,14 +124,14 @@ export const useGameState = () => {
   useEffect(() => {
     const data = {
       day: currentDay, count: playerCount, players, nominations, deaths, chars, dist: roleDist, note, showHub, splitView,
-      flowerGirlDetect, townCrierDetect
+      flowerGirlDetect, townCrierDetect, mePlayerNo
     };
     Object.entries(data).forEach(([key, val]) => {
       localStorage.setItem(`${globalPath}/save/${activeSessionId}/${key}`, JSON.stringify(val));
     });
     localStorage.setItem(`${globalPath}_active_session`, JSON.stringify(activeSessionId));
     localStorage.setItem(`${globalPath}_sessions_index`, JSON.stringify(sessions));
-  }, [globalPath, activeSessionId, currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, showHub, splitView, flowerGirlDetect, townCrierDetect, sessions]);
+  }, [globalPath, activeSessionId, currentDay, playerCount, players, nominations, deaths, chars, roleDist, note, showHub, splitView, flowerGirlDetect, townCrierDetect, mePlayerNo, sessions]);
 
   const activePlayers = useMemo(() => players.slice(0, playerCount), [players, playerCount]);
   const deadPlayers = useMemo(() => activePlayers.filter(p => p.day !== '' || p.red !== '').map(p => p.no), [activePlayers]);
@@ -163,6 +167,7 @@ export const useGameState = () => {
     setSplitView(getSessionValue(activeSessionId, 'splitView', false));
     setFlowerGirlDetect(normalizeDetectMap(getSessionValue(activeSessionId, 'flowerGirlDetect', {})));
     setTownCrierDetect(normalizeDetectMap(getSessionValue(activeSessionId, 'townCrierDetect', {})));
+    setMePlayerNo(normalizeMePlayerNo(getSessionValue(activeSessionId, 'mePlayerNo', null)));
     toast.success(`Applied snapshot "${session.name}" to current session`);
   };
 
@@ -181,6 +186,7 @@ export const useGameState = () => {
     setNote('');
     setFlowerGirlDetect({});
     setTownCrierDetect({});
+    setMePlayerNo(null);
     toast.success('Session Reset Complete');
   };
 
@@ -248,7 +254,7 @@ export const useGameState = () => {
   const deleteSession = (id: string) => {
     if (id === 'default') return;
     setSessions(sessions.filter(s => s.id !== id));
-    const keys = ['day', 'count', 'players', 'nominations', 'deaths', 'chars', 'dist', 'note', 'showHub', 'splitView', 'flowerGirlDetect', 'townCrierDetect'];
+    const keys = ['day', 'count', 'players', 'nominations', 'deaths', 'chars', 'dist', 'note', 'showHub', 'splitView', 'flowerGirlDetect', 'townCrierDetect', 'mePlayerNo'];
     keys.forEach(k => localStorage.removeItem(`${globalPath}/save/${id}/${k}`));
     toast.success('Snapshot deleted');
   };
@@ -288,15 +294,20 @@ export const useGameState = () => {
     },
     fontSize, setFontSize, language, setLanguage, identityMode, setIdentityMode, clockDayDirection, setClockDayDirection,
     flowerGirlDetect, townCrierDetect, toggleFlowerGirlDetect, toggleTownCrierDetect,
+    mePlayerNo, setMePlayerNo,
     updatePlayerInfo, updatePlayerProperty, updatePlayerName, resetPlayerNames, togglePlayerAlive, updateDeathInfo, reset,
     reorderPlayers: (from: number, to: number) => {
+      setMePlayerNo(prev => remapMeAfterReorder(prev, from, to));
       const copy = [...players];
       const [moved] = copy.splice(from, 1);
       copy.splice(to, 0, moved);
       setPlayers(copy.map((p, i) => ({ ...p, no: i + 1 })));
     },
     addPlayer: () => setPlayers([...players, { no: players.length + 1, name: '', inf: defaultNotepad, day: '', reason: '', red: '', property: '' }]),
-    removePlayer: (no: number) => setPlayers(players.filter(p => p.no !== no).map((p, i) => ({ ...p, no: i + 1 }))), 
+    removePlayer: (no: number) => {
+      setMePlayerNo(prev => remapMeAfterRemove(prev, no));
+      setPlayers(players.filter(p => p.no !== no).map((p, i) => ({ ...p, no: i + 1 })));
+    }, 
     currentTheme
   };
 };

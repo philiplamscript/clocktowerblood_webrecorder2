@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { getSlicePath, getPosition, innerRadius, outerRadius, sliceStartRadius, labelRadius, innerRingIndexToDay, DEFAULT_CLOCK_DAY_DIRECTION } from './utils';
+import { getSlicePath, getPosition, innerRadius, outerRadius, sliceStartRadius, labelRadius, innerRingIndexToDay, DEFAULT_CLOCK_DAY_DIRECTION, southRotationDeg } from './utils';
 import { type IdentityMode, type ClockDayDirection, type ReviewRole, type RoleDetectMap, type DetectStatus, normalizeDetectStatus, formatDetectStatus } from '../../../type';
 
 interface PlayerSlicesProps {
@@ -24,6 +24,7 @@ interface PlayerSlicesProps {
   reviewAtDay?: Record<string, Record<number, boolean>>;
   reviewDetectMap?: RoleDetectMap;
   clockDayDirection?: ClockDayDirection;
+  mePlayerNo?: number | null;
 }
 
 const roleRgb = (role: ReviewRole | null) =>
@@ -40,7 +41,8 @@ const reviewRingFill = (status: DetectStatus, isTarget: boolean, role: ReviewRol
 
 const PlayerSlices: React.FC<PlayerSlicesProps> = ({
   playerCount, playerNo, isVoting, pendingNomVoters, deaths, players, ringCount, ringWidth, votedAtDay, mode, showDeathIcons, showProperties = true, assignmentMode, onStart, identityMode = 'number',
-  reviewRole = null, reviewAtDay = {}, reviewDetectMap = {}, clockDayDirection = DEFAULT_CLOCK_DAY_DIRECTION
+  reviewRole = null, reviewAtDay = {}, reviewDetectMap = {}, clockDayDirection = DEFAULT_CLOCK_DAY_DIRECTION,
+  mePlayerNo = null
 }) => {
   const daysWithTargets = new Set<number>();
   if (reviewRole) {
@@ -48,6 +50,8 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
       Object.keys(days || {}).forEach(d => daysWithTargets.add(Number(d)));
     });
   }
+  const seatRotation = southRotationDeg(mePlayerNo, playerCount);
+  const upright = (x: number, y: number) => (seatRotation ? `rotate(${-seatRotation} ${x} ${y})` : undefined);
 
   return (
     <>
@@ -89,6 +93,7 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
               const vCount = (votedAtDay[numStr] || {})[dayNum];
               const isTarget = !!(reviewAtDay[numStr] || {})[dayNum];
               const dayHasReview = !!reviewRole && daysWithTargets.has(dayNum);
+              const showReviewOnCell = reviewRole === 'townCrier' ? isTarget : dayHasReview;
               const status = normalizeDetectStatus(reviewDetectMap[dayNum] ?? 'DET');
               const diedNow = pd && dayNum === pd.day;
               const diedLater = pd && dayNum > pd.day;
@@ -96,9 +101,10 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
               const rs = innerRadius + rIdx * ringWidth;
               const re = rs + ringWidth;
               const pos = getPosition(num, playerCount, (rs + re) / 2);
+              const countPos = getPosition(num, playerCount, rs + ringWidth * 0.3);
               
               let ringFill = 'transparent';
-              if (dayHasReview) {
+              if (showReviewOnCell) {
                 ringFill = reviewRingFill(status, isTarget, reviewRole);
               } else if (vCount !== undefined) {
                 ringFill = 'rgba(var(--accent-color-rgb), 0.6)';
@@ -113,27 +119,29 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
               return (
                 <g key={`${num}-${dayNum}`} className="pointer-events-none">
                   <path d={getSlicePath(i, playerCount, rs, re)} fill={ringFill} />
-                  {showDeathIcons && diedNow && !dayHasReview && (
-                    <text x={pos.x} y={pos.y} textAnchor="middle" alignmentBaseline="middle" className="text-[10px] opacity-100 fill-[var(--text-on-panel)] drop-shadow-sm">{pd.reason}</text>
+                  {showDeathIcons && diedNow && !showReviewOnCell && (
+                    <text x={pos.x} y={pos.y} textAnchor="middle" alignmentBaseline="middle" transform={upright(pos.x, pos.y)} className="text-[10px] opacity-100 fill-[var(--text-on-panel)] drop-shadow-sm">{pd.reason}</text>
                   )}
-                  {dayHasReview && isTarget && (
+                  {showReviewOnCell && isTarget && (
                     <text 
                       x={pos.x} 
                       y={pos.y} 
                       textAnchor="middle" 
                       alignmentBaseline="middle" 
+                      transform={upright(pos.x, pos.y)}
                       className="font-black fill-white drop-shadow-sm" 
                       style={{ fontSize: `${Math.max(6, ringWidth * 0.28)}px` }}
                     >
                       {formatDetectStatus(status)}
                     </text>
                   )}
-                  {vCount !== undefined && mode === 'allReceive' && !diedNow && !dayHasReview && (
+                  {vCount !== undefined && mode === 'allReceive' && !diedNow && !showReviewOnCell && (
                     <text 
-                      x={getPosition(num, playerCount, rs + ringWidth * 0.3).x} 
-                      y={getPosition(num, playerCount, rs + ringWidth * 0.3).y} 
+                      x={countPos.x} 
+                      y={countPos.y} 
                       textAnchor="middle" 
                       alignmentBaseline="middle" 
+                      transform={upright(countPos.x, countPos.y)}
                       className="font-bold fill-[var(--text-on-panel)]" 
                       style={{ fontSize: `${Math.max(7, ringWidth * 0.12)}px` }}
                     >
@@ -153,6 +161,7 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
                     y={cornerPos.y + (pIdx * 8)} 
                     textAnchor="middle" 
                     alignmentBaseline="middle" 
+                    transform={upright(cornerPos.x, cornerPos.y + (pIdx * 8))}
                     className="text-[8px] drop-shadow-sm font-bold fill-[var(--text-on-panel)]"
                   >
                     {prop}
@@ -176,7 +185,7 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
               stroke={stroke} 
               strokeWidth={hasReviewMarks || isCurrent ? "3" : "0.75"} 
               className={`transition-colors duration-200
-                ${isVoter ? 'fill-[var(--accent-color)]' : hasReviewMarks ? (reviewRole === 'flowerGirl' ? 'fill-pink-500' : 'fill-amber-500') : isCurrent ? 'fill-[var(--accent-color)]' : pd ? 'fill-[var(--bg-color)]' : 'fill-[var(--panel-color)]'}`}
+                ${isVoter ? 'fill-[var(--accent-color)]' : hasReviewMarks ? (reviewRole === 'flowerGirl' ? 'fill-pink-500' : 'fill-amber-500') : pd ? 'fill-[var(--bg-color)]' : 'fill-[var(--panel-color)]'}`}
             />
 
             <text 
@@ -184,12 +193,25 @@ const PlayerSlices: React.FC<PlayerSlicesProps> = ({
               y={getPosition(num, playerCount, labelRadius).y} 
               textAnchor="middle" 
               alignmentBaseline="middle" 
+              transform={upright(getPosition(num, playerCount, labelRadius).x, getPosition(num, playerCount, labelRadius).y)}
               className={`text-[9px] font-black tracking-tight pointer-events-none transition-all duration-200 
-                ${isVoter || hasReviewMarks || isCurrent ? 'fill-white' : pd ? 'fill-[var(--text-on-bg)]' : 'fill-[var(--text-on-panel)]'}`}
+                ${isVoter || hasReviewMarks ? 'fill-white' : pd ? 'fill-[var(--text-on-bg)]' : 'fill-[var(--text-on-panel)]'}`}
               style={identityMode === 'name' && label.toString().length > 4 ? { fontSize: '6.5px' } : {}}
             >
               {label}
             </text>
+            {mePlayerNo === num && (
+              <text
+                x={getPosition(num, playerCount, labelRadius).x}
+                y={getPosition(num, playerCount, labelRadius).y + 8}
+                textAnchor="middle"
+                alignmentBaseline="middle"
+                transform={upright(getPosition(num, playerCount, labelRadius).x, getPosition(num, playerCount, labelRadius).y + 8)}
+                className="text-[5px] font-black tracking-widest pointer-events-none fill-[var(--accent-color)]"
+              >
+                ME
+              </text>
+            )}
           </g>
         );
       })}

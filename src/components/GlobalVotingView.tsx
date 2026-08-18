@@ -24,6 +24,7 @@ interface GlobalVotingViewProps {
   selectedReason?: string;
   selectedProperty?: string;
   clockDayDirection?: ClockDayDirection;
+  mePlayerNo?: number | null;
 }
 
 const GlobalVotingView: React.FC<GlobalVotingViewProps> = ({
@@ -38,7 +39,8 @@ const GlobalVotingView: React.FC<GlobalVotingViewProps> = ({
   assignmentMode,
   selectedReason,
   selectedProperty,
-  clockDayDirection
+  clockDayDirection,
+  mePlayerNo
 }) => {
   const [filterDay, setFilterDay] = useState<number | 'all'>('all');
   const dayOptions = ['ALL', ...Array.from({ length: currentDay }, (_, i) => `D${i + 1}`)];
@@ -90,6 +92,7 @@ const GlobalVotingView: React.FC<GlobalVotingViewProps> = ({
             selectedReason={selectedReason}
             selectedProperty={selectedProperty}
             clockDayDirection={clockDayDirection}
+            mePlayerNo={mePlayerNo ?? null}
           />
         </div>
 

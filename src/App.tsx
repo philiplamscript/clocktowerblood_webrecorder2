@@ -153,14 +153,14 @@ export default function App() {
             <div className="bg-[var(--panel-color)] transition-colors duration-500 relative overflow-hidden">
               <div className="absolute inset-0 pointer-events-none opacity-30 z-0" />
               <div className="relative z-10 h-full">
-                <PlayerDetailView playerNo={focusPlayerNo} setPlayerNo={setFocusPlayerNo} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} updatePlayerInfo={state.updatePlayerInfo} updatePlayerProperty={state.updatePlayerProperty} togglePlayerAlive={state.togglePlayerAlive} updateDeathInfo={state.updateDeathInfo} chars={state.chars} setChars={state.setChars} nominations={state.nominations} setNominations={state.setNominations} voteHistoryMode={voteHistoryMode} setVoteHistoryMode={setVoteHistoryMode} setShowRoleSelector={setShowRoleSelector} deaths={state.deaths} setDeaths={state.setDeaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} onPlayerClick={handlePlayerClick} setAssignmentMode={setAssignmentMode} setSelectedReason={setSelectedReason} setSelectedProperty={setSelectedProperty} notepadTemplates={state.notepadTemplates} propTemplates={state.propTemplates} identityMode={state.identityMode} clockDayDirection={state.clockDayDirection} flowerGirlDetect={state.flowerGirlDetect} townCrierDetect={state.townCrierDetect} toggleFlowerGirlDetect={state.toggleFlowerGirlDetect} toggleTownCrierDetect={state.toggleTownCrierDetect} />
+                <PlayerDetailView playerNo={focusPlayerNo} setPlayerNo={setFocusPlayerNo} playerCount={state.playerCount} players={state.players} deadPlayers={state.deadPlayers} updatePlayerInfo={state.updatePlayerInfo} updatePlayerProperty={state.updatePlayerProperty} togglePlayerAlive={state.togglePlayerAlive} updateDeathInfo={state.updateDeathInfo} chars={state.chars} setChars={state.setChars} nominations={state.nominations} setNominations={state.setNominations} voteHistoryMode={voteHistoryMode} setVoteHistoryMode={setVoteHistoryMode} setShowRoleSelector={setShowRoleSelector} deaths={state.deaths} setDeaths={state.setDeaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} onPlayerClick={handlePlayerClick} setAssignmentMode={setAssignmentMode} setSelectedReason={setSelectedReason} setSelectedProperty={setSelectedProperty} notepadTemplates={state.notepadTemplates} propTemplates={state.propTemplates} identityMode={state.identityMode} clockDayDirection={state.clockDayDirection} flowerGirlDetect={state.flowerGirlDetect} townCrierDetect={state.townCrierDetect} toggleFlowerGirlDetect={state.toggleFlowerGirlDetect} toggleTownCrierDetect={state.toggleTownCrierDetect} mePlayerNo={state.mePlayerNo} />
               </div>
             </div>
             {state.splitView && (
               <div className="bg-[var(--panel-color)] transition-colors duration-500 relative overflow-hidden">
                 <div className="absolute inset-0 pointer-events-none opacity-30 z-0" style={{ backgroundImage: 'var(--panel-pattern)' }} />
                 <div className="relative z-10 h-full">
-                  <GlobalVotingView nominations={state.nominations} playerCount={state.playerCount} deadPlayers={state.deadPlayers} players={state.players} deaths={state.deaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} onPlayerClick={handlePlayerClick} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} clockDayDirection={state.clockDayDirection} />
+                  <GlobalVotingView nominations={state.nominations} playerCount={state.playerCount} deadPlayers={state.deadPlayers} players={state.players} deaths={state.deaths} currentDay={state.currentDay} setCurrentDay={state.setCurrentDay} onPlayerClick={handlePlayerClick} assignmentMode={assignmentMode} selectedReason={selectedReason} selectedProperty={selectedProperty} clockDayDirection={state.clockDayDirection} mePlayerNo={state.mePlayerNo} />
                 </div>
               </div>
             )}
@@ -217,7 +217,9 @@ export default function App() {
           resetPlayerNames={state.resetPlayerNames}
           reorderPlayers={state.reorderPlayers} 
           addPlayer={state.addPlayer} 
-          removePlayer={state.removePlayer} 
+          removePlayer={state.removePlayer}
+          mePlayerNo={state.mePlayerNo}
+          setMePlayerNo={state.setMePlayerNo}
         />
         <FAB showLedger={showLedger} setShowLedger={setShowLedger} />
         <div className="bg-[var(--panel-color)] border-t border-[var(--border-color)] px-3 py-1 text-[9px] font-bold text-[var(--muted-color)] flex justify-between items-center z-50">

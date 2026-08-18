@@ -5,35 +5,17 @@ import { type ClockDayDirection } from '../../../type';
 import { cx, cy, innerRadius, outerRadius, sliceStartRadius, innerRingIndexToDay, DEFAULT_CLOCK_DAY_DIRECTION } from './utils';
 
 interface ClockFaceProps {
-  playerCount: number;
-  playerNo: number;
   ringCount: number;
   ringWidth: number;
   showAxis: boolean;
   clockDayDirection?: ClockDayDirection;
 }
 
-const ClockFace: React.FC<ClockFaceProps> = ({playerCount,playerNo, ringCount, ringWidth, showAxis, clockDayDirection = DEFAULT_CLOCK_DAY_DIRECTION}) => {
+const ClockFace: React.FC<ClockFaceProps> = ({ ringCount, ringWidth, showAxis, clockDayDirection = DEFAULT_CLOCK_DAY_DIRECTION }) => {
   if (!showAxis) return null;
-  const rotationAngle = playerNo !== 0 ? ((playerNo -1) / playerCount) * 360 +2: 0;
-  
-  const renderUprightText = (x: number, y: number, label: string, className = "") => (
-    <text 
-      x={x} y={y} 
-      textAnchor="middle" 
-      className={className}
-      transform={`rotate(${-rotationAngle}, ${x}, ${y})`}
-    >
-      {label}
-    </text>
-  );
 
   return (
-    <g 
-      className="pointer-events-none" 
-      transform={`rotate(${rotationAngle}, ${cx}, ${cy})`}
-    >
-      {/* Structural Rings for Days */}
+    <g className="pointer-events-none">
       {Array.from({ length: ringCount + 1 }).map((_, i) => (
         <circle 
           key={`ring-${i}`} 
@@ -46,11 +28,9 @@ const ClockFace: React.FC<ClockFaceProps> = ({playerCount,playerNo, ringCount, r
         />
       ))}
 
-      {/* Boundary Ring for Labels */}
       <circle cx={cx} cy={cy} r={sliceStartRadius} fill="none" stroke="var(--border-color)" strokeWidth="0.5" className="opacity-20" />
       <circle cx={cx} cy={cy} r={innerRadius} fill="none" stroke="var(--border-color)" strokeWidth="0.5" className="opacity-30" />
       
-      {/* Vertical Axis line starts from slices, not center */}
       <line x1={cx} y1={cy - outerRadius - 5} x2={cx} y2={cy - sliceStartRadius} stroke="var(--muted-color)" strokeWidth="0.5" className="opacity-20" />
       <line x1={cx} y1={cy + sliceStartRadius} x2={cx} y2={cy + outerRadius + 5} stroke="var(--muted-color)" strokeWidth="0.5" className="opacity-20" />
       
@@ -59,9 +39,14 @@ const ClockFace: React.FC<ClockFaceProps> = ({playerCount,playerNo, ringCount, r
         const x = cx + 4;
         const y = cy - radius;
         return (
-          <g key={`day-label-${i}`}>
-            {renderUprightText(x, y, `D${innerRingIndexToDay(i, ringCount, clockDayDirection)}`, "text-[5px] font-black uppercase tracking-widest fill-[var(--text-on-panel)] opacity-80")}
-          </g>
+          <text 
+            key={`day-label-${i}`}
+            x={x} y={y} 
+            textAnchor="middle" 
+            className="text-[5px] font-black uppercase tracking-widest fill-[var(--text-on-panel)] opacity-80"
+          >
+            {`D${innerRingIndexToDay(i, ringCount, clockDayDirection)}`}
+          </text>
         );
       })}
     </g>

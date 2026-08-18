@@ -101,6 +101,30 @@ export function normalizeDetectMap(raw: unknown): RoleDetectMap {
   return out;
 }
 
+export function normalizeMePlayerNo(value: unknown): number | null {
+  const n = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN;
+  if (!Number.isInteger(n) || n < 1) return null;
+  return n;
+}
+
+/** Follows a 1-based seat number after array splice reorder that remaps `.no` to index + 1. */
+export function remapMeAfterReorder(mePlayerNo: number | null, from: number, to: number): number | null {
+  if (mePlayerNo == null) return null;
+  const meIdx = mePlayerNo - 1;
+  if (meIdx === from) return to + 1;
+  if (from < to && meIdx > from && meIdx <= to) return meIdx;
+  if (from > to && meIdx >= to && meIdx < from) return meIdx + 2;
+  return mePlayerNo;
+}
+
+/** Follows a 1-based seat number after removing a player and remapping `.no`. */
+export function remapMeAfterRemove(mePlayerNo: number | null, removedNo: number): number | null {
+  if (mePlayerNo == null) return null;
+  if (mePlayerNo === removedNo) return null;
+  if (mePlayerNo > removedNo) return mePlayerNo - 1;
+  return mePlayerNo;
+}
+
 export interface Character {
   name: string;
   status: string;

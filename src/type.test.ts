@@ -8,6 +8,9 @@ import {
   normalizeCharDict,
   getRoleDistForPlayerCount,
   normalizeClockDayDirection,
+  normalizeMePlayerNo,
+  remapMeAfterReorder,
+  remapMeAfterRemove,
 } from './type';
 
 describe('Game Data Utilities', () => {
@@ -64,5 +67,30 @@ describe('Game Data Utilities', () => {
     expect(normalizeClockDayDirection('out-in')).toBe('out-in');
     expect(normalizeClockDayDirection('nope')).toBe('out-in');
     expect(normalizeClockDayDirection(undefined)).toBe('out-in');
+  });
+
+  it('normalizes Me seat numbers', () => {
+    expect(normalizeMePlayerNo(7)).toBe(7);
+    expect(normalizeMePlayerNo('3')).toBe(3);
+    expect(normalizeMePlayerNo(0)).toBe(null);
+    expect(normalizeMePlayerNo(null)).toBe(null);
+    expect(normalizeMePlayerNo(1.5)).toBe(null);
+  });
+
+  it('remaps Me after splice reorder that rewrites seat numbers', () => {
+    expect(remapMeAfterReorder(null, 1, 3)).toBe(null);
+    expect(remapMeAfterReorder(2, 1, 3)).toBe(4);
+    expect(remapMeAfterReorder(3, 1, 3)).toBe(2);
+    expect(remapMeAfterReorder(1, 1, 3)).toBe(1);
+    expect(remapMeAfterReorder(5, 1, 3)).toBe(5);
+    expect(remapMeAfterReorder(4, 3, 1)).toBe(2);
+    expect(remapMeAfterReorder(2, 3, 1)).toBe(3);
+  });
+
+  it('remaps Me after removing a seat', () => {
+    expect(remapMeAfterRemove(null, 2)).toBe(null);
+    expect(remapMeAfterRemove(2, 2)).toBe(null);
+    expect(remapMeAfterRemove(5, 2)).toBe(4);
+    expect(remapMeAfterRemove(1, 2)).toBe(1);
   });
 });

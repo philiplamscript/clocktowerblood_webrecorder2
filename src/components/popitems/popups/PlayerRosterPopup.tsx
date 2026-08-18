@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { X, UserPlus, UserMinus, GripVertical, CornerDownRight, RotateCcw } from 'lucide-react';
+import { X, UserPlus, UserMinus, GripVertical, CornerDownRight, RotateCcw, User } from 'lucide-react';
 import { type Player } from '../../../type';
 
 interface PlayerRosterPopupProps {
@@ -13,10 +13,13 @@ interface PlayerRosterPopupProps {
   reorderPlayers: (from: number, to: number) => void;
   addPlayer: () => void;
   removePlayer: (no: number) => void;
+  mePlayerNo: number | null;
+  setMePlayerNo: (no: number | null) => void;
 }
 
 const PlayerRosterPopup: React.FC<PlayerRosterPopupProps> = ({
-  isOpen, onClose, players, updatePlayerName, resetPlayerNames, reorderPlayers, addPlayer, removePlayer
+  isOpen, onClose, players, updatePlayerName, resetPlayerNames, reorderPlayers, addPlayer, removePlayer,
+  mePlayerNo, setMePlayerNo
 }) => {
   const [movingIdx, setMovingIdx] = useState<number | null>(null);
 
@@ -56,6 +59,7 @@ const PlayerRosterPopup: React.FC<PlayerRosterPopupProps> = ({
               <thead className="bg-slate-50 border-b border-slate-200 text-[9px] font-black text-slate-400 uppercase">
                 <tr>
                   <th className="w-10 py-2 text-center">#</th>
+                  <th className="w-12 py-2 text-center">Me</th>
                   <th className="w-14 py-2 text-center">Move</th>
                   <th className="px-4 py-2 text-left">Player Name</th>
                   <th className="w-10 py-2 text-center">Del</th>
@@ -63,8 +67,21 @@ const PlayerRosterPopup: React.FC<PlayerRosterPopupProps> = ({
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {players.map((p, idx) => (
-                  <tr key={p.no} className={`transition-colors group ${movingIdx === idx ? 'bg-blue-600/10' : 'hover:bg-blue-50/30'}`}>
+                  <tr key={p.no} className={`transition-colors group ${movingIdx === idx ? 'bg-blue-600/10' : mePlayerNo === p.no ? 'bg-blue-50' : 'hover:bg-blue-50/30'}`}>
                     <td className="py-3 text-center text-[10px] font-mono text-slate-400 font-bold">{p.no}</td>
+                    <td className="py-3 text-center">
+                      <button
+                        onClick={() => setMePlayerNo(mePlayerNo === p.no ? null : p.no)}
+                        className={`px-1.5 py-1 rounded text-[8px] font-black uppercase tracking-wider transition-all ${
+                          mePlayerNo === p.no
+                            ? 'bg-blue-600 text-white shadow-sm'
+                            : 'text-slate-300 hover:text-blue-600 hover:bg-blue-50'
+                        }`}
+                        title={mePlayerNo === p.no ? 'Clear Me (South seat)' : 'Mark as Me (always South)'}
+                      >
+                        <User size={12} className="inline" />
+                      </button>
+                    </td>
                     <td className="py-3 text-center">
                       {movingIdx === null ? (
                         <button 

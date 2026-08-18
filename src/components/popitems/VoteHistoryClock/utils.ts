@@ -20,6 +20,14 @@ export const dayRingMidRadius = (day: number, ringCount: number, ringWidth: numb
   return innerRadius + (rIdx + 0.5) * ringWidth;
 };
 
+/** Degrees to rotate seats so `mePlayerNo` slice center sits at SVG south (+90°). Unset → 0. */
+export const southRotationDeg = (mePlayerNo: number | null | undefined, playerCount: number) => {
+  if (!mePlayerNo || mePlayerNo < 1 || playerCount < 1 || mePlayerNo > playerCount) return 0;
+  const angleStep = 360 / playerCount;
+  const meCenter = ((mePlayerNo - 1) * angleStep) - 90 + (angleStep / 2);
+  return 90 - meCenter;
+};
+
 export const getPosition = (num: number, playerCount: number, radius: number) => {
   const angle = ((num - 1) * (360 / playerCount)) - 90 + (360 / (playerCount * 2));
   return {

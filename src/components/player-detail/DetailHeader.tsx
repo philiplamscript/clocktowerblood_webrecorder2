@@ -3,7 +3,7 @@
 import React from 'react';
 import { Vote, Calendar, Skull, Grid3X3, ArrowRight, Tag, Flower2, Megaphone } from 'lucide-react';
 import TextRotaryPicker from '../pickers/RotaryPicker/TextRotaryPicker';
-import { type ReviewRole } from '../../type';
+import { type ReviewRole, type RoleDetectMap, normalizeDetectStatus } from '../../type';
 
 interface DetailHeaderProps {
   isVoting: boolean;
@@ -23,6 +23,9 @@ interface DetailHeaderProps {
   setShowArrows: (show: boolean) => void;
   reviewRole: ReviewRole | null;
   setReviewRole: (role: ReviewRole | null) => void;
+  currentDay: number;
+  reviewDetectMap: RoleDetectMap;
+  onReviewDayToggle: (day: number) => void;
 }
 
 const DetailHeader: React.FC<DetailHeaderProps> = ({
@@ -30,7 +33,8 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
   showDeathIcons, setShowDeathIcons, showAxis, setShowAxis,
   showProperties, setShowProperties,
   voteHistoryMode, setVoteHistoryMode, showArrows, setShowArrows,
-  reviewRole, setReviewRole
+  reviewRole, setReviewRole,
+  currentDay, reviewDetectMap, onReviewDayToggle
 }) => {
   const modes: { id: 'vote' | 'beVoted' | 'allReceive'; label: string }[] = [
     { id: 'vote', label: 'V' },
@@ -128,7 +132,32 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
           </button>
         </div>
 
-        {!isVoting && (
+        {!isVoting && reviewRole && (
+          <div className="flex items-center gap-1 bg-[var(--panel-color)] border border-[var(--border-color)] rounded-full px-1 py-0.5 shadow-sm shrink-0 max-w-[46vw] overflow-x-auto no-scrollbar">
+            {Array.from({ length: currentDay }, (_, i) => i + 1).map(day => {
+              const status = normalizeDetectStatus(reviewDetectMap[day] ?? 'DET');
+              const mark = status === 'DET' ? 'Y' : status === 'NO' ? 'N' : '?';
+              const isFg = reviewRole === 'flowerGirl';
+              return (
+                <button
+                  key={day}
+                  onClick={() => onReviewDayToggle(day)}
+                  className={`flex flex-col items-center justify-center min-w-[28px] px-1.5 py-0.5 rounded-lg text-[8px] font-black leading-tight transition-all ${
+                    isFg
+                      ? 'bg-pink-500 text-white'
+                      : 'bg-amber-500 text-white'
+                  } ${status === 'NO' ? 'opacity-70' : status === 'UNK' ? 'opacity-55' : 'opacity-100'}`}
+                  title={`Day ${day}: ${mark}`}
+                >
+                  <span>D{day}</span>
+                  <span>{mark}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {!isVoting && !reviewRole && (
           <div className="flex items-center gap-1 bg-[var(--panel-color)] border border-[var(--border-color)] rounded-full px-1.5 h-6 shadow-sm shrink-0">
             <Calendar size={10} className="text-[var(--muted-color)]" />
             <div className="w-8">

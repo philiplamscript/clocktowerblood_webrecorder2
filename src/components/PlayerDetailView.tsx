@@ -47,6 +47,7 @@ interface PlayerDetailViewProps {
   townCrierDetect: RoleDetectMap;
   toggleFlowerGirlDetect: (day: number) => void;
   toggleTownCrierDetect: (day: number) => void;
+  mePlayerNo?: number | null;
 }
 
 const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
@@ -148,6 +149,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
             voteHistoryMode={props.voteHistoryMode} setVoteHistoryMode={props.setVoteHistoryMode}
             showArrows={showArrows} setShowArrows={setShowArrows}
             reviewRole={reviewRole} setReviewRole={setReviewRole}
+            currentDay={props.currentDay} reviewDetectMap={reviewDetectMap} onReviewDayToggle={toggleReviewDay}
           />
 
           <div className="relative w-full flex-1 flex flex-col items-center justify-center pt-2">
@@ -167,6 +169,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
               reviewStatus={reviewStatus}
               reviewDetectMap={reviewDetectMap}
               onReviewDayToggle={toggleReviewDay}
+              mePlayerNo={props.mePlayerNo ?? null}
             />
 
             <div className="absolute bottom-2 left-0 z-10">

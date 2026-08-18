@@ -5,7 +5,7 @@ import ClockFace from './ClockFace';
 import PlayerSlices from './PlayerSlices';
 import VoteArrows from './VoteArrows';
 import ClockCenter from './ClockCenter';
-import { innerRadius, outerRadius, innerRingIndexToDay, DEFAULT_CLOCK_DAY_DIRECTION } from './utils';
+import { innerRadius, outerRadius, innerRingIndexToDay, DEFAULT_CLOCK_DAY_DIRECTION, southRotationDeg, cx, cy } from './utils';
 import { type IdentityMode, type ClockDayDirection, type ReviewRole, type RoleDetectMap, type DetectStatus, normalizeDetectStatus } from '../../../type';
 
 interface VoteHistoryClockProps {
@@ -38,6 +38,7 @@ interface VoteHistoryClockProps {
   reviewDetectMap?: RoleDetectMap;
   onReviewDayToggle?: (day: number) => void;
   clockDayDirection?: ClockDayDirection;
+  mePlayerNo?: number | null;
 }
 
 const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
@@ -56,6 +57,7 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
   const maxDay = useMemo(() => Math.max(...props.nominations.map(n => n.day), 1, props.currentDay), [props.nominations, props.currentDay]);
   const ringCount = Math.max(maxDay, 1);
   const ringWidth = (outerRadius - innerRadius) / ringCount;
+  const seatRotation = southRotationDeg(props.mePlayerNo, props.playerCount);
 
   const handleCenterStart = (e: React.MouseEvent | React.TouchEvent) => {
     const now = Date.now();
@@ -126,8 +128,8 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
     if (!svgRef.current) return null;
     const rect = svgRef.current.getBoundingClientRect();
     const x = clientX - (rect.left + rect.width / 2), y = clientY - (rect.top + rect.height / 2);
-    let angle = Math.atan2(y, x) * (180 / Math.PI) + 90;
-    if (angle < 0) angle += 360;
+    let angle = Math.atan2(y, x) * (180 / Math.PI) + 90 - seatRotation;
+    angle = ((angle % 360) + 360) % 360;
     return (Math.floor(angle / (360 / props.playerCount)) % props.playerCount) + 1;
   };
 
@@ -219,24 +221,27 @@ const VoteHistoryClock: React.FC<VoteHistoryClockProps> = (props) => {
       >
         
         
-        <PlayerSlices 
-          playerCount={props.playerCount} playerNo={props.playerNo} isVoting={props.isVoting} pendingNomVoters={props.pendingNom?.voters ?? []}
-          deaths={props.deaths} players={props.players} ringCount={ringCount} ringWidth={ringWidth} votedAtDay={data.votedAtDay} mode={props.mode} 
-          showDeathIcons={props.showDeathIcons} showProperties={props.showProperties} assignmentMode={props.assignmentMode ?? null} onStart={handleStart}
-          identityMode={props.identityMode}
-          reviewRole={props.reviewRole ?? null}
-          reviewAtDay={data.reviewAtDay}
-          reviewDetectMap={props.reviewDetectMap ?? {}}
-          clockDayDirection={props.clockDayDirection ?? DEFAULT_CLOCK_DAY_DIRECTION}
-        />
-        <ClockFace playerCount = {props.playerCount} playerNo = {props.playerNo} ringCount={ringCount} ringWidth={ringWidth} showAxis={props.showAxis ?? true} clockDayDirection={props.clockDayDirection ?? DEFAULT_CLOCK_DAY_DIRECTION} />
-        <VoteArrows 
-          arrowData={data.arrowData} playerCount={props.playerCount} playerNo={props.playerNo} isVoting={props.isVoting} 
-          isSliding={isSliding} gestureStart={gestureStart} gestureCurrent={gestureCurrent} pendingNom={props.pendingNom} 
-          currentDay={props.currentDay} mode={props.mode} ringWidth={ringWidth} ringCount={ringCount} offset={0}
-          showArrows={props.showArrows ?? true}
-          clockDayDirection={props.clockDayDirection ?? DEFAULT_CLOCK_DAY_DIRECTION}
-        />
+        <g transform={`rotate(${seatRotation}, ${cx}, ${cy})`}>
+          <PlayerSlices 
+            playerCount={props.playerCount} playerNo={props.playerNo} isVoting={props.isVoting} pendingNomVoters={props.pendingNom?.voters ?? []}
+            deaths={props.deaths} players={props.players} ringCount={ringCount} ringWidth={ringWidth} votedAtDay={data.votedAtDay} mode={props.mode} 
+            showDeathIcons={props.showDeathIcons} showProperties={props.showProperties} assignmentMode={props.assignmentMode ?? null} onStart={handleStart}
+            identityMode={props.identityMode}
+            reviewRole={props.reviewRole ?? null}
+            reviewAtDay={data.reviewAtDay}
+            reviewDetectMap={props.reviewDetectMap ?? {}}
+            clockDayDirection={props.clockDayDirection ?? DEFAULT_CLOCK_DAY_DIRECTION}
+            mePlayerNo={props.mePlayerNo ?? null}
+          />
+          <VoteArrows 
+            arrowData={data.arrowData} playerCount={props.playerCount} playerNo={props.playerNo} isVoting={props.isVoting} 
+            isSliding={isSliding} gestureStart={gestureStart} gestureCurrent={gestureCurrent} pendingNom={props.pendingNom} 
+            currentDay={props.currentDay} mode={props.mode} ringWidth={ringWidth} ringCount={ringCount} offset={0}
+            showArrows={props.showArrows ?? true}
+            clockDayDirection={props.clockDayDirection ?? DEFAULT_CLOCK_DAY_DIRECTION}
+          />
+        </g>
+        <ClockFace ringCount={ringCount} ringWidth={ringWidth} showAxis={props.showAxis ?? true} clockDayDirection={props.clockDayDirection ?? DEFAULT_CLOCK_DAY_DIRECTION} />
         <ClockCenter 
           isVoting={props.isVoting} 
           pendingNom={props.pendingNom} 
