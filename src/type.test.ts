@@ -3,14 +3,20 @@ import {
   createInitialChars,
   REASON_CYCLE,
   STATUS_OPTIONS,
+  SCRIPT_STATUS_CATEGORIES,
   normalizeCharStatus,
   cycleCharStatus,
   normalizeCharDict,
+  normalizeScriptCategoryOrder,
+  reorderList,
+  moveNamedRole,
+  applyCharStatusAutoPlace,
   getRoleDistForPlayerCount,
   normalizeClockDayDirection,
   normalizeMePlayerNo,
   remapMeAfterReorder,
   remapMeAfterRemove,
+  type Character,
 } from './type';
 
 describe('Game Data Utilities', () => {
@@ -92,5 +98,58 @@ describe('Game Data Utilities', () => {
     expect(remapMeAfterRemove(2, 2)).toBe(null);
     expect(remapMeAfterRemove(5, 2)).toBe(4);
     expect(remapMeAfterRemove(1, 2)).toBe(1);
+  });
+
+  it('normalizes script category order and fills missing cats', () => {
+    expect(normalizeScriptCategoryOrder(undefined)).toEqual([...SCRIPT_STATUS_CATEGORIES]);
+    expect(normalizeScriptCategoryOrder(['Townsfolk', 'Demon'])).toEqual([
+      'Townsfolk', 'Demon', 'Minion', 'Outsider',
+    ]);
+    expect(normalizeScriptCategoryOrder(['nope', 'Minion', 'Minion', 'Townsfolk'])).toEqual([
+      'Minion', 'Townsfolk', 'Demon', 'Outsider',
+    ]);
+  });
+
+  it('reorders a list in place by splice', () => {
+    expect(reorderList(['a', 'b', 'c'], 0, 2)).toEqual(['b', 'c', 'a']);
+    expect(reorderList(['a', 'b', 'c'], 2, 0)).toEqual(['c', 'a', 'b']);
+    const same = ['a', 'b'];
+    expect(reorderList(same, 1, 1)).toBe(same);
+  });
+
+  const roles = (names: [string, string][]): Character[] =>
+    names.map(([name, status]) => ({ name, status, note: '' }));
+
+  it('moves named roles and keeps empty slots at the end', () => {
+    const list = roles([
+      ['Chef', 'POSS'],
+      ['Empath', 'POSS'],
+      ['', 'POSS'],
+      ['Washerwoman', 'POSS'],
+      ['', 'POSS'],
+    ]);
+    const moved = moveNamedRole(list, 3, 0);
+    expect(moved.map((c) => c.name)).toEqual(['Washerwoman', 'Chef', 'Empath', '', '']);
+    expect(moveNamedRole(list, 0, 0)).toBe(list);
+  });
+
+  it('auto-places CONF first and NOT last among named roles', () => {
+    const list = roles([
+      ['Chef', 'POSS'],
+      ['Empath', 'POSS'],
+      ['Washerwoman', 'POSS'],
+      ['', 'POSS'],
+    ]);
+    const conf = applyCharStatusAutoPlace(list, 2, 'CONF');
+    expect(conf.map((c) => `${c.name}:${c.status}`)).toEqual([
+      'Washerwoman:CONF', 'Chef:POSS', 'Empath:POSS', ':POSS',
+    ]);
+    const not = applyCharStatusAutoPlace(list, 0, 'NOT');
+    expect(not.map((c) => `${c.name}:${c.status}`)).toEqual([
+      'Empath:POSS', 'Washerwoman:POSS', 'Chef:NOT', ':POSS',
+    ]);
+    const poss = applyCharStatusAutoPlace(list, 2, 'POSS');
+    expect(poss.map((c) => c.name)).toEqual(['Chef', 'Empath', 'Washerwoman', '']);
+    expect(poss[2].status).toBe('POSS');
   });
 });

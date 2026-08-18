@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 
-import { REASON_CYCLE, type NotepadTemplate, type PropTemplate, type IdentityMode, type ClockDayDirection, type ReviewRole, type RoleDetectMap, normalizeDetectStatus } from '../type';
+import { REASON_CYCLE, type NotepadTemplate, type PropTemplate, type IdentityMode, type ClockDayDirection, type ReviewRole, type RoleDetectMap, type CharCategory, normalizeDetectStatus } from '../type';
 import VoteHistoryClock from './popitems/VoteHistoryClock/VoteHistoryClock';
 import DetailHeader from './player-detail/DetailHeader';
 import AssignmentControls from './player-detail/AssignmentControls';
-import NoteSection from './player-detail/NoteSection';
+import NoteSection, { type NoteSectionHandle } from './player-detail/NoteSection';
 import ScriptStatusSection from './player-detail/ScriptStatusSection';
 import StatusSection from './player-detail/StatusSection';
 
@@ -48,6 +48,8 @@ interface PlayerDetailViewProps {
   toggleFlowerGirlDetect: (day: number) => void;
   toggleTownCrierDetect: (day: number) => void;
   mePlayerNo?: number | null;
+  scriptCategoryOrder: CharCategory[];
+  setScriptCategoryOrder: (order: CharCategory[]) => void;
 }
 
 const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
@@ -61,6 +63,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
   const [showArrows, setShowArrows] = useState(true);
   const [showProperties, setShowProperties] = useState(true);
   const [reviewRole, setReviewRole] = useState<ReviewRole | null>(null);
+  const noteRef = useRef<NoteSectionHandle>(null);
 
   useEffect(() => {
     if (reviewRole) setFilterDay('all');
@@ -192,6 +195,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
       </div>
 
       <NoteSection 
+        ref={noteRef}
         currentPlayer={currentPlayer} playerNo={props.playerNo} updatePlayerInfo={props.updatePlayerInfo}
         showKeywords={showKeywords} setShowKeywords={setShowKeywords} showTemplates={showTemplates} setShowTemplates={setShowTemplates}
         allRoles={allRoles} categoryBg={{ Townsfolk: 'bg-blue-100', Outsider: 'bg-blue-50', Minion: 'bg-orange-50', Demon: 'bg-red-100' }}
@@ -206,7 +210,13 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
         currentPlayer={currentPlayer} updatePlayerProperty={props.updatePlayerProperty}
       />
 
-      <ScriptStatusSection chars={props.chars} setChars={props.setChars} />
+      <ScriptStatusSection
+        chars={props.chars}
+        setChars={props.setChars}
+        categoryOrder={props.scriptCategoryOrder}
+        setCategoryOrder={props.setScriptCategoryOrder}
+        onInsertRole={(name) => noteRef.current?.insertAtCaret(name)}
+      />
       
       <div className="h-16" />
       <div className="h-16" />

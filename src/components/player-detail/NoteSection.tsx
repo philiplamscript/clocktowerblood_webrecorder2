@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 'react';
 import { Key, FilePlus2 } from 'lucide-react';
 import { type NotepadTemplate } from '../../type';
 import KeywordPopup from '../popitems/popups/KeywordPopup';
@@ -19,12 +19,46 @@ interface NoteSectionProps {
   insertTemplate: (content: string) => void;
 }
 
-const NoteSection: React.FC<NoteSectionProps> = ({
+export type NoteSectionHandle = {
+  insertAtCaret: (text: string) => void;
+};
+
+const NoteSection = forwardRef<NoteSectionHandle, NoteSectionProps>(({
   currentPlayer, playerNo, updatePlayerInfo, showKeywords, setShowKeywords,
   showTemplates, setShowTemplates, allRoles, categoryBg, notepadTemplates, insertTemplate
-}) => {
+}, ref) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const caretRef = useRef({ start: 0, end: 0 });
+  const inf = currentPlayer?.inf || '';
+
+  const saveCaret = (el: HTMLTextAreaElement) => {
+    caretRef.current = { start: el.selectionStart ?? 0, end: el.selectionEnd ?? 0 };
+  };
+
+  useEffect(() => {
+    caretRef.current = { start: inf.length, end: inf.length };
+  }, [playerNo]);
+
+  const insertAtCaret = useCallback((text: string) => {
+    const cur = inf;
+    const start = Math.max(0, Math.min(caretRef.current.start, cur.length));
+    const end = Math.max(start, Math.min(caretRef.current.end, cur.length));
+    const next = cur.slice(0, start) + text + cur.slice(end);
+    const caret = start + text.length;
+    caretRef.current = { start: caret, end: caret };
+    updatePlayerInfo(playerNo, next);
+    requestAnimationFrame(() => {
+      const el = textareaRef.current;
+      if (!el) return;
+      el.focus();
+      el.setSelectionRange(caret, caret);
+    });
+  }, [inf, playerNo, updatePlayerInfo]);
+
+  useImperativeHandle(ref, () => ({ insertAtCaret }), [insertAtCaret]);
+
   const handleSelectRole = (role: string) => {
-    updatePlayerInfo(playerNo, (currentPlayer?.inf || '') + (currentPlayer?.inf ? '\n' : '') + role);
+    updatePlayerInfo(playerNo, inf + (inf ? '\n' : '') + role);
   };
 
   return (
@@ -62,10 +96,18 @@ const NoteSection: React.FC<NoteSectionProps> = ({
         <div className="flex-1 relative rounded-lg border border-[var(--border-color)] bg-[var(--panel-color)] overflow-hidden shadow-sm min-h-[120px] transition-colors duration-500">
           <div className="absolute inset-0 pointer-events-none opacity-40 z-0" style={{ backgroundImage: 'var(--panel-pattern)' }} />
           <textarea 
+            ref={textareaRef}
             className="w-full h-full min-h-[120px] bg-transparent text-[var(--text-on-panel)] p-4 text-xs focus:ring-2 focus:ring-[var(--accent-color)]/20 outline-none resize-none font-medium leading-relaxed relative z-10 placeholder:text-[var(--muted-color)]"
             placeholder="Type social reads, role claims..."
-            value={currentPlayer?.inf || ''}
-            onChange={(e) => updatePlayerInfo(playerNo, e.target.value)}
+            value={inf}
+            onChange={(e) => {
+              saveCaret(e.currentTarget);
+              updatePlayerInfo(playerNo, e.target.value);
+            }}
+            onSelect={(e) => saveCaret(e.currentTarget)}
+            onKeyUp={(e) => saveCaret(e.currentTarget)}
+            onClick={(e) => saveCaret(e.currentTarget)}
+            onBlur={(e) => saveCaret(e.currentTarget)}
           />
         </div>
         <div className="flex flex-col gap-2">
@@ -88,6 +130,8 @@ const NoteSection: React.FC<NoteSectionProps> = ({
       </div>
     </div>
   );
-};
+});
+
+NoteSection.displayName = 'NoteSection';
 
 export default NoteSection;

@@ -50,7 +50,7 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
 
   const exportSession = (session: SessionMeta) => {
     const sessionData: Record<string, any> = {};
-    const keys = ['day', 'count', 'players', 'nominations', 'deaths', 'chars', 'dist', 'note', 'showHub', 'splitView'];
+    const keys = ['day', 'count', 'players', 'nominations', 'deaths', 'chars', 'dist', 'note', 'showHub', 'splitView', 'scriptCategoryOrder'];
     
     sessionData['session_meta'] = session;
     

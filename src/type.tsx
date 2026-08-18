@@ -200,6 +200,72 @@ export function charStatusCellClass(status: unknown): string {
   return 'bg-transparent text-[var(--text-on-panel)]';
 }
 
+export type CharCategory = keyof CharDict;
+
+export function normalizeScriptCategoryOrder(raw: unknown): CharCategory[] {
+  const defaults = [...SCRIPT_STATUS_CATEGORIES];
+  if (!Array.isArray(raw)) return defaults;
+  const seen = new Set<CharCategory>();
+  const result: CharCategory[] = [];
+  for (const item of raw) {
+    if (typeof item !== 'string') continue;
+    if (!(defaults as string[]).includes(item) || seen.has(item as CharCategory)) continue;
+    const cat = item as CharCategory;
+    seen.add(cat);
+    result.push(cat);
+  }
+  for (const cat of defaults) {
+    if (!seen.has(cat)) result.push(cat);
+  }
+  return result;
+}
+
+export function reorderList<T>(list: T[], fromIndex: number, toIndex: number): T[] {
+  if (fromIndex === toIndex) return list;
+  if (fromIndex < 0 || toIndex < 0 || fromIndex >= list.length || toIndex >= list.length) return list;
+  const copy = [...list];
+  const [moved] = copy.splice(fromIndex, 1);
+  copy.splice(toIndex, 0, moved);
+  return copy;
+}
+
+function splitNamedChars(list: Character[]) {
+  return {
+    named: list.filter((c) => c.name.trim()),
+    empties: list.filter((c) => !c.name.trim()),
+  };
+}
+
+function namedIndexOf(list: Character[], index: number): number {
+  if (index < 0 || index >= list.length || !list[index]?.name.trim()) return -1;
+  return list.slice(0, index + 1).filter((c) => c.name.trim()).length - 1;
+}
+
+/** Reorder named roles; empty slots stay at the end. Indices are into the full category list. */
+export function moveNamedRole(list: Character[], fromIndex: number, toIndex: number): Character[] {
+  const fromNamed = namedIndexOf(list, fromIndex);
+  const toNamed = namedIndexOf(list, toIndex);
+  if (fromNamed < 0 || toNamed < 0 || fromNamed === toNamed) return list;
+  const { named, empties } = splitNamedChars(list);
+  const [moved] = named.splice(fromNamed, 1);
+  named.splice(toNamed, 0, moved);
+  return [...named, ...empties];
+}
+
+/** Set status, then CONF → first named, NOT → last named. POSS stays put. */
+export function applyCharStatusAutoPlace(list: Character[], index: number, status: CharStatus): Character[] {
+  if (index < 0 || index >= list.length) return list;
+  const updated = list.map((c, i) => (i === index ? { ...c, status } : c));
+  if (status === 'POSS' || !updated[index].name.trim()) return updated;
+  const namedIdx = namedIndexOf(updated, index);
+  if (namedIdx < 0) return updated;
+  const { named, empties } = splitNamedChars(updated);
+  const [moved] = named.splice(namedIdx, 1);
+  if (status === 'CONF') named.unshift(moved);
+  else named.push(moved);
+  return [...named, ...empties];
+}
+
 export function normalizeCharDict(raw: unknown): CharDict {
   const base = createInitialChars();
   if (!raw || typeof raw !== 'object') return base;
