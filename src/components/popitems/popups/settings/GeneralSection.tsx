@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Hash, User, Save, CheckCircle2, Trash2, PlayCircle, Download, Upload, Clock } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { type IdentityMode, type ClockDayDirection, type SessionMeta } from '../../../../type';
+import GeminiSection from './GeminiSection';
 
 interface GeneralSectionProps {
   fontSize: 'small' | 'mid' | 'large';
@@ -125,6 +126,8 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
 
   return (
     <div className="space-y-8">
+      <GeminiSection />
+
       <section className="space-y-3">
         <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
           <User size={14} /> Identity Display Mode

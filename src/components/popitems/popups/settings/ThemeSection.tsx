@@ -3,7 +3,11 @@
 import React, { useState } from 'react';
 import { Palette, Sparkles, Copy, Check, Save, Wand2, Trash2, Edit2, LayoutGrid, Info, Code, Save as SaveIcon } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { type ThemeType, type ThemeColors, type ThemePatterns, type Theme, THEMES } from '../../../../type';
+import { type ThemeType, type ThemeColors, type ThemePatterns, type Theme, THEMES, type ThemePatternComplexity, buildThemePrompt } from '../../../../type';
+import { generateGemini, stripMarkdownFences, readGeminiApiKey, readGeminiModelId } from '../../../../lib/gemini';
+import { useGeminiSettings } from '../../../../hooks/useGeminiSettings';
+import GeminiInput from '../../../ai/GeminiInput';
+import GeminiModeTabs from '../../../ai/GeminiModeTabs';
 
 interface ThemeSectionProps {
   activeTheme: ThemeType;
@@ -23,7 +27,7 @@ const ThemeSection: React.FC<ThemeSectionProps> = ({
   activeTheme, setActiveTheme, setCustomThemeColors, setCustomThemePatterns, savedCustomThemes, saveCustomTheme, updateCustomTheme, deleteCustomTheme, renameCustomTheme, aiThemeInput, setAiThemeInput
 }) => {
   const [desiredStyle, setDesiredStyle] = useState('');
-  const [patternType, setPatternType] = useState<'none' | 'subtle' | 'decorative'>('none');
+  const [patternType, setPatternType] = useState<ThemePatternComplexity>('none');
   const [copied, setCopied] = useState(false);
   const [showSaveTheme, setShowSaveTheme] = useState(false);
   const [themeName, setThemeName] = useState('');
@@ -31,63 +35,10 @@ const ThemeSection: React.FC<ThemeSectionProps> = ({
   const [editName, setEditName] = useState('');
   const [jsonEditorId, setJsonEditorId] = useState<string | null>(null);
   const [jsonText, setJsonText] = useState('');
+  const { hasKey } = useGeminiSettings();
 
-  const getAiPrompt = (style: string, pattern: string) => {
-    const patternInstructions = {
-      none: "No patterns needed. Focus purely on the color palette.",
-      subtle: "Subtle, repeating SVG patterns for 'bg' and 'panel' that add texture without distracting from the text.",
-      decorative: "Intricate, thematic SVG patterns for 'bg' and 'panel' (e.g., damask, gothic filigree, or geometric arrays). Ensure they align with the requested style."
-    }[pattern as keyof typeof patternInstructions ];
-
-    const pattern_prompt = `TECHNICAL REQUIREMENTS in patterns ("<svg>...</svg>"):
-- "bg": Use a BOLD, high-contrast pattern. You have full creative freedom here as the app layout ensures structural clarity regardless of the background pattern. Maximize the thematic impact.
-- "panel": Create a pattern that complements "textOnPanel" but maintains a noticeable presence. Avoid making it too faint; ensure the fill-opacity allows the pattern's details to be clearly seen without washing out.`;
-
-
-    return `ACT AS AN EXPERT UI/UX DESIGNER.
-Generate a Blood on the Clocktower game theme in JSON format.
-
-STYLE: ${style || 'Gothic Horror / Professional Ledger'}
-PATTERN COMPLEXITY: ${patternInstructions}
-
-CHAIN OF THOUGHT PROCESS:
-1. Analyze the requested style and identify a core color palette.
-2. Select high-contrast text colors for the background, panels, and headers separately.
-3. Define an 'accent' color that pops for interactive elements.
-4. Design ${pattern !== 'none' ? 'matching SVG patterns with high visual impact' : 'a clean look'}.
-
-TECHNICAL REQUIREMENTS in colors (#hex):
-- "bg": Main screen background color.
-- "panel": Card/Ledger surface color.
-- "header": Identity/Top-bar color.
-- "accent": Primary action color (bold and distinct).
-- "textOnBg": High contrast against "bg".
-- "textOnPanel": High contrast against "panel".
-- "textOnHeader": Contrast for header text.
-- "border": Subtle divider color.
-- "muted": Visible but lower contrast for secondary labels.
-
-${pattern !== 'none' ? pattern_prompt : ''}
-
-OUTPUT ONLY THE JSON OBJECT:
-{
-  "bg": "hex",
-  "panel": "hex",
-  "header": "hex",
-  "accent": "hex",
-  "text": "hex",
-  "textOnBg": "hex",
-  "textOnPanel": "hex",
-  "textOnHeader": "hex",
-  "border": "hex",
-  "muted": "hex"${pattern !== 'none' ? ',\n  "patterns": { \n "bg": "<svg>...</svg>", \n "panel": "<svg>...</svg>" \n }' : ''}
-}`;
-  };
-
-
-  
   const copyPrompt = () => {
-    navigator.clipboard.writeText(getAiPrompt(desiredStyle, patternType));
+    navigator.clipboard.writeText(buildThemePrompt(desiredStyle, patternType));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
     toast.success('AI Prompt copied!');
@@ -286,7 +237,7 @@ OUTPUT ONLY THE JSON OBJECT:
         <div className="bg-slate-50 rounded-2xl p-4 space-y-4">
           <div className="space-y-3">
             <p className="text-[10px] text-slate-500 leading-relaxed italic">
-              1. Choose style and pattern complexity, then copy prompt to AI.
+              1. Choose style and pattern complexity. Optional photo is a color/mood reference.
             </p>
             
             <div className="grid grid-cols-2 gap-2">
@@ -314,16 +265,51 @@ OUTPUT ONLY THE JSON OBJECT:
               </div>
             </div>
 
-            <button onClick={copyPrompt} className="w-full py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 text-[10px] font-black uppercase shadow-lg active:scale-95">
-              {copied ? <Check size={14} /> : <Copy size={14} />}
-              {copied ? 'Prompt Copied!' : 'Copy Designer Prompt'}
-            </button>
+            <GeminiModeTabs
+              apiPanel={
+                <GeminiInput
+                  hasKey={hasKey}
+                  showTextarea={false}
+                  requireInput={false}
+                  generateLabel="Generate theme JSON"
+                  onGenerate={async ({ images }) => {
+                    try {
+                      const result = await generateGemini({
+                        apiKey: readGeminiApiKey(),
+                        model: readGeminiModelId(),
+                        prompt: buildThemePrompt(desiredStyle, patternType),
+                        images,
+                        json: true,
+                      });
+                      setAiThemeInput(stripMarkdownFences(result));
+                      toast.success('Theme JSON filled. Apply Preview below.');
+                    } catch (err) {
+                      toast.error(err instanceof Error ? err.message : 'Gemini request failed.');
+                    }
+                  }}
+                />
+              }
+              copyPanel={
+                <div className="space-y-2">
+                  <ol className="text-[9px] text-slate-600 leading-relaxed list-decimal pl-4 space-y-1">
+                    <li>Set style and pattern complexity above (optional: attach a mood photo in the chatbot).</li>
+                    <li>Copy the designer prompt.</li>
+                    <li>Paste into ChatGPT, Claude, or Gemini chat.</li>
+                    <li>Paste the JSON into the box below, then Apply Preview.</li>
+                  </ol>
+                  <button onClick={copyPrompt} className="w-full py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 text-[10px] font-black uppercase shadow-lg active:scale-95">
+                    {copied ? <Check size={14} /> : <Copy size={14} />}
+                    {copied ? 'Prompt Copied!' : 'Copy Designer Prompt'}
+                  </button>
+                </div>
+              }
+            />
           </div>
 
           <div className="space-y-3 pt-4 border-t border-slate-200">
             <div className="flex items-center justify-between">
               <p className="text-[10px] text-slate-500 leading-relaxed italic">
-                2. Paste AI response and preview result.
+                2. Paste or generate JSON, then preview.
               </p>
               {patternType !== 'none' && (
                 <span className="text-[8px] text-amber-600 font-bold uppercase flex items-center gap-1">

@@ -31,6 +31,8 @@ Optional. Used only by the About popup links. Set them in a local `.env` (gitign
 
 If unset, those About actions simply have empty targets.
 
+Do **not** bake a Gemini API key into `VITE_*` or the static build. Each user pastes their own key in Settings; it is stored only in that browser (`ct_secret_gemini_api_key`) and is excluded from theme/config export.
+
 Example `.env`:
 
 ```env

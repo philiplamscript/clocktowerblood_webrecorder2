@@ -1,8 +1,5 @@
 // --- TYPES & INTERFACES ---
 
-import { pattern } from "framer-motion/client";
-
-
 export type ThemeType = 'standard' | 'knights' | 'grimoire' | 'puppet' | 'custom' | string;
 
 export type IdentityMode = 'number' | 'name';
@@ -343,6 +340,151 @@ Demon: \n
 ...
 
 \`\`\``;
+
+export function buildRoleParsePrompt(extraText: string): string {
+  const notes = extraText.trim();
+  if (!notes) return ROLE_PARSING_PROMPT.trim();
+  return `${ROLE_PARSING_PROMPT.trim()}
+
+ADDITIONAL USER NOTES:
+${notes}`;
+}
+
+export function parseRoleScript(raw: string): CharDict {
+  const stripped = raw.replace(/```(?:bash|text)?/gi, '').replace(/```/g, '');
+  const lines = stripped.split('\n').map(l => l.trim()).filter(Boolean);
+  const newChars: CharDict = { Townsfolk: [], Outsider: [], Minion: [], Demon: [] };
+  let current: keyof CharDict | null = null;
+  lines.forEach(l => {
+    if (/townsfolk:/i.test(l)) current = 'Townsfolk';
+    else if (/outsider:/i.test(l)) current = 'Outsider';
+    else if (/minion:/i.test(l)) current = 'Minion';
+    else if (/demon:/i.test(l)) current = 'Demon';
+    else if (current) newChars[current].push({ name: l, status: 'POSS', note: '' });
+  });
+  (Object.keys(newChars) as (keyof CharDict)[]).forEach(cat => {
+    while (newChars[cat].length < 8) newChars[cat].push({ name: '', status: 'POSS', note: '' });
+  });
+  return newChars;
+}
+
+export function buildPlayerNamesPrompt(playerCount: number, extraText: string): string {
+  const n = Math.max(1, Math.floor(playerCount) || 1);
+  const notes = extraText.trim();
+  return `Extract player names for a Blood on the Clocktower seating.
+
+There are ${n} seats numbered 1 through ${n}, in clockwise order from seat 1.
+
+Use the attached photo(s) and/or the user notes. Photos may be a seating chart, name tags, a roster screenshot, or handwritten list.
+
+OUTPUT ONLY JSON:
+{ "names": ["seat 1 name", "seat 2 name", "..."] }
+
+Rules:
+- Return at most ${n} names, in seat order.
+- Use an empty string for a seat you cannot read.
+- Do not invent nicknames that are not in the source.
+- Keep original spelling and language.
+
+${notes ? `USER NOTES:\n${notes}` : 'No extra notes. Rely on the image(s) if present.'}`;
+}
+
+export function parsePlayerNames(raw: string, playerCount: number): string[] {
+  const n = Math.max(1, Math.floor(playerCount) || 1);
+  const stripped = raw.replace(/```(?:json|bash|text)?/gi, '').replace(/```/g, '').trim();
+  const names: string[] = [];
+
+  const tryList = (list: unknown) => {
+    if (!Array.isArray(list)) return false;
+    list.forEach((item) => {
+      if (names.length >= n) return;
+      names.push(typeof item === 'string' ? item.trim() : String(item ?? '').trim());
+    });
+    return true;
+  };
+
+  const jsonSlice = (() => {
+    const startObj = stripped.indexOf('{');
+    const startArr = stripped.indexOf('[');
+    if (startObj >= 0 && (startArr < 0 || startObj < startArr)) {
+      const end = stripped.lastIndexOf('}');
+      if (end > startObj) return stripped.slice(startObj, end + 1);
+    }
+    if (startArr >= 0) {
+      const end = stripped.lastIndexOf(']');
+      if (end > startArr) return stripped.slice(startArr, end + 1);
+    }
+    return stripped;
+  })();
+
+  try {
+    const parsed = JSON.parse(jsonSlice);
+    tryList(Array.isArray(parsed) ? parsed : parsed?.names);
+  } catch {
+    stripped.split('\n').forEach((line) => {
+      if (names.length >= n) return;
+      const cleaned = line.replace(/^\s*\d+[.)\]:-]\s*/, '').replace(/^[-*•]\s*/, '').trim();
+      if (!cleaned || /^names?\s*[:[]/i.test(cleaned) || cleaned === '{' || cleaned === '}') return;
+      names.push(cleaned.replace(/^["']|["']$/g, '').replace(/,$/, ''));
+    });
+  }
+
+  return names.slice(0, n);
+}
+
+export type ThemePatternComplexity = 'none' | 'subtle' | 'decorative';
+
+export function buildThemePrompt(style: string, pattern: ThemePatternComplexity): string {
+  const patternInstructions = {
+    none: "No patterns needed. Focus purely on the color palette.",
+    subtle: "Subtle, repeating SVG patterns for 'bg' and 'panel' that add texture without distracting from the text.",
+    decorative: "Intricate, thematic SVG patterns for 'bg' and 'panel' (e.g., damask, gothic filigree, or geometric arrays). Ensure they align with the requested style."
+  }[pattern];
+
+  const pattern_prompt = `TECHNICAL REQUIREMENTS in patterns ("<svg>...</svg>"):
+- "bg": Use a BOLD, high-contrast pattern. You have full creative freedom here as the app layout ensures structural clarity regardless of the background pattern. Maximize the thematic impact.
+- "panel": Create a pattern that complements "textOnPanel" but maintains a noticeable presence. Avoid making it too faint; ensure the fill-opacity allows the pattern's details to be clearly seen without washing out.`;
+
+  return `ACT AS AN EXPERT UI/UX DESIGNER.
+Generate a Blood on the Clocktower game theme in JSON format.
+
+STYLE: ${style || 'Gothic Horror / Professional Ledger'}
+PATTERN COMPLEXITY: ${patternInstructions}
+If an image is attached, use it as a color and mood reference.
+
+CHAIN OF THOUGHT PROCESS:
+1. Analyze the requested style and identify a core color palette.
+2. Select high-contrast text colors for the background, panels, and headers separately.
+3. Define an 'accent' color that pops for interactive elements.
+4. Design ${pattern !== 'none' ? 'matching SVG patterns with high visual impact' : 'a clean look'}.
+
+TECHNICAL REQUIREMENTS in colors (#hex):
+- "bg": Main screen background color.
+- "panel": Card/Ledger surface color.
+- "header": Identity/Top-bar color.
+- "accent": Primary action color (bold and distinct).
+- "textOnBg": High contrast against "bg".
+- "textOnPanel": High contrast against "panel".
+- "textOnHeader": Contrast for header text.
+- "border": Subtle divider color.
+- "muted": Visible but lower contrast for secondary labels.
+
+${pattern !== 'none' ? pattern_prompt : ''}
+
+OUTPUT ONLY THE JSON OBJECT:
+{
+  "bg": "hex",
+  "panel": "hex",
+  "header": "hex",
+  "accent": "hex",
+  "text": "hex",
+  "textOnBg": "hex",
+  "textOnPanel": "hex",
+  "textOnHeader": "hex",
+  "border": "hex",
+  "muted": "hex"${pattern !== 'none' ? ',\n  "patterns": { \n "bg": "<svg>...</svg>", \n "panel": "<svg>...</svg>" \n }' : ''}
+}`;
+}
 
 export const createInitialChars = (): CharDict => ({
   Townsfolk: Array(8).fill(null).map(() => ({ name: '', status: 'POSS', note: '' })),

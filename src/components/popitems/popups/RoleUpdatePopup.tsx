@@ -2,8 +2,12 @@
 
 import React, { useState } from 'react';
 import { X, Copy, Check, Sparkles } from 'lucide-react';
-import { ROLE_PARSING_PROMPT } from '../../../type';
+import { ROLE_PARSING_PROMPT, buildRoleParsePrompt } from '../../../type';
 import { toast } from 'react-hot-toast';
+import { generateGemini, readGeminiApiKey, readGeminiModelId } from '../../../lib/gemini';
+import { useGeminiSettings } from '../../../hooks/useGeminiSettings';
+import GeminiInput from '../../ai/GeminiInput';
+import GeminiModeTabs from '../../ai/GeminiModeTabs';
 
 interface RoleUpdatePopupProps {
   showRoleUpdate: boolean;
@@ -21,6 +25,7 @@ const RoleUpdatePopup: React.FC<RoleUpdatePopupProps> = ({
   parseRoleUpdate
 }) => {
   const [copied, setCopied] = useState(false);
+  const { hasKey } = useGeminiSettings();
 
   if (!showRoleUpdate) return null;
 
@@ -48,15 +53,48 @@ const RoleUpdatePopup: React.FC<RoleUpdatePopupProps> = ({
               <Sparkles size={12} /> Fast Load with AI
             </h4>
             <p className="text-[9px] text-blue-600 leading-relaxed italic">
-              Take a photo of your script or character list, copy this prompt, and paste both into any AI (ChatGPT, Claude, etc.). Then paste the result here.
+              Generate with your Gemini key, or copy a prompt for ChatGPT/Claude. Paste the result below.
             </p>
-            <button 
-              onClick={handleCopyPrompt}
-              className="w-full flex items-center justify-center gap-2 bg-white border border-blue-200 hover:border-blue-400 text-blue-700 py-2 rounded-lg text-[10px] font-black uppercase transition-all active:scale-95 shadow-sm"
-            >
-              {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
-              {copied ? 'Prompt Copied!' : 'Copy AI Parsing Prompt'}
-            </button>
+            <GeminiModeTabs
+              apiPanel={
+                <GeminiInput
+                  hasKey={hasKey}
+                  placeholder="Optional notes about the script photo…"
+                  generateLabel="Generate roles"
+                  onGenerate={async ({ text, images }) => {
+                    try {
+                      const result = await generateGemini({
+                        apiKey: readGeminiApiKey(),
+                        model: readGeminiModelId(),
+                        prompt: buildRoleParsePrompt(text),
+                        images,
+                      });
+                      setRoleUpdateText(result);
+                      toast.success('Roles drafted. Edit below, then Update.');
+                    } catch (err) {
+                      toast.error(err instanceof Error ? err.message : 'Gemini request failed.');
+                    }
+                  }}
+                />
+              }
+              copyPanel={
+                <div className="space-y-2">
+                  <ol className="text-[9px] text-blue-700 leading-relaxed list-decimal pl-4 space-y-1">
+                    <li>Take a photo of the script or type the role list in the chatbot.</li>
+                    <li>Copy the parsing prompt below.</li>
+                    <li>Paste photo + prompt into ChatGPT, Claude, or Gemini chat.</li>
+                    <li>Paste the role list into the box under this panel, then Update Roles Table.</li>
+                  </ol>
+                  <button 
+                    onClick={handleCopyPrompt}
+                    className="w-full flex items-center justify-center gap-2 bg-white border border-blue-200 hover:border-blue-400 text-blue-700 py-2 rounded-lg text-[10px] font-black uppercase transition-all active:scale-95 shadow-sm"
+                  >
+                    {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                    {copied ? 'Prompt Copied!' : 'Copy AI Parsing Prompt'}
+                  </button>
+                </div>
+              }
+            />
           </div>
 
           <div className="h-px bg-slate-100 mx-2" />

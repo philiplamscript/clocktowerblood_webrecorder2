@@ -54,11 +54,14 @@ src/
 │   │   │   └── settings/ # Nested settings sub-sections
 │   │   ├── VoteHistoryClock/ # Modularized SVG clock components
 │   │   └── FAB.tsx       # Floating Action Button
+│   ├── ai/               # Gemini text/photo input
 │   ├── Sidebar.tsx       # Main navigation drawer
 │   ├── PlayerDetailView.tsx # Main player focus view
 │   └── GlobalVotingView.tsx # Global game state overview
 ├── hooks/
-│   └── useGameState.ts    # Centralized game state and storage logic
+│   ├── useGameState.ts    # Centralized game state and storage logic
+│   └── useGeminiSettings.ts
+├── lib/                  # Gemini client and image helpers
 ├── type.tsx              # TypeScript type definitions and constants
 ├── App.tsx               # Root component and theme provider
 ├── main.tsx              # Application entry point

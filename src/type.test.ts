@@ -16,6 +16,9 @@ import {
   normalizeMePlayerNo,
   remapMeAfterReorder,
   remapMeAfterRemove,
+  parseRoleScript,
+  parsePlayerNames,
+  buildThemePrompt,
   type Character,
 } from './type';
 
@@ -151,5 +154,41 @@ describe('Game Data Utilities', () => {
     const poss = applyCharStatusAutoPlace(list, 2, 'POSS');
     expect(poss.map((c) => c.name)).toEqual(['Chef', 'Empath', 'Washerwoman', '']);
     expect(poss[2].status).toBe('POSS');
+  });
+});
+
+describe('AI script and name parsers', () => {
+  it('parses fenced Gemini role output into categories', () => {
+    const raw = `\`\`\`bash
+Townsfolk:
+[👨‍🍳][Chef]
+Washerwoman
+Outsider:
+[🍷][Drunk]
+Minion:
+Poisoner
+Demon:
+Imp
+\`\`\``;
+    const chars = parseRoleScript(raw);
+    expect(chars.Townsfolk[0].name).toBe('[👨‍🍳][Chef]');
+    expect(chars.Townsfolk[1].name).toBe('Washerwoman');
+    expect(chars.Outsider[0].name).toBe('[🍷][Drunk]');
+    expect(chars.Minion[0].name).toBe('Poisoner');
+    expect(chars.Demon[0].name).toBe('Imp');
+    expect(chars.Townsfolk).toHaveLength(8);
+  });
+
+  it('parses JSON name lists and numbered fallbacks', () => {
+    expect(parsePlayerNames('```json\n{"names":["Ada","Bob"," "]}\n```', 5)).toEqual(['Ada', 'Bob', '']);
+    expect(parsePlayerNames('Here you go {"names":["Cara","Dan"]}', 2)).toEqual(['Cara', 'Dan']);
+    expect(parsePlayerNames('1. Eli\n2. Fay\n3. Gus', 2)).toEqual(['Eli', 'Fay']);
+  });
+
+  it('builds a theme prompt that includes style and pattern mode', () => {
+    const prompt = buildThemePrompt('Neon City', 'decorative');
+    expect(prompt).toContain('Neon City');
+    expect(prompt).toContain('"patterns"');
+    expect(buildThemePrompt('', 'none')).not.toContain('"patterns"');
   });
 });

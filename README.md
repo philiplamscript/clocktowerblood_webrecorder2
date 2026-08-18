@@ -27,9 +27,10 @@ Fan-made note companion for *Blood on the Clocktower*. During a live game, track
 - **Vote History Clock**: Interactive visualization of voting patterns and nominations with slide-to-nominate gestures.
 - **Full Ledger System**: Tables for Players, Votes, Roles, and general Notes.
 - **Assignment Modes**: Quickly assign death reasons or custom properties (e.g., Poisoned, Drunk) to players.
-- **Role Script Keywords**: Load the session script so role names can be inserted into notes.
+- **Role Script Keywords**: Load the session script so role names can be inserted into notes. Optional Gemini (your API key) can read a typed list or a script photo; copy/paste to any other AI still works.
 - **Session Save / Load / Export**: Snapshot games and move them between devices via import/export.
-- **Theme System**: Choose from built-in themes (Standard, Knights, Grimoire, Puppet Master) or generate your own using AI.
+- **Theme System**: Choose from built-in themes (Standard, Knights, Grimoire, Puppet Master) or generate your own using AI — Gemini in-app, or copy the designer prompt elsewhere. Photos can be used as a color/mood reference.
+- **Player names from text or photo**: Roster can fill seats from a typed list or a seating-chart / name-tag photo when a Gemini key is set.
 - **Customization**: Create reusable notepad templates and property shortcuts to speed up tracking.
 - **Responsive Design**: Layout optimized for game-time speed on desktop and mobile.
 - **Data Persistence**: Automatic local storage of game data across refreshes.
@@ -52,16 +53,22 @@ src/
 │   ├── pickers/             # Rotary and clock input UI
 │   ├── player-detail/       # Notes, status, assignment controls
 │   ├── tabs/                # Ledger tabs (Players, Votes, Chars, Notes)
-│   ├── popitems/
-│   │   ├── popups/          # Greeting, Settings, About, Roster, Ledger, Roles
-│   │   ├── VoteHistoryClock/ # SVG nomination / vote history clock
+│   ├── popitems/         # UI popups and modularized clock
+│   │   ├── popups/       # Modals (Settings, About, Roster, Greeting, etc.)
+│   │   │   └── settings/ # Nested settings sub-sections
+│   │   ├── VoteHistoryClock/ # Modularized SVG clock components
 │   │   └── FAB.tsx
+│   ├── ai/                  # Gemini text + photo input and camera capture
 │   ├── Sidebar.tsx
-│   ├── PlayerDetailView.tsx # Focused player view + clock
-│   └── GlobalVotingView.tsx # Optional wide-angle clock overview
+│   ├── PlayerDetailView.tsx
+│   └── GlobalVotingView.tsx
 ├── hooks/
-│   └── useGameState.ts      # Game state, sessions, and persistence
-├── type.tsx                 # Shared types and constants
+│   ├── useGameState.ts      # Game state and persistence
+│   └── useGeminiSettings.ts # BYOK API key (not in ct_app_config)
+├── lib/
+│   ├── gemini.ts            # Gemini REST client
+│   └── imageInput.ts        # Photo compress for inlineData
+├── type.tsx
 ├── App.tsx                  # Shell, theme CSS variables, modal orchestration
 ├── main.tsx                 # Application entry point
 └── index.css                # Global styles and Tailwind imports
@@ -86,6 +93,7 @@ Production build and hosting steps: [DEPLOYMENT.md](DEPLOYMENT.md).
 - **Quick Status**: Use death or property assignment mode, then tap players to tag them.
 - **Day**: Swipe or adjust the center control to change the current game day.
 - **Customization**: Settings → Customization for shorthand symbols and notepad templates.
+- **Gemini (optional)**: Settings → Application → Gemini API. Create a key at [Google AI Studio](https://aistudio.google.com/api-keys), paste it, then pick a model (list is cached across refresh; default is `gemini-flash-latest`). Load Role, Player Roster, and Themes each have a **Gemini API** tab and a **Copy prompt** tab for other chatbots. Upload or capture a photo on the device. The key stays in this browser and is never written into config export.
 
 ## Related docs
 

@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import { useGameState } from './hooks/useGameState';
+import { parseRoleScript } from './type';
 
 import Header from './components/layout/Header';
 import PlayerHub from './components/layout/PlayerHub';
@@ -65,18 +66,7 @@ export default function App() {
   };
 
   const parseRoleUpdate = () => {
-    const lines = roleUpdateText.split('\n').map(l => l.trim()).filter(Boolean);
-    const newChars: any = { Townsfolk: [], Outsider: [], Minion: [], Demon: [] };
-    let current: string | null = null;
-    lines.forEach(l => {
-      if (l.includes('Townsfolk:')) current = 'Townsfolk';
-      else if (l.includes('Outsider:')) current = 'Outsider';
-      else if (l.includes('Minion:')) current = 'Minion';
-      else if (l.includes('Demon:')) current = 'Demon';
-      else if (current) newChars[current].push({ name: l, status: 'POSS', note: '' });
-    });
-    Object.keys(newChars).forEach(cat => { while (newChars[cat].length < 8) newChars[cat].push({ name: '', status: 'POSS', note: '' }); });
-    state.setChars(newChars);
+    state.setChars(parseRoleScript(roleUpdateText));
     setShowRoleUpdate(false);
     setRoleUpdateText('');
     toast.success('Roles script updated');
