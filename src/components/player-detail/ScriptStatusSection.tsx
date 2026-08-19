@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import {
   cycleCharStatus,
@@ -111,9 +111,9 @@ const ScriptStatusSection: React.FC<ScriptStatusSectionProps> = ({
   const [collapsed, setCollapsed] = useState(false);
   const tabCategories: CharCategory[] = ['Townsfolk', 'Outsider', 'Minion', 'Demon'];
   const [activeCategory, setActiveCategory] = useState<CharCategory>(tabCategories[0]);
-  const [confCollapsed, setConfCollapsed] = useState(false);
+  const [confCollapsed, setConfCollapsed] = useState(true);
   const [possCollapsed, setPossCollapsed] = useState(false);
-  const [notCollapsed, setNotCollapsed] = useState(false);
+  const [notCollapsed, setNotCollapsed] = useState(true);
   const [gesture, setGesture] = useState<Gesture>(IDLE);
   const gestureRef = useRef<Gesture>(IDLE);
 
@@ -140,6 +140,15 @@ const ScriptStatusSection: React.FC<ScriptStatusSectionProps> = ({
   const confRoles = activeRoles.filter((r) => r.status === 'CONF');
   const possRoles = activeRoles.filter((r) => r.status === 'POSS');
   const notRoles = activeRoles.filter((r) => r.status === 'NOT');
+
+  // Space-saving: keep CONFIRM/IMPOSSIBLE collapsed when empty; auto-expand when items exist.
+  useEffect(() => {
+    setConfCollapsed(confRoles.length === 0);
+  }, [confRoles.length]);
+
+  useEffect(() => {
+    setNotCollapsed(notRoles.length === 0);
+  }, [notRoles.length]);
 
   const assignStatus = useCallback((category: CharCategory, index: number, status: CharStatus) => {
     setChars((prev) => ({
