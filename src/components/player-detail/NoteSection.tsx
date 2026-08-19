@@ -21,6 +21,7 @@ interface NoteSectionProps {
 
 export type NoteSectionHandle = {
   insertAtCaret: (text: string) => void;
+  insertAtPoint: (text: string, x: number, y: number) => void;
 };
 
 const NoteSection = forwardRef<NoteSectionHandle, NoteSectionProps>(({
@@ -47,6 +48,9 @@ const NoteSection = forwardRef<NoteSectionHandle, NoteSectionProps>(({
     const caret = start + text.length;
     caretRef.current = { start: caret, end: caret };
     updatePlayerInfo(playerNo, next);
+    // Focus immediately to trigger the on-screen keyboard during the drag/drop gesture.
+    textareaRef.current?.focus();
+    // Wait a tick for React to update `value`, then set caret position accurately.
     requestAnimationFrame(() => {
       const el = textareaRef.current;
       if (!el) return;
@@ -55,7 +59,35 @@ const NoteSection = forwardRef<NoteSectionHandle, NoteSectionProps>(({
     });
   }, [inf, playerNo, updatePlayerInfo]);
 
-  useImperativeHandle(ref, () => ({ insertAtCaret }), [insertAtCaret]);
+  const insertAtPoint = useCallback(
+    (text: string, x: number, y: number) => {
+      const el = textareaRef.current;
+      if (el) {
+        const doc = document as any;
+        const offsetFromPoint = (() => {
+          if (typeof doc?.caretPositionFromPoint === 'function') {
+            const pos = doc.caretPositionFromPoint(x, y);
+            if (pos && typeof pos.offset === 'number') return pos.offset as number;
+          }
+          if (typeof doc?.caretRangeFromPoint === 'function') {
+            const range = doc.caretRangeFromPoint(x, y);
+            if (range && typeof range.startOffset === 'number') return range.startOffset as number;
+          }
+          return null;
+        })();
+
+        if (typeof offsetFromPoint === 'number') {
+          caretRef.current = { start: offsetFromPoint, end: offsetFromPoint };
+        }
+      }
+
+      // Fallback: if we couldn't map (x,y) to an offset, use the current caret.
+      insertAtCaret(text);
+    },
+    [insertAtCaret]
+  );
+
+  useImperativeHandle(ref, () => ({ insertAtCaret, insertAtPoint }), [insertAtCaret, insertAtPoint]);
 
   const handleSelectRole = (role: string) => {
     updatePlayerInfo(playerNo, inf + (inf ? '\n' : '') + role);
@@ -93,7 +125,11 @@ const NoteSection = forwardRef<NoteSectionHandle, NoteSectionProps>(({
       </div>
         
       <div className="flex gap-2 items-start">
-        <div className="flex-1 relative rounded-lg border border-[var(--border-color)] bg-[var(--panel-color)] overflow-hidden shadow-sm min-h-[120px] transition-colors duration-500">
+        <div
+          className="flex-1 relative rounded-lg border border-[var(--border-color)] bg-[var(--panel-color)] overflow-hidden shadow-sm min-h-[120px] transition-colors duration-500"
+          data-script-drop="notepad"
+          title="Drag a role onto this Notepad to insert it (release to insert)."
+        >
           <div className="absolute inset-0 pointer-events-none opacity-40 z-0" style={{ backgroundImage: 'var(--panel-pattern)' }} />
           <textarea 
             ref={textareaRef}

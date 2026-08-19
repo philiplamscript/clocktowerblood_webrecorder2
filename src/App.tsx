@@ -17,7 +17,6 @@ import GreetingPopup from './components/popitems/popups/GreetingPopup';
 import SettingsPopup from './components/popitems/popups/SettingsPopup';
 import AboutPopup from './components/popitems/popups/AboutPopup';
 import PlayerRosterPopup from './components/popitems/popups/PlayerRosterPopup';
-import FAB from './components/popitems/FAB';
 import Sidebar from './components/Sidebar';
 
 const hexToRgb = (hex: string) => {
@@ -211,7 +210,6 @@ export default function App() {
           mePlayerNo={state.mePlayerNo}
           setMePlayerNo={state.setMePlayerNo}
         />
-        <FAB showLedger={showLedger} setShowLedger={setShowLedger} />
         <div className="bg-[var(--panel-color)] border-t border-[var(--border-color)] px-3 py-1 text-[9px] font-bold text-[var(--muted-color)] flex justify-between items-center z-50">
           <div className="h-16" />
 

@@ -215,7 +215,7 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
         setChars={props.setChars}
         categoryOrder={props.scriptCategoryOrder}
         setCategoryOrder={props.setScriptCategoryOrder}
-        onInsertRole={(name) => noteRef.current?.insertAtCaret(name)}
+        onInsertRole={(name, x, y) => noteRef.current?.insertAtPoint(name, x, y)}
       />
       
       <div className="h-16" />

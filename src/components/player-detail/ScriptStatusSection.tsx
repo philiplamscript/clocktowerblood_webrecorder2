@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import {
-  STATUS_OPTIONS,
   cycleCharStatus,
   charStatusCellClass,
   normalizeCharStatus,
@@ -16,20 +15,16 @@ import {
   type CharCategory,
 } from '../../type';
 
-const HOLD_MS = 300;
 const MOVE_PX = 8;
 
-type VisibleMap = Record<CharStatus, boolean>;
-const ALL_VISIBLE: VisibleMap = { POSS: true, CONF: true, NOT: true };
-const NONE_VISIBLE: VisibleMap = { POSS: false, CONF: false, NOT: false };
-
 type DropHover =
-  | { kind: 'status'; status: CharStatus }
+  | { kind: 'status'; status: CharStatus; index?: number }
   | { kind: 'role'; cat: CharCategory; index: number }
-  | { kind: 'category'; cat: CharCategory };
+  | { kind: 'category'; cat: CharCategory }
+  | { kind: 'notepad' };
 
 type Gesture = {
-  phase: 'idle' | 'pending' | 'drag' | 'inserted';
+  phase: 'idle' | 'pending' | 'drag';
   kind: 'role' | 'category' | null;
   pointerId: number | null;
   startX: number;
@@ -63,18 +58,23 @@ const isCharCategory = (value: string | undefined): value is CharCategory =>
 
 function readDrop(x: number, y: number): DropHover | null {
   const el = document.elementFromPoint(x, y) as HTMLElement | null;
+  const roleNode = el?.closest('[data-script-drop="role"]') as HTMLElement | null;
+  if (roleNode) {
+    const cat = roleNode.dataset.cat;
+    const index = Number(roleNode.dataset.index);
+    if (isCharCategory(cat) && Number.isInteger(index)) return { kind: 'role', cat, index };
+  }
   const node = el?.closest('[data-script-drop]') as HTMLElement | null;
   if (!node) return null;
   const drop = node.dataset.scriptDrop;
   if (drop === 'status') {
     const status = node.dataset.status;
-    if (status === 'POSS' || status === 'CONF' || status === 'NOT') return { kind: 'status', status };
-  }
-  if (drop === 'role') {
-    const cat = node.dataset.cat;
     const index = Number(node.dataset.index);
-    if (isCharCategory(cat) && Number.isInteger(index)) return { kind: 'role', cat, index };
+    if (status === 'POSS' || status === 'CONF' || status === 'NOT') {
+      return Number.isInteger(index) ? { kind: 'status', status, index } : { kind: 'status', status };
+    }
   }
+  if (drop === 'notepad') return { kind: 'notepad' };
   if (drop === 'category') {
     const cat = node.dataset.cat;
     if (isCharCategory(cat)) return { kind: 'category', cat };
@@ -85,6 +85,7 @@ function readDrop(x: number, y: number): DropHover | null {
 function resolveHover(gesture: Gesture, raw: DropHover | null): DropHover | null {
   if (!raw || gesture.phase !== 'drag') return null;
   if (gesture.kind === 'role') {
+    if (raw.kind === 'notepad') return raw;
     if (raw.kind === 'status') return raw;
     if (raw.kind === 'role' && raw.cat === gesture.cat && raw.index !== gesture.index) return raw;
     return null;
@@ -101,59 +102,69 @@ interface ScriptStatusSectionProps {
   setChars: React.Dispatch<React.SetStateAction<CharDict>>;
   categoryOrder: CharCategory[];
   setCategoryOrder: (order: CharCategory[]) => void;
-  onInsertRole?: (name: string) => void;
+  onInsertRole?: (name: string, x: number, y: number) => void;
 }
 
 const ScriptStatusSection: React.FC<ScriptStatusSectionProps> = ({
   chars, setChars, categoryOrder, setCategoryOrder, onInsertRole,
 }) => {
   const [collapsed, setCollapsed] = useState(false);
-  const [visible, setVisible] = useState<VisibleMap>(ALL_VISIBLE);
+  const tabCategories: CharCategory[] = ['Townsfolk', 'Outsider', 'Minion', 'Demon'];
+  const [activeCategory, setActiveCategory] = useState<CharCategory>(tabCategories[0]);
+  const [confCollapsed, setConfCollapsed] = useState(false);
+  const [possCollapsed, setPossCollapsed] = useState(false);
+  const [notCollapsed, setNotCollapsed] = useState(false);
   const [gesture, setGesture] = useState<Gesture>(IDLE);
   const gestureRef = useRef<Gesture>(IDLE);
-  const holdTimerRef = useRef<number | null>(null);
-
-  useEffect(() => () => {
-    if (holdTimerRef.current != null) window.clearTimeout(holdTimerRef.current);
-  }, []);
 
   const setGestureBoth = (next: Gesture) => {
     gestureRef.current = next;
     setGesture(next);
   };
 
-  const clearHold = () => {
-    if (holdTimerRef.current != null) {
-      window.clearTimeout(holdTimerRef.current);
-      holdTimerRef.current = null;
-    }
-  };
-
   const order = useMemo(() => normalizeScriptCategoryOrder(categoryOrder), [categoryOrder]);
-  const allOn = STATUS_OPTIONS.every((s) => visible[s]);
-
-  const namedByCategory = useMemo(() => {
-    return order.map((cat) => {
-      const roles = (chars[cat] || [])
-        .map((c, index) => ({ ...c, index, status: normalizeCharStatus(c.status) }))
-        .filter((c) => c.name.trim())
-        .filter((c) => visible[c.status]);
-      return { cat, roles };
-    }).filter((block) => (chars[block.cat] || []).some((c) => c.name.trim()));
-  }, [chars, order, visible]);
-
   const hasAnyNamed = useMemo(
-    () => order.some((cat) => (chars[cat] || []).some((c) => c.name.trim())),
-    [chars, order]
+    () => tabCategories.some((cat) => (chars[cat] || []).some((c) => c.name.trim())),
+    [chars]
   );
 
-  const visibleRoleCount = namedByCategory.reduce((n, b) => n + b.roles.length, 0);
+  const activeRoles = useMemo(() => {
+    const roles = (chars[activeCategory] || []).map((c, index) => ({
+      ...c,
+      index,
+      status: normalizeCharStatus(c.status),
+    }));
+    return roles.filter((r) => r.name.trim());
+  }, [chars, activeCategory]);
+
+  const confRoles = activeRoles.filter((r) => r.status === 'CONF');
+  const possRoles = activeRoles.filter((r) => r.status === 'POSS');
+  const notRoles = activeRoles.filter((r) => r.status === 'NOT');
 
   const assignStatus = useCallback((category: CharCategory, index: number, status: CharStatus) => {
     setChars((prev) => ({
       ...prev,
       [category]: applyCharStatusAutoPlace(prev[category], index, status),
     }));
+  }, [setChars]);
+
+  const assignStatusAtTarget = useCallback((
+    category: CharCategory,
+    fromIndex: number,
+    status: CharStatus,
+    toIndex?: number,
+  ) => {
+    setChars((prev) => {
+      const list = prev[category];
+      if (fromIndex < 0 || fromIndex >= list.length) return prev;
+      let nextList = list.map((c, i) => (i === fromIndex ? { ...c, status } : c));
+      if (toIndex != null && toIndex >= 0 && toIndex < nextList.length && toIndex !== fromIndex) {
+        nextList = moveNamedRole(nextList, fromIndex, toIndex);
+      } else {
+        nextList = applyCharStatusAutoPlace(nextList, fromIndex, status);
+      }
+      return { ...prev, [category]: nextList };
+    });
   }, [setChars]);
 
   const cycleStatus = useCallback((category: CharCategory, index: number) => {
@@ -164,7 +175,6 @@ const ScriptStatusSection: React.FC<ScriptStatusSectionProps> = ({
   }, [setChars]);
 
   const finishGesture = useCallback(() => {
-    clearHold();
     const g = gestureRef.current;
     if (g.phase === 'pending' && g.kind === 'role' && g.cat != null && g.index >= 0) {
       cycleStatus(g.cat, g.index);
@@ -172,12 +182,13 @@ const ScriptStatusSection: React.FC<ScriptStatusSectionProps> = ({
       const hover = g.hover;
       const cat = g.cat;
       const fromIndex = g.index;
-      if (hover.kind === 'status') assignStatus(cat, fromIndex, hover.status);
-      else if (hover.kind === 'role' && hover.cat === cat) {
-        setChars((prev) => ({
-          ...prev,
-          [cat]: moveNamedRole(prev[cat], fromIndex, hover.index),
-        }));
+      if (hover.kind === 'notepad') {
+        onInsertRole?.(g.name, g.x, g.y);
+      } else if (hover.kind === 'status') {
+        assignStatusAtTarget(cat, fromIndex, hover.status, hover.index);
+      } else if (hover.kind === 'role' && hover.cat === cat) {
+        const targetStatus = normalizeCharStatus(chars[cat]?.[hover.index]?.status);
+        assignStatusAtTarget(cat, fromIndex, targetStatus, hover.index);
       }
     } else if (g.phase === 'drag' && g.kind === 'category' && g.cat && g.hover?.kind === 'category') {
       const from = order.indexOf(g.cat);
@@ -185,17 +196,7 @@ const ScriptStatusSection: React.FC<ScriptStatusSectionProps> = ({
       if (from >= 0 && to >= 0) setCategoryOrder(reorderList(order, from, to));
     }
     setGestureBoth(IDLE);
-  }, [assignStatus, order, cycleStatus, setCategoryOrder, setChars]);
-
-  const startHoldTimer = (name: string) => {
-    clearHold();
-    holdTimerRef.current = window.setTimeout(() => {
-      const g = gestureRef.current;
-      if (g.phase !== 'pending' || g.kind !== 'role') return;
-      onInsertRole?.(name);
-      setGestureBoth({ ...g, phase: 'inserted' });
-    }, HOLD_MS);
-  };
+  }, [assignStatusAtTarget, chars, order, cycleStatus, setCategoryOrder, onInsertRole]);
 
   const onRolePointerDown = (
     e: React.PointerEvent,
@@ -221,36 +222,14 @@ const ScriptStatusSection: React.FC<ScriptStatusSectionProps> = ({
       hover: null,
     };
     setGestureBoth(next);
-    startHoldTimer(name);
-  };
-
-  const onCategoryPointerDown = (e: React.PointerEvent, cat: CharCategory) => {
-    if (e.button !== 0) return;
-    e.currentTarget.setPointerCapture(e.pointerId);
-    setGestureBoth({
-      phase: 'pending',
-      kind: 'category',
-      pointerId: e.pointerId,
-      startX: e.clientX,
-      startY: e.clientY,
-      x: e.clientX,
-      y: e.clientY,
-      cat,
-      index: -1,
-      name: cat,
-      status: null,
-      hover: null,
-    });
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
     const g = gestureRef.current;
     if (g.phase === 'idle' || g.pointerId !== e.pointerId) return;
-    if (g.phase === 'inserted') return;
     const dx = e.clientX - g.startX;
     const dy = e.clientY - g.startY;
     if (g.phase === 'pending' && (dx * dx + dy * dy) < MOVE_PX * MOVE_PX) return;
-    clearHold();
     const dragging: Gesture = { ...g, phase: 'drag', x: e.clientX, y: e.clientY, hover: null };
     dragging.hover = resolveHover(dragging, readDrop(e.clientX, e.clientY));
     setGestureBoth(dragging);
@@ -260,31 +239,30 @@ const ScriptStatusSection: React.FC<ScriptStatusSectionProps> = ({
     const g = gestureRef.current;
     if (g.pointerId !== e.pointerId && g.phase !== 'idle') return;
     if (g.phase === 'idle') return;
+    if (g.phase === 'drag') {
+      const next: Gesture = {
+        ...g,
+        x: e.clientX,
+        y: e.clientY,
+        hover: resolveHover({ ...g, x: e.clientX, y: e.clientY }, readDrop(e.clientX, e.clientY)),
+      };
+      setGestureBoth(next);
+    }
     finishGesture();
   };
 
   const abortGesture = (e: React.PointerEvent) => {
     const g = gestureRef.current;
     if (g.pointerId !== e.pointerId && g.phase !== 'idle') return;
-    clearHold();
     setGestureBoth(IDLE);
-  };
-
-  const toggleAll = () => setVisible(allOn ? NONE_VISIBLE : ALL_VISIBLE);
-  const toggleStatusFilter = (opt: CharStatus) => {
-    setVisible((prev) => ({ ...prev, [opt]: !prev[opt] }));
   };
 
   const isHoverStatus = (s: CharStatus) =>
     gesture.phase === 'drag' && gesture.hover?.kind === 'status' && gesture.hover.status === s;
   const isHoverRole = (cat: CharCategory, index: number) =>
     gesture.phase === 'drag' && gesture.hover?.kind === 'role' && gesture.hover.cat === cat && gesture.hover.index === index;
-  const isHoverCat = (cat: CharCategory) =>
-    gesture.phase === 'drag' && gesture.hover?.kind === 'category' && gesture.hover.cat === cat;
   const isSourceRole = (cat: CharCategory, index: number) =>
     gesture.kind === 'role' && gesture.cat === cat && gesture.index === index && gesture.phase !== 'idle';
-  const isSourceCat = (cat: CharCategory) =>
-    gesture.kind === 'category' && gesture.cat === cat && gesture.phase !== 'idle';
 
   return (
     <div className="bg-[var(--panel-color)] rounded-xl border border-[var(--border-color)] shadow-sm overflow-hidden transition-colors duration-500 select-none">
@@ -299,33 +277,18 @@ const ScriptStatusSection: React.FC<ScriptStatusSectionProps> = ({
         </button>
         {!collapsed && (
           <div className="flex flex-wrap gap-1 ml-auto">
-            <button
-              type="button"
-              onClick={toggleAll}
-              className={`h-5 px-1.5 rounded text-[7px] font-black uppercase tracking-wider transition-colors ${
-                allOn
-                  ? 'bg-[var(--accent-color)] text-white'
-                  : 'bg-black/5 text-[var(--muted-color)] hover:bg-black/10'
-              }`}
-            >
-              ALL
-            </button>
-            {STATUS_OPTIONS.map((opt) => (
+            {tabCategories.map((cat) => (
               <button
-                key={opt}
+                key={cat}
                 type="button"
-                data-script-drop="status"
-                data-status={opt}
-                onClick={() => toggleStatusFilter(opt)}
+                onClick={() => setActiveCategory(cat)}
                 className={`h-5 px-1.5 rounded text-[7px] font-black uppercase tracking-wider transition-colors ${
-                  isHoverStatus(opt)
-                    ? 'ring-2 ring-[var(--accent-color)] bg-[var(--accent-color)] text-white'
-                    : visible[opt]
-                      ? 'bg-[var(--accent-color)] text-white'
-                      : 'bg-black/5 text-[var(--muted-color)] hover:bg-black/10'
+                  activeCategory === cat
+                    ? 'bg-[var(--accent-color)] text-white'
+                    : 'bg-black/5 text-[var(--muted-color)] hover:bg-black/10'
                 }`}
               >
-                {opt}
+                {cat}
               </button>
             ))}
           </div>
@@ -333,61 +296,163 @@ const ScriptStatusSection: React.FC<ScriptStatusSectionProps> = ({
       </div>
 
       {!collapsed && (
-        <div className="p-2 max-h-[40vh] overflow-y-auto">
+        <div className="p-2 max-h-[40vh] overflow-y-auto space-y-2">
           {!hasAnyNamed ? (
             <p className="text-[9px] text-[var(--muted-color)] px-1 py-2">
               No roles loaded — Full Ledger → ROLES / Insert Role List
             </p>
-          ) : visibleRoleCount === 0 ? (
-            <p className="text-[9px] text-[var(--muted-color)] px-1 py-2">No roles match this filter.</p>
           ) : (
-            namedByCategory.map((block, blockIdx) => (
-              <div
-                key={block.cat}
-                data-script-drop="category"
-                data-cat={block.cat}
-                className={`rounded ${isHoverCat(block.cat) ? 'ring-2 ring-[var(--accent-color)]/70' : ''} ${isSourceCat(block.cat) && gesture.phase === 'drag' ? 'opacity-50' : ''}`}
-              >
-                {blockIdx > 0 && <div className="my-1.5 border-t border-[var(--border-color)] opacity-60" />}
-                <button
-                  type="button"
-                  className="touch-none text-[8px] font-black uppercase tracking-widest text-[var(--muted-color)] px-1 py-0.5 mb-0.5"
-                  onPointerDown={(e) => onCategoryPointerDown(e, block.cat)}
-                  onPointerMove={onPointerMove}
-                  onPointerUp={onPointerUp}
-                  onPointerCancel={abortGesture}
-                  onContextMenu={(e) => e.preventDefault()}
-                >
-                  {block.cat}
-                </button>
-                {block.roles.length > 0 && (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1">
-                    {block.roles.map((role) => (
-                      <button
-                        key={`${block.cat}-${role.index}`}
-                        type="button"
-                        data-script-drop="role"
-                        data-cat={block.cat}
-                        data-index={role.index}
-                        onPointerDown={(e) => onRolePointerDown(e, block.cat, role.index, role.name, role.status)}
-                        onPointerMove={onPointerMove}
-                        onPointerUp={onPointerUp}
-                        onPointerCancel={abortGesture}
-                        onContextMenu={(e) => e.preventDefault()}
-                        className={`touch-none text-left px-1.5 py-1 rounded text-[10px] font-bold leading-tight truncate transition-colors ${charStatusCellClass(role.status)} ${
-                          isHoverRole(block.cat, role.index) ? 'ring-2 ring-[var(--accent-color)]' : ''
-                        } ${isSourceRole(block.cat, role.index) && gesture.phase === 'drag' ? 'opacity-40' : ''} ${
-                          gesture.phase === 'inserted' && isSourceRole(block.cat, role.index) ? 'ring-1 ring-[var(--accent-color)]' : ''
-                        }`}
-                        title={`${role.name} (${role.status}) · hold to insert · drag to reorder or assign`}
-                      >
-                        {role.name}
-                      </button>
-                    ))}
-                  </div>
-                )}
+            <>
+              <div className="space-y-2">
+                <div className="rounded-lg border border-[var(--border-color)] p-1">
+                  <button
+                    type="button"
+                    data-script-drop="status"
+                    data-status="CONF"
+                    data-index={confRoles[confRoles.length - 1]?.index}
+                    onClick={() => setConfCollapsed((v) => !v)}
+                    className={`touch-none w-full text-left text-[8px] font-black uppercase tracking-widest px-1 py-0.5 mb-1 rounded flex items-center gap-1 ${
+                      isHoverStatus('CONF')
+                        ? 'ring-2 ring-[var(--accent-color)] bg-[var(--accent-color)] text-white'
+                        : 'text-[var(--muted-color)]'
+                    }`}
+                  >
+                    CONFIRM
+                    {confCollapsed ? <ChevronDown size={12} /> : <ChevronUp size={12} />}
+                  </button>
+
+                  {!confCollapsed && (
+                    <div
+                      data-script-drop="status"
+                      data-status="CONF"
+                      data-index={confRoles[confRoles.length - 1]?.index}
+                      className={`grid gap-1 min-h-8 rounded ${isHoverStatus('CONF') ? 'ring-2 ring-[var(--accent-color)]' : ''} ${
+                        notCollapsed ? 'grid-cols-4' : 'grid-cols-3'
+                      }`}
+                    >
+                      {confRoles.map((role) => (
+                        <button
+                          key={`CONF-${role.index}`}
+                          type="button"
+                          data-script-drop="role"
+                          data-cat={activeCategory}
+                          data-index={role.index}
+                          onPointerDown={(e) => onRolePointerDown(e, activeCategory, role.index, role.name, role.status)}
+                          onPointerMove={onPointerMove}
+                          onPointerUp={onPointerUp}
+                          onPointerCancel={abortGesture}
+                          onContextMenu={(e) => e.preventDefault()}
+                          className={`touch-none text-left px-1.5 py-1 rounded text-[10px] font-bold leading-tight truncate transition-colors ${charStatusCellClass(role.status)} ${
+                            isHoverRole(activeCategory, role.index) ? 'ring-2 ring-[var(--accent-color)]' : ''
+                          } ${isSourceRole(activeCategory, role.index) && gesture.phase === 'drag' ? 'opacity-40' : ''}`}
+                          title={`${role.name} (${role.status}) · tap to cycle · drag to reorder/assign or drop onto Notepad to insert`}
+                        >
+                          {role.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    data-script-drop="status"
+                    data-status="POSS"
+                    data-index={possRoles[possRoles.length - 1]?.index}
+                    onClick={() => setPossCollapsed((v) => !v)}
+                    className={`touch-none w-full text-left text-[8px] font-black uppercase tracking-widest px-1 py-0.5 rounded flex items-center gap-1 ${
+                      isHoverStatus('POSS')
+                        ? 'ring-2 ring-[var(--accent-color)] bg-[var(--accent-color)] text-white'
+                        : 'text-[var(--muted-color)]'
+                    }`}
+                  >
+                    POSSIBLE
+                    {possCollapsed ? <ChevronDown size={12} /> : <ChevronUp size={12} />}
+                  </button>
+
+                  {!possCollapsed && (
+                    <div
+                      data-script-drop="status"
+                      data-status="POSS"
+                      data-index={possRoles[possRoles.length - 1]?.index}
+                      className={`grid gap-1 min-h-8 rounded ${isHoverStatus('POSS') ? 'ring-2 ring-[var(--accent-color)]' : ''} ${
+                        notCollapsed ? 'grid-cols-4' : 'grid-cols-3'
+                      }`}
+                    >
+                      {possRoles.map((role) => (
+                        <button
+                          key={`POSS-${role.index}`}
+                          type="button"
+                          data-script-drop="role"
+                          data-cat={activeCategory}
+                          data-index={role.index}
+                          onPointerDown={(e) => onRolePointerDown(e, activeCategory, role.index, role.name, role.status)}
+                          onPointerMove={onPointerMove}
+                          onPointerUp={onPointerUp}
+                          onPointerCancel={abortGesture}
+                          onContextMenu={(e) => e.preventDefault()}
+                          className={`touch-none text-left px-1.5 py-1 rounded text-[10px] font-bold leading-tight truncate transition-colors ${charStatusCellClass(role.status)} ${
+                            isHoverRole(activeCategory, role.index) ? 'ring-2 ring-[var(--accent-color)]' : ''
+                          } ${isSourceRole(activeCategory, role.index) && gesture.phase === 'drag' ? 'opacity-40' : ''}`}
+                          title={`${role.name} (${role.status}) · tap to cycle · drag to reorder/assign or drop onto Notepad to insert`}
+                        >
+                          {role.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="rounded-lg border border-[var(--border-color)] p-1">
+                  <button
+                    type="button"
+                    data-script-drop="status"
+                    data-status="NOT"
+                    data-index={notRoles[notRoles.length - 1]?.index}
+                    onClick={() => setNotCollapsed((v) => !v)}
+                    className={`touch-none w-full text-left text-[8px] font-black uppercase tracking-widest px-1 py-0.5 mb-1 rounded flex items-center gap-1 ${
+                      isHoverStatus('NOT')
+                        ? 'ring-2 ring-[var(--accent-color)] bg-[var(--accent-color)] text-white'
+                        : 'text-[var(--muted-color)]'
+                    }`}
+                  >
+                    IMPOSSIBLE
+                    {notCollapsed ? <ChevronDown size={12} /> : <ChevronUp size={12} />}
+                  </button>
+
+                  {!notCollapsed && (
+                    <div
+                      data-script-drop="status"
+                      data-status="NOT"
+                      data-index={notRoles[notRoles.length - 1]?.index}
+                      className={`grid gap-1 grid-cols-3 min-h-8 rounded ${
+                        isHoverStatus('NOT') ? 'ring-2 ring-[var(--accent-color)]' : ''
+                      }`}
+                    >
+                      {notRoles.map((role) => (
+                        <button
+                          key={`NOT-${role.index}`}
+                          type="button"
+                          data-script-drop="role"
+                          data-cat={activeCategory}
+                          data-index={role.index}
+                          onPointerDown={(e) => onRolePointerDown(e, activeCategory, role.index, role.name, role.status)}
+                          onPointerMove={onPointerMove}
+                          onPointerUp={onPointerUp}
+                          onPointerCancel={abortGesture}
+                          onContextMenu={(e) => e.preventDefault()}
+                          className={`touch-none text-left px-1.5 py-1 rounded text-[10px] font-bold leading-tight truncate transition-colors ${charStatusCellClass(role.status)} ${
+                            isHoverRole(activeCategory, role.index) ? 'ring-2 ring-[var(--accent-color)]' : ''
+                          } ${isSourceRole(activeCategory, role.index) && gesture.phase === 'drag' ? 'opacity-40' : ''}`}
+                          title={`${role.name} (${role.status}) · tap to cycle · drag to reorder/assign or drop onto Notepad to insert`}
+                        >
+                          {role.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-            ))
+            </>
           )}
         </div>
       )}
