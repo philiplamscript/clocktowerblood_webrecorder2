@@ -1,7 +1,7 @@
 "use client";
 
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 'react';
-import { Key, FilePlus2 } from 'lucide-react';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
+import { FilePlus2, RotateCcw, Tag } from 'lucide-react';
 import { type NotepadTemplate } from '../../type';
 import KeywordPopup from '../popitems/popups/KeywordPopup';
 
@@ -9,6 +9,7 @@ interface NoteSectionProps {
   currentPlayer: any;
   playerNo: number;
   updatePlayerInfo: (no: number, text: string) => void;
+  updatePlayerProperty: (no: number, text: string) => void;
   showKeywords: boolean;
   setShowKeywords: (v: boolean) => void;
   showTemplates: boolean;
@@ -17,6 +18,12 @@ interface NoteSectionProps {
   categoryBg: Record<string, string>;
   notepadTemplates: NotepadTemplate[];
   insertTemplate: (content: string) => void;
+  isDead: boolean;
+  togglePlayerAlive: (no: number) => void;
+  death: { day?: number; reason?: string } | undefined;
+  currentDay: number;
+  updateDeathDay: (no: number, day: number) => void;
+  cycleDeathReason: () => void;
 }
 
 export type NoteSectionHandle = {
@@ -25,12 +32,18 @@ export type NoteSectionHandle = {
 };
 
 const NoteSection = forwardRef<NoteSectionHandle, NoteSectionProps>(({
-  currentPlayer, playerNo, updatePlayerInfo, showKeywords, setShowKeywords,
-  showTemplates, setShowTemplates, allRoles, categoryBg, notepadTemplates, insertTemplate
+  currentPlayer, playerNo, updatePlayerInfo, updatePlayerProperty, showKeywords, setShowKeywords,
+  showTemplates, setShowTemplates, allRoles, categoryBg, notepadTemplates, insertTemplate,
+  isDead, togglePlayerAlive, death, currentDay, updateDeathDay, cycleDeathReason
 }, ref) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const caretRef = useRef({ start: 0, end: 0 });
   const inf = currentPlayer?.inf || '';
+  const property = currentPlayer?.property || '';
+  const deathDayOptions = useMemo(
+    () => Array.from({ length: Math.max(currentDay, 1) }, (_, i) => i + 1),
+    [currentDay]
+  );
 
   const saveCaret = (el: HTMLTextAreaElement) => {
     caretRef.current = { start: el.selectionStart ?? 0, end: el.selectionEnd ?? 0 };
@@ -124,7 +137,55 @@ const NoteSection = forwardRef<NoteSectionHandle, NoteSectionProps>(({
         )}
       </div>
         
-      <div className="flex gap-2 items-start">
+      <div className="flex gap-2 items-stretch">
+        <div className="w-12 shrink-0 min-h-[120px] flex flex-col gap-2">
+          {isDead ? (
+            <div className="flex-1 flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => togglePlayerAlive(playerNo)}
+                className="flex-1 rounded-xl bg-red-600 text-white shadow-sm transition-all hover:bg-red-700 active:scale-95 flex flex-col items-center justify-center text-[8px] font-black uppercase leading-tight"
+                title="Revert this player to alive"
+              >
+                <RotateCcw size={14} />
+                <span>Revert</span>
+              </button>
+              <div
+                className="flex-1 rounded-xl bg-[var(--panel-color)] border border-[var(--border-color)] shadow-sm flex items-center justify-center px-1"
+                title="Day of death"
+              >
+                <select
+                  value={death?.day || currentDay}
+                  onChange={(e) => updateDeathDay(playerNo, parseInt(e.target.value, 10) || currentDay)}
+                  className="w-full bg-transparent text-center text-[9px] font-black text-[var(--text-on-panel)] outline-none appearance-none"
+                >
+                  {deathDayOptions.map((day) => (
+                    <option key={day} value={day}>
+                      D{day}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <button
+                type="button"
+                onClick={cycleDeathReason}
+                className="flex-1 rounded-xl bg-[var(--panel-color)] border border-[var(--border-color)] text-[var(--text-on-panel)] shadow-sm transition-colors hover:bg-black/5 flex items-center justify-center text-sm font-black"
+                title="Cycle death mark"
+              >
+                {death?.reason || '⚔️'}
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => togglePlayerAlive(playerNo)}
+              className="flex-1 rounded-xl bg-red-600 text-white shadow-sm transition-all hover:bg-red-700 active:scale-95 flex flex-col items-center justify-center px-1 text-[8px] font-black uppercase leading-tight"
+              title="Execute this player"
+            >
+              <span>Execute</span>
+            </button>
+          )}
+        </div>
         <div
           className="flex-1 relative rounded-lg border border-[var(--border-color)] bg-[var(--panel-color)] overflow-hidden shadow-sm min-h-[120px] transition-colors duration-500"
           data-script-drop="notepad"
@@ -146,22 +207,27 @@ const NoteSection = forwardRef<NoteSectionHandle, NoteSectionProps>(({
             onBlur={(e) => saveCaret(e.currentTarget)}
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <button 
-            onClick={() => { setShowKeywords(!showKeywords); setShowTemplates(false); }} 
-            className={`p-2.5 rounded-xl shadow-sm transition-all active:scale-90 ${showKeywords ? 'bg-[var(--accent-color)] text-white' : 'bg-[var(--panel-color)] border border-[var(--border-color)] text-[var(--muted-color)] hover:text-[var(--accent-color)]'}`}
-            title="Insert Role Keyword"
-            
-          >
-            <Key size={16} />
-          </button>
+        <div className="w-12 shrink-0 min-h-[120px] flex flex-col gap-2">
           <button 
             onClick={() => { setShowTemplates(!showTemplates); setShowKeywords(false); }} 
-            className={`p-2.5 rounded-xl shadow-sm transition-all active:scale-90 ${showTemplates ? 'bg-emerald-600 text-white shadow-emerald-200' : 'bg-[var(--panel-color)] border border-[var(--border-color)] text-[var(--muted-color)] hover:text-emerald-600'}`}
+            className={`h-10 w-full rounded-xl shadow-sm transition-all active:scale-90 flex items-center justify-center ${showTemplates ? 'bg-emerald-600 text-white shadow-emerald-200' : 'bg-[var(--panel-color)] border border-[var(--border-color)] text-[var(--muted-color)] hover:text-emerald-600'}`}
             title="Insert Template"
           >
             <FilePlus2 size={16} />
           </button>
+          <label
+            className="flex-1 rounded-xl bg-[var(--panel-color)] border border-[var(--border-color)] shadow-sm px-1.5 py-1.5 flex flex-col items-center justify-center gap-1"
+            title="Props"
+          >
+            <Tag size={12} className="text-[var(--muted-color)] shrink-0" />
+            <input
+              type="text"
+              value={property}
+              onChange={(e) => updatePlayerProperty(playerNo, e.target.value)}
+              placeholder="Props"
+              className="w-full min-w-0 bg-transparent border-none p-0 text-center text-[9px] font-bold focus:ring-0 outline-none text-[var(--text-on-panel)] placeholder:text-[var(--muted-color)]"
+            />
+          </label>
         </div>
       </div>
     </div>

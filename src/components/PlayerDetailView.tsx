@@ -9,7 +9,6 @@ import DetailHeader from './player-detail/DetailHeader';
 import AssignmentControls from './player-detail/AssignmentControls';
 import NoteSection, { type NoteSectionHandle } from './player-detail/NoteSection';
 import ScriptStatusSection from './player-detail/ScriptStatusSection';
-import StatusSection from './player-detail/StatusSection';
 
 interface PlayerDetailViewProps {
   playerNo: number;
@@ -197,17 +196,16 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
       <NoteSection 
         ref={noteRef}
         currentPlayer={currentPlayer} playerNo={props.playerNo} updatePlayerInfo={props.updatePlayerInfo}
+        updatePlayerProperty={props.updatePlayerProperty}
         showKeywords={showKeywords} setShowKeywords={setShowKeywords} showTemplates={showTemplates} setShowTemplates={setShowTemplates}
         allRoles={allRoles} categoryBg={{ Townsfolk: 'bg-blue-100', Outsider: 'bg-blue-50', Minion: 'bg-orange-50', Demon: 'bg-red-100' }}
         notepadTemplates={props.notepadTemplates ?? []} insertTemplate={insertTemplate}
-      />
-
-      <StatusSection 
-        isDead={props.deadPlayers.includes(props.playerNo)} togglePlayerAlive={props.togglePlayerAlive}
-        playerNo={props.playerNo} death={death} currentDay={props.currentDay}
+        isDead={props.deadPlayers.includes(props.playerNo)}
+        togglePlayerAlive={props.togglePlayerAlive}
+        death={death}
+        currentDay={props.currentDay}
         updateDeathDay={updateDeathDay}
         cycleDeathReason={cycleDeathReason}
-        currentPlayer={currentPlayer} updatePlayerProperty={props.updatePlayerProperty}
       />
 
       <ScriptStatusSection
