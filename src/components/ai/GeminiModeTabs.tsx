@@ -6,9 +6,11 @@ type GeminiMode = 'api' | 'copy';
 interface GeminiModeTabsProps {
   apiPanel: ReactNode;
   copyPanel: ReactNode;
+  /** Rendered between mode tabs and the active panel (e.g. shared style controls). */
+  middle?: ReactNode;
 }
 
-const GeminiModeTabs: React.FC<GeminiModeTabsProps> = ({ apiPanel, copyPanel }) => {
+const GeminiModeTabs: React.FC<GeminiModeTabsProps> = ({ apiPanel, copyPanel, middle }) => {
   const [mode, setMode] = useState<GeminiMode>('api');
 
   return (
@@ -21,7 +23,7 @@ const GeminiModeTabs: React.FC<GeminiModeTabsProps> = ({ apiPanel, copyPanel }) 
             mode === 'api' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-50'
           }`}
         >
-          <Sparkles size={12} /> Gemini API
+          <Sparkles size={12} /> LLM
         </button>
         <button
           type="button"
@@ -30,9 +32,10 @@ const GeminiModeTabs: React.FC<GeminiModeTabsProps> = ({ apiPanel, copyPanel }) 
             mode === 'copy' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-50'
           }`}
         >
-          <Copy size={12} /> Copy prompt
+          <Copy size={12} /> Copy
         </button>
       </div>
+      {middle}
       {mode === 'api' ? apiPanel : copyPanel}
     </div>
   );

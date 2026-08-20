@@ -14,7 +14,7 @@ interface RoleUpdatePopupProps {
   setShowRoleUpdate: (show: boolean) => void;
   roleUpdateText: string;
   setRoleUpdateText: (text: string) => void;
-  parseRoleUpdate: () => void;
+  parseRoleUpdate: (overrideText?: string) => void;
 }
 
 const RoleUpdatePopup: React.FC<RoleUpdatePopupProps> = ({
@@ -53,7 +53,7 @@ const RoleUpdatePopup: React.FC<RoleUpdatePopupProps> = ({
               <Sparkles size={12} /> Fast Load with AI
             </h4>
             <p className="text-[9px] text-blue-600 leading-relaxed italic">
-              Generate with your Gemini key, or copy a prompt for ChatGPT/Claude. Paste the result below.
+              Generate with your Gemini key to apply roles immediately, or copy a prompt and paste the result below.
             </p>
             <GeminiModeTabs
               apiPanel={
@@ -70,7 +70,7 @@ const RoleUpdatePopup: React.FC<RoleUpdatePopupProps> = ({
                         images,
                       });
                       setRoleUpdateText(result);
-                      toast.success('Roles drafted. Edit below, then Update.');
+                      parseRoleUpdate(result);
                     } catch (err) {
                       toast.error(err instanceof Error ? err.message : 'Gemini request failed.');
                     }

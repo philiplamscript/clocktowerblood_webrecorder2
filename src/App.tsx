@@ -64,8 +64,8 @@ export default function App() {
     }
   };
 
-  const parseRoleUpdate = () => {
-    state.setChars(parseRoleScript(roleUpdateText));
+  const parseRoleUpdate = (overrideText?: string) => {
+    state.setChars(parseRoleScript(overrideText ?? roleUpdateText));
     setShowRoleUpdate(false);
     setRoleUpdateText('');
     toast.success('Roles script updated');

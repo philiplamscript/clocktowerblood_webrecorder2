@@ -27,7 +27,6 @@ const PlayerRosterPopup: React.FC<PlayerRosterPopupProps> = ({
   mePlayerNo, setMePlayerNo
 }) => {
   const [movingIdx, setMovingIdx] = useState<number | null>(null);
-  const [namePreview, setNamePreview] = useState<string[] | null>(null);
   const [copiedNames, setCopiedNames] = useState(false);
   const { hasKey } = useGeminiSettings();
 
@@ -54,101 +53,6 @@ const PlayerRosterPopup: React.FC<PlayerRosterPopupProps> = ({
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
-          <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-3 space-y-2">
-            <h4 className="text-[10px] font-black text-indigo-800 uppercase flex items-center gap-2">
-              <Sparkles size={12} /> Fill names with AI
-            </h4>
-            <p className="text-[9px] text-indigo-600 leading-relaxed italic">
-              Generate with Gemini, or copy a prompt for another chatbot. Preview, then apply to seats.
-            </p>
-            <GeminiModeTabs
-              apiPanel={
-                <GeminiInput
-                  hasKey={hasKey}
-                  placeholder="Alice, Bob, Carol… or seating notes"
-                  generateLabel="Generate names"
-                  onGenerate={async ({ text, images }) => {
-                    try {
-                      const result = await generateGemini({
-                        apiKey: readGeminiApiKey(),
-                        model: readGeminiModelId(),
-                        prompt: buildPlayerNamesPrompt(players.length, text),
-                        images,
-                        json: true,
-                      });
-                      const names = parsePlayerNames(result, players.length);
-                      if (!names.some(n => n.trim())) {
-                        toast.error('No names found. Try a clearer photo or typed list.');
-                        return;
-                      }
-                      setNamePreview(names);
-                      toast.success('Name draft ready. Apply below.');
-                    } catch (err) {
-                      toast.error(err instanceof Error ? err.message : 'Gemini request failed.');
-                    }
-                  }}
-                />
-              }
-              copyPanel={
-                <div className="space-y-2">
-                  <ol className="text-[9px] text-indigo-700 leading-relaxed list-decimal pl-4 space-y-1">
-                    <li>Type the seating list or attach a seating-chart / name-tag photo in the chatbot.</li>
-                    <li>Copy the prompt below (it asks for JSON names for {players.length} seats).</li>
-                    <li>Paste both into ChatGPT, Claude, or Gemini chat.</li>
-                    <li>Paste the JSON reply into Generate notes next time, or type names into the table.</li>
-                  </ol>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      navigator.clipboard.writeText(buildPlayerNamesPrompt(players.length, ''));
-                      setCopiedNames(true);
-                      toast.success('Name prompt copied.');
-                      setTimeout(() => setCopiedNames(false), 2000);
-                    }}
-                    className="w-full flex items-center justify-center gap-2 bg-white border border-indigo-200 hover:border-indigo-400 text-indigo-700 py-2 rounded-lg text-[10px] font-black uppercase"
-                  >
-                    {copiedNames ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
-                    {copiedNames ? 'Prompt Copied!' : 'Copy name prompt'}
-                  </button>
-                </div>
-              }
-            />
-            {namePreview && (
-              <div className="bg-white border border-indigo-100 rounded-xl p-3 space-y-2">
-                <p className="text-[9px] font-black uppercase text-indigo-500">Preview</p>
-                <ol className="text-[10px] font-mono text-slate-700 space-y-0.5 max-h-32 overflow-y-auto">
-                  {namePreview.map((name, i) => (
-                    <li key={i} className={name ? '' : 'text-slate-300'}>
-                      {i + 1}. {name || '—'}
-                    </li>
-                  ))}
-                </ol>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      namePreview.forEach((name, i) => {
-                        if (name.trim()) updatePlayerName(i + 1, name.trim());
-                      });
-                      setNamePreview(null);
-                      toast.success('Player names applied.');
-                    }}
-                    className="flex-1 py-2 rounded-lg bg-indigo-600 text-white text-[9px] font-black uppercase flex items-center justify-center gap-1.5"
-                  >
-                    <Check size={12} /> Apply Names
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setNamePreview(null)}
-                    className="px-3 py-2 rounded-lg bg-slate-100 text-slate-500 text-[9px] font-black uppercase"
-                  >
-                    Dismiss
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
           <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-2">
             <p className="text-[9px] text-blue-600 font-bold uppercase tracking-wider text-center">
               {movingIdx === null 
@@ -239,6 +143,69 @@ const PlayerRosterPopup: React.FC<PlayerRosterPopupProps> = ({
           >
             <UserPlus size={14} /> Add New Player Slot
           </button>
+
+          <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-3 space-y-2">
+            <h4 className="text-[10px] font-black text-indigo-800 uppercase flex items-center gap-2">
+              <Sparkles size={12} /> Fill names with AI
+            </h4>
+            <p className="text-[9px] text-indigo-600 leading-relaxed italic">
+              Generate with Gemini to fill seats immediately, or copy a prompt for another chatbot.
+            </p>
+            <GeminiModeTabs
+              apiPanel={
+                <GeminiInput
+                  hasKey={hasKey}
+                  placeholder="Alice, Bob, Carol… or seating notes"
+                  generateLabel="Generate names"
+                  onGenerate={async ({ text, images }) => {
+                    try {
+                      const result = await generateGemini({
+                        apiKey: readGeminiApiKey(),
+                        model: readGeminiModelId(),
+                        prompt: buildPlayerNamesPrompt(players.length, text),
+                        images,
+                        json: true,
+                      });
+                      const names = parsePlayerNames(result, players.length);
+                      if (!names.some(n => n.trim())) {
+                        toast.error('No names found. Try a clearer photo or typed list.');
+                        return;
+                      }
+                      names.forEach((name, i) => {
+                        if (name.trim()) updatePlayerName(i + 1, name.trim());
+                      });
+                      toast.success('Player names applied.');
+                    } catch (err) {
+                      toast.error(err instanceof Error ? err.message : 'Gemini request failed.');
+                    }
+                  }}
+                />
+              }
+              copyPanel={
+                <div className="space-y-2">
+                  <ol className="text-[9px] text-indigo-700 leading-relaxed list-decimal pl-4 space-y-1">
+                    <li>Type the seating list or attach a seating-chart / name-tag photo in the chatbot.</li>
+                    <li>Copy the prompt below (it asks for JSON names for {players.length} seats).</li>
+                    <li>Paste both into ChatGPT, Claude, or Gemini chat.</li>
+                    <li>Paste the JSON reply into Generate notes next time, or type names into the table.</li>
+                  </ol>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(buildPlayerNamesPrompt(players.length, ''));
+                      setCopiedNames(true);
+                      toast.success('Name prompt copied.');
+                      setTimeout(() => setCopiedNames(false), 2000);
+                    }}
+                    className="w-full flex items-center justify-center gap-2 bg-white border border-indigo-200 hover:border-indigo-400 text-indigo-700 py-2 rounded-lg text-[10px] font-black uppercase"
+                  >
+                    {copiedNames ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                    {copiedNames ? 'Prompt Copied!' : 'Copy name prompt'}
+                  </button>
+                </div>
+              }
+            />
+          </div>
         </main>
         
         <footer className="bg-white border-t border-slate-100 p-4 flex justify-between items-center gap-3">

@@ -101,10 +101,10 @@ const GeminiInput: React.FC<GeminiInputProps> = ({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="rounded-xl border border-slate-200 bg-white focus-within:ring-2 focus-within:ring-indigo-500/20 overflow-hidden">
       {showTextarea && (
         <textarea
-          className="w-full min-h-[72px] bg-white border border-slate-200 rounded-xl p-3 text-[10px] outline-none focus:ring-2 focus:ring-indigo-500/20 resize-none"
+          className="w-full min-h-[72px] bg-transparent p-3 text-[10px] outline-none resize-none border-0"
           placeholder={placeholder}
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -112,7 +112,7 @@ const GeminiInput: React.FC<GeminiInputProps> = ({
       )}
 
       {images.length > 0 && (
-        <div className="flex gap-2 flex-wrap">
+        <div className={`flex gap-2 flex-wrap px-3 ${showTextarea ? 'pb-2' : 'pt-3'}`}>
           {images.map(img => (
             <div key={img.id} className="relative w-14 h-14 rounded-lg overflow-hidden border border-slate-200">
               <img src={img.previewUrl} alt="" className="w-full h-full object-cover" />
@@ -128,54 +128,60 @@ const GeminiInput: React.FC<GeminiInputProps> = ({
         </div>
       )}
 
-      <div className="flex gap-2">
-        <input
-          ref={uploadRef}
-          type="file"
-          accept="image/*"
-          multiple
-          className="hidden"
-          onChange={(e) => {
-            if (e.target.files) addImages(e.target.files);
-            e.target.value = '';
-          }}
-        />
-        <input
-          ref={captureRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          className="hidden"
-          onChange={(e) => {
-            if (e.target.files) addImages(e.target.files);
-            e.target.value = '';
-          }}
-        />
+      <div className={`flex items-center justify-between gap-2 px-2 py-1.5 ${showTextarea || images.length > 0 ? 'border-t border-slate-100' : ''}`}>
+        <div className="flex items-center gap-0.5">
+          <input
+            ref={uploadRef}
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={(e) => {
+              if (e.target.files) addImages(e.target.files);
+              e.target.value = '';
+            }}
+          />
+          <input
+            ref={captureRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={(e) => {
+              if (e.target.files) addImages(e.target.files);
+              e.target.value = '';
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => uploadRef.current?.click()}
+            title="Upload"
+            className="p-2 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 flex items-center gap-1 text-[9px] font-black uppercase"
+          >
+            <ImagePlus size={14} />
+            <span className="hidden sm:inline">Upload</span>
+          </button>
+          <button
+            type="button"
+            onClick={openCamera}
+            title="Capture"
+            className="p-2 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 flex items-center gap-1 text-[9px] font-black uppercase"
+          >
+            <Camera size={14} />
+            <span className="hidden sm:inline">Capture</span>
+          </button>
+        </div>
+
         <button
           type="button"
-          onClick={() => uploadRef.current?.click()}
-          className="flex-1 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-[9px] font-black uppercase flex items-center justify-center gap-1.5 hover:border-indigo-300"
+          onClick={handleGenerate}
+          disabled={busy}
+          className="shrink-0 px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-black uppercase flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-60"
         >
-          <ImagePlus size={12} /> Upload
-        </button>
-        <button
-          type="button"
-          onClick={openCamera}
-          className="flex-1 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-[9px] font-black uppercase flex items-center justify-center gap-1.5 hover:border-indigo-300"
-        >
-          <Camera size={12} /> Capture
+          {busy ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+          {busy ? 'Generating…' : generateLabel}
         </button>
       </div>
-
-      <button
-        type="button"
-        onClick={handleGenerate}
-        disabled={busy}
-        className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase flex items-center justify-center gap-2 shadow-sm disabled:opacity-60"
-      >
-        {busy ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-        {busy ? 'Generating…' : generateLabel}
-      </button>
 
       {showCamera && (
         <CameraCapture
