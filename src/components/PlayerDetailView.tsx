@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 
-import { REASON_CYCLE, type NotepadTemplate, type PropTemplate, type IdentityMode, type ClockDayDirection, type ReviewRole, type RoleDetectMap, type CharCategory, normalizeDetectStatus } from '../type';
+import { REASON_CYCLE, type NotepadTemplate, type PropTemplate, type IdentityMode, type ClockDayDirection, type ReviewRole, type RoleDetectMap, type CharCategory, type RoleDist, normalizeDetectStatus } from '../type';
 import VoteHistoryClock from './popitems/VoteHistoryClock/VoteHistoryClock';
 import DetailHeader from './player-detail/DetailHeader';
 import AssignmentControls from './player-detail/AssignmentControls';
@@ -49,6 +49,7 @@ interface PlayerDetailViewProps {
   mePlayerNo?: number | null;
   scriptCategoryOrder: CharCategory[];
   setScriptCategoryOrder: (order: CharCategory[]) => void;
+  roleDist: RoleDist;
 }
 
 const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
@@ -213,7 +214,9 @@ const PlayerDetailView: React.FC<PlayerDetailViewProps> = (props) => {
         setChars={props.setChars}
         categoryOrder={props.scriptCategoryOrder}
         setCategoryOrder={props.setScriptCategoryOrder}
+        roleDist={props.roleDist}
         onInsertRole={(name, x, y) => noteRef.current?.insertAtPoint(name, x, y)}
+        onPasteRole={(name) => noteRef.current?.insertAtCaret(name)}
       />
       
       <div className="h-16" />

@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import {
-  cycleCharStatus,
   charStatusCellClass,
   normalizeCharStatus,
   normalizeScriptCategoryOrder,
@@ -13,9 +12,18 @@ import {
   type CharDict,
   type CharStatus,
   type CharCategory,
+  type RoleDist,
 } from '../../type';
 
 const MOVE_PX = 8;
+const DOUBLE_TAP_MS = 350;
+
+const DIST_KEY: Record<CharCategory, keyof RoleDist> = {
+  Townsfolk: 'townsfolk',
+  Outsider: 'outsiders',
+  Minion: 'minions',
+  Demon: 'demons',
+};
 
 type DropHover =
   | { kind: 'status'; status: CharStatus; index?: number }
@@ -102,11 +110,13 @@ interface ScriptStatusSectionProps {
   setChars: React.Dispatch<React.SetStateAction<CharDict>>;
   categoryOrder: CharCategory[];
   setCategoryOrder: (order: CharCategory[]) => void;
+  roleDist: RoleDist;
   onInsertRole?: (name: string, x: number, y: number) => void;
+  onPasteRole?: (name: string) => void;
 }
 
 const ScriptStatusSection: React.FC<ScriptStatusSectionProps> = ({
-  chars, setChars, categoryOrder, setCategoryOrder, onInsertRole,
+  chars, setChars, categoryOrder, setCategoryOrder, roleDist, onInsertRole, onPasteRole,
 }) => {
   const [collapsed, setCollapsed] = useState(false);
   const tabCategories: CharCategory[] = ['Townsfolk', 'Outsider', 'Minion', 'Demon'];
@@ -116,6 +126,7 @@ const ScriptStatusSection: React.FC<ScriptStatusSectionProps> = ({
   const [notCollapsed, setNotCollapsed] = useState(true);
   const [gesture, setGesture] = useState<Gesture>(IDLE);
   const gestureRef = useRef<Gesture>(IDLE);
+  const lastTapRef = useRef<{ cat: CharCategory; index: number; time: number } | null>(null);
 
   const setGestureBoth = (next: Gesture) => {
     gestureRef.current = next;
@@ -140,6 +151,11 @@ const ScriptStatusSection: React.FC<ScriptStatusSectionProps> = ({
   const confRoles = activeRoles.filter((r) => r.status === 'CONF');
   const possRoles = activeRoles.filter((r) => r.status === 'POSS');
   const notRoles = activeRoles.filter((r) => r.status === 'NOT');
+  const expectedCount = roleDist[DIST_KEY[activeCategory]];
+  const confCountLabel = `(${confRoles.length}/${expectedCount})`;
+  const possCountLabel = `(${possRoles.length + confRoles.length}/${expectedCount})`;
+  const roleTitle = (name: string, status: CharStatus) =>
+    `${name} (${status}) · double-click to paste · drag to reorder/assign or drop onto Notepad to insert`;
 
   // Space-saving: keep CONFIRM/IMPOSSIBLE collapsed when empty; auto-expand when items exist.
   useEffect(() => {
@@ -176,17 +192,17 @@ const ScriptStatusSection: React.FC<ScriptStatusSectionProps> = ({
     });
   }, [setChars]);
 
-  const cycleStatus = useCallback((category: CharCategory, index: number) => {
-    setChars((prev) => {
-      const next = cycleCharStatus(prev[category][index]?.status);
-      return { ...prev, [category]: applyCharStatusAutoPlace(prev[category], index, next) };
-    });
-  }, [setChars]);
-
   const finishGesture = useCallback(() => {
     const g = gestureRef.current;
     if (g.phase === 'pending' && g.kind === 'role' && g.cat != null && g.index >= 0) {
-      cycleStatus(g.cat, g.index);
+      const now = Date.now();
+      const last = lastTapRef.current;
+      if (last && last.cat === g.cat && last.index === g.index && now - last.time <= DOUBLE_TAP_MS) {
+        lastTapRef.current = null;
+        onPasteRole?.(g.name);
+      } else {
+        lastTapRef.current = { cat: g.cat, index: g.index, time: now };
+      }
     } else if (g.phase === 'drag' && g.kind === 'role' && g.cat != null && g.index >= 0 && g.hover) {
       const hover = g.hover;
       const cat = g.cat;
@@ -205,7 +221,7 @@ const ScriptStatusSection: React.FC<ScriptStatusSectionProps> = ({
       if (from >= 0 && to >= 0) setCategoryOrder(reorderList(order, from, to));
     }
     setGestureBoth(IDLE);
-  }, [assignStatusAtTarget, chars, order, cycleStatus, setCategoryOrder, onInsertRole]);
+  }, [assignStatusAtTarget, chars, order, setCategoryOrder, onInsertRole, onPasteRole]);
 
   const onRolePointerDown = (
     e: React.PointerEvent,
@@ -326,7 +342,7 @@ const ScriptStatusSection: React.FC<ScriptStatusSectionProps> = ({
                         : 'text-[var(--muted-color)]'
                     }`}
                   >
-                    CONFIRM
+                    CONFIRM {confCountLabel}
                     {confCollapsed ? <ChevronDown size={12} /> : <ChevronUp size={12} />}
                   </button>
 
@@ -354,7 +370,7 @@ const ScriptStatusSection: React.FC<ScriptStatusSectionProps> = ({
                           className={`touch-none text-left px-1.5 py-1 rounded text-[10px] font-bold leading-tight truncate transition-colors ${charStatusCellClass(role.status)} ${
                             isHoverRole(activeCategory, role.index) ? 'ring-2 ring-[var(--accent-color)]' : ''
                           } ${isSourceRole(activeCategory, role.index) && gesture.phase === 'drag' ? 'opacity-40' : ''}`}
-                          title={`${role.name} (${role.status}) · tap to cycle · drag to reorder/assign or drop onto Notepad to insert`}
+                          title={roleTitle(role.name, role.status)}
                         >
                           {role.name}
                         </button>
@@ -374,7 +390,7 @@ const ScriptStatusSection: React.FC<ScriptStatusSectionProps> = ({
                         : 'text-[var(--muted-color)]'
                     }`}
                   >
-                    POSSIBLE
+                    POSSIBLE {possCountLabel}
                     {possCollapsed ? <ChevronDown size={12} /> : <ChevronUp size={12} />}
                   </button>
 
@@ -402,7 +418,7 @@ const ScriptStatusSection: React.FC<ScriptStatusSectionProps> = ({
                           className={`touch-none text-left px-1.5 py-1 rounded text-[10px] font-bold leading-tight truncate transition-colors ${charStatusCellClass(role.status)} ${
                             isHoverRole(activeCategory, role.index) ? 'ring-2 ring-[var(--accent-color)]' : ''
                           } ${isSourceRole(activeCategory, role.index) && gesture.phase === 'drag' ? 'opacity-40' : ''}`}
-                          title={`${role.name} (${role.status}) · tap to cycle · drag to reorder/assign or drop onto Notepad to insert`}
+                          title={roleTitle(role.name, role.status)}
                         >
                           {role.name}
                         </button>
@@ -452,7 +468,7 @@ const ScriptStatusSection: React.FC<ScriptStatusSectionProps> = ({
                           className={`touch-none text-left px-1.5 py-1 rounded text-[10px] font-bold leading-tight truncate transition-colors ${charStatusCellClass(role.status)} ${
                             isHoverRole(activeCategory, role.index) ? 'ring-2 ring-[var(--accent-color)]' : ''
                           } ${isSourceRole(activeCategory, role.index) && gesture.phase === 'drag' ? 'opacity-40' : ''}`}
-                          title={`${role.name} (${role.status}) · tap to cycle · drag to reorder/assign or drop onto Notepad to insert`}
+                          title={roleTitle(role.name, role.status)}
                         >
                           {role.name}
                         </button>
