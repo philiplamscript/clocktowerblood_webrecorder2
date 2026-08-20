@@ -167,7 +167,7 @@ export interface SessionMeta {
 }
 
 // --- CONSTANTS ---
-export const app_version = "1.0.0";
+export const app_version = "1.1.0";
 
 export const INITIAL_PLAYERS = 15;
 export const REASON_CYCLE = ['⚔️', '☀️', '🌑'];
